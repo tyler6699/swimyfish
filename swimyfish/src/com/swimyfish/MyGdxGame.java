@@ -1,7 +1,5 @@
 package com.swimyfish;
 
-import java.util.HashMap;
-
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
@@ -9,26 +7,32 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
-import com.badlogic.gdx.graphics.g2d.Sprite;
+
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import java.util.Map;
+
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 
 
 public class MyGdxGame implements ApplicationListener, InputProcessor{
 	private OrthographicCamera camera;
 	private SpriteBatch batch;
+	private SpriteBatch screen;
 	private Texture texture;
-	private Sprite sprite;
+
 	
 	//private Map<Integer,TouchInfo> touches = new HashMap<Integer,TouchInfo>();
 	private TouchInfo touched;
 	private BitmapFont font;
-	private String message = "Touch something already!";
-	float w, h, x, y;
+	float w, h, x = 0, y = 0;
+	
+	float aspectRatio;
+    float scale;
+    float ww, hh;
+    float v_height;
+    float v_width;
+	
 	class TouchInfo {
 		public float touchX = 0;
 	    public float touchY = 0;
@@ -37,37 +41,32 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 	 
 	@Override
 	public void create() {		
+		Gdx.input.setInputProcessor(this);
+		camera = new OrthographicCamera();
+		scale = 2;
+		v_height = 800;
+		v_width = 1200;
+		
 		w = Gdx.graphics.getWidth();
 		h = Gdx.graphics.getHeight();
-		x=0;
-		y=0;
-		Gdx.input.setInputProcessor(this);
-	    //for(int i = 0; i < 5; i++){
-	    //	touches.put(i, new TouchInfo());
-	    //}
-		touched = new TouchInfo();
 		
+		re_size(w,h);
+			
+		touched = new TouchInfo();
+
 	    font = new BitmapFont();
 	    font.setColor(Color.RED);
 	    
-		camera = new OrthographicCamera(1, w/h);
-		camera.update();
-		
 		batch = new SpriteBatch();
 		batch.setTransformMatrix(camera.combined);
 		
+		screen = new SpriteBatch();
 		texture = new Texture(Gdx.files.internal("data/libgdx.png"));
-		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-		TextureRegion region = new TextureRegion(texture, 0, 0, 512, 275);
-		
-		sprite = new Sprite(region);
-		sprite.setSize(0.9f, 0.9f * sprite.getHeight() / sprite.getWidth());
-		sprite.setOrigin(sprite.getWidth()/2, sprite.getHeight()/2);
-		sprite.setPosition(-sprite.getWidth()/2, -sprite.getHeight()/2);
 	}
 
 	@Override
 	public void dispose() {
+		screen.dispose();
 		batch.dispose();
 		texture.dispose();
 	}
@@ -76,34 +75,47 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 	public void render() {		
 		Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-               
-        batch.setTransformMatrix(camera.combined);
         camera.update();
+        
         batch.begin();
-        batch.draw(sprite, 0, 0);
-     
-        message = "touch at:" + Float.toString(touched.touchX) + "," + Float.toString(touched.touchY);        
-        //	for(int i = 0; i < 5; i++){
-        //  	if(touches.get(i).touched)
-        //      	message += "Finger:" + Integer.toString(i) + "touch at:" + Float.toString(touches.get(i).touchX) + "," + Float.toString(touches.get(i).touchY) + "\n";
-        //		}
-        //	}
-        //System.out.println(camera.position.x + "  :  " + camera.position.y);
-        TextBounds tb = font.getBounds(message);
-        //float x = w/2 - tb.width/2;
-        //float y = h/2 + tb.height/2;
-        font.draw(batch, ""+ -camera.position.x , 10, 10);
+        batch.draw(texture, x, y, 32, 32);
         batch.end();
-        System.out.println(w + "  " + camera.position.x);
-        if (-camera.position.x < (w/2)){
-        	camera.position.x -= 1;
-        	camera.update();
-	    }
+                
+        screen.begin();
+         screen.draw(texture, 0, 0, 32,32);
+         font.draw(screen, "H: " + h + " W: 0", 0, h);
+         font.draw(screen, "H: " + h + " W: " + w, w-130, h);
+         
+         font.draw(screen, "H: 0" + " W: " + w, w-130, 20);
+         font.draw(screen, "H: 0" + " W: 0", 0, 20);
+         font.draw(screen, "Y: " + y + " X: " + x + " VW: " + camera.viewportWidth + " VH: " + camera.viewportHeight, w/2, h/4);
+         font.draw(screen,"+", w/2, h/2);
+        screen.end();	
 	}
 
 	@Override
-	public void resize(int width, int height) {
+	public void resize(int width, int height) {	
+		re_size(width, height);
 	}
+	
+	private void re_size(float w, float h){
+	 			    
+		if (w > v_width){
+			ww = (v_width/w)*scale;
+		} else {
+			ww = (w/v_width)*scale;
+		}
+		
+		if (h > v_height){
+			hh = (v_height/h)*scale;
+		} else {
+			hh = (h/v_height)*scale;
+		}
+		
+	    camera.setToOrtho(false, ww, hh);
+	    camera.update(); 
+	}
+	
 
 	@Override
 	public void pause() {
@@ -136,8 +148,8 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 		touched.touchX = screenX;
 		touched.touchY = screenY;
 		touched.touched = true;
-	       y += 1;
-	       x += 1;	     
+	       y += 5;
+	       x += 20;	     
 		//	if(pointer < 5){
 		//		touches.get(pointer).touchX = screenX;
 	    //  	touches.get(pointer).touchY = screenX;
@@ -160,10 +172,20 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
     	//  }
         return true;
     }
-	    
+
+    final Vector3 curr = new Vector3();
+    final Vector3 last = new Vector3(-1, -1, -1);
+    final Vector3 delta = new Vector3();
+
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		// TODO Auto-generated method stub
+		//camera.unproject(curr.set(x, y, 0));
+		//if (!(last.x == -1 && last.y == -1 && last.z == -1)) {
+		//camera.unproject(delta.set(last.x, last.y, 0));
+		//delta.sub(curr);
+		//camera.position.add(delta.x, delta.y, 0);
+		//}
+		//last.set(x, y, 0);
 		return false;
 	}
 

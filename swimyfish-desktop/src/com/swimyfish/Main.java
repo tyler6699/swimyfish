@@ -8,8 +8,8 @@ public class Main {
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 		cfg.title = "swimyfish";
 		cfg.useGL20 = false;
-		cfg.width = 480;
-		cfg.height = 320;
+		cfg.width = 1200;
+		cfg.height = 900;
 		
 		new LwjglApplication(new MyGdxGame(), cfg);
 	}
