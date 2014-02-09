@@ -1,5 +1,7 @@
 package com.swimyfish;
 
+import java.util.ArrayList;
+
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
@@ -23,6 +25,9 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 	// Player Entity
 	private Player player;
 	
+	// Obstacles
+	private ArrayList<Obstacle> object_array;
+	
 	// Screen Settings
 	float aspectRatio;
 	float scale;
@@ -36,6 +41,9 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 	float drop_rate;     // Gravity
 	float fly_up;        // Increase Y by amount per tick
 	float glide;         // 
+	
+	// Difficulty / Speed
+	float scroll_speed;
 	
 	class TouchInfo {
 		public float touchX = 0;
@@ -55,6 +63,22 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 			height = 60;
 			x = (w/2) - 200;
 			y = (h/2) - (width/2);	
+			texture = new Texture(Gdx.files.internal("data/libgdx.png"));
+		}
+	}
+	
+	class Obstacle {
+		public float x = 0;
+		public float y = 0;
+		public Texture texture;
+		public float height;
+		public float width;
+			
+		public Obstacle(){
+			width = 60;
+			height = 300;
+			x = w + 20;
+			y = 0;	
 			texture = new Texture(Gdx.files.internal("data/libgdx.png"));
 		}
 	}
@@ -99,6 +123,23 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 		drop_rate    = 9;
 		fly_up       = 5;
 		glide        = 3;
+		scroll_speed = 4;
+		
+		// Obstacles
+		object_array = new ArrayList<Obstacle>();
+		Obstacle obs_t, obs_b;
+		
+		for (int i = 0; i < 3; i++){
+			obs_b = new Obstacle();
+			obs_b.x = w + (i*(w/3) + obs_b.width);
+			obs_b.y = 0;
+			object_array.add(obs_b);	
+			
+			obs_t = new Obstacle();
+			obs_t.x = obs_b.x;
+			obs_t.y = h - obs_t.height;
+			object_array.add(obs_t);
+		}
 	}
 	
 	@Override
@@ -116,6 +157,16 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 		
 		batch.begin();
 		batch.draw(player.texture, player.x, player.y, player.width, player.height);
+		
+		for (Obstacle obs : object_array){
+			batch.draw(obs.texture, obs.x, obs.y, obs.width, obs.height);	
+			
+			if (obs.x < -obs.width){
+				//obs.x = w + obs.width;
+			} else {
+				obs.x -= scroll_speed;	
+			}
+		}
 		batch.end();
 		            
 		//screen.begin();
