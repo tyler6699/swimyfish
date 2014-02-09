@@ -1,4 +1,4 @@
 *.log
-swimmyfish-desktop/*.log
-swimmyfish-android/*.log
+.DS_Store
+.DS_Store?
 
