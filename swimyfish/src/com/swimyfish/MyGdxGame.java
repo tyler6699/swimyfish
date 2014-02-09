@@ -8,12 +8,8 @@ import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-
 
 public class MyGdxGame implements ApplicationListener, InputProcessor{
 	private OrthographicCamera camera;
@@ -21,22 +17,47 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 	private SpriteBatch screen;
 	private Texture texture;
 
-	
-	//private Map<Integer,TouchInfo> touches = new HashMap<Integer,TouchInfo>();
 	private TouchInfo touched;
 	private BitmapFont font;
 	float w, h, x = 0, y = 0;
-	
+
+	// Player Entity
+	private Player player;
+
+	// Screen Settings
 	float aspectRatio;
     float scale;
     float ww, hh;
     float v_height;
     float v_width;
+    
+    // Game Vars
+    float fly_time;      // > 0 = moving up
+	float max_fly_time;  // Amount of time player raises and gravity disabled 
+	float drop_rate;     // Gravity
+	float fly_up;        // Increase Y by amount per tick
 	
 	class TouchInfo {
 		public float touchX = 0;
 	    public float touchY = 0;
 	    public boolean touched = false;
+	}
+	
+	// Player class
+	class Player {
+		public float x = w/2;
+	    public float y = h/2;
+	    public Texture texture;
+	    public float height;
+	    public float width;
+		
+	    public Player(){
+	    	width = 60;
+	    	height = 60;
+			x = (w/2) - 200;
+		    y = (h/2) - (width/2);	
+		    texture = new Texture(Gdx.files.internal("data/libgdx.png"));
+		}
 	}
 	 
 	@Override
@@ -44,24 +65,40 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 		Gdx.input.setInputProcessor(this);
 		camera = new OrthographicCamera();
 		scale = 2;
-		v_height = 800;
-		v_width = 1200;
 		
+		// Most Popular 16:9
+		v_height = 768;
+		v_width = 1366;
+	
+		// Screen width and height
 		w = Gdx.graphics.getWidth();
 		h = Gdx.graphics.getHeight();
 		
+		// Set screen size
 		re_size(w,h);
 			
+		// holds touch info 
 		touched = new TouchInfo();
 
 	    font = new BitmapFont();
 	    font.setColor(Color.RED);
 	    
+	    // SpriteBatch for Screen
 		batch = new SpriteBatch();
 		batch.setTransformMatrix(camera.combined);
 		
+		// SpriteBatch for camera
 		screen = new SpriteBatch();
 		texture = new Texture(Gdx.files.internal("data/libgdx.png"));
+	
+		// New Player
+		player = new Player();
+		
+		// Game settings
+		fly_time     = 0;
+		max_fly_time = 25;
+		drop_rate    = 8;
+		fly_up       = 5;
 	}
 
 	@Override
@@ -78,20 +115,33 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
         camera.update();
         
         batch.begin();
-        batch.draw(texture, x, y, 32, 32);
+         batch.draw(player.texture, player.x, player.y, player.width, player.height);
         batch.end();
                 
-        screen.begin();
-         screen.draw(texture, 0, 0, 32,32);
-         font.draw(screen, "H: " + h + " W: 0", 0, h);
-         font.draw(screen, "H: " + h + " W: " + w, w-130, h);
-         
-         font.draw(screen, "H: 0" + " W: " + w, w-130, 20);
-         font.draw(screen, "H: 0" + " W: 0", 0, 20);
-         font.draw(screen, "Y: " + y + " X: " + x + " VW: " + camera.viewportWidth + " VH: " + camera.viewportHeight, w/2, h/4);
-         font.draw(screen,"+", w/2, h/2);
-        screen.end();	
+        //screen.begin();
+        //screen.draw(texture, 0, 0, 32,32);
+        //screen.draw(fish.texture, fish.x, fish.y, fish.width, fish.height);
+        //screen.end();	
+        
+        if (fly_time > 0){
+        	fly_time -= 1;
+        	if ( not_too_high() ){
+        		player.y += fly_up;	
+        	}
+        } else {
+        	if ( not_too_low() ){
+        		player.y -= drop_rate;
+        	}
+        }
 	}
+	
+    private boolean not_too_high() {
+    	return player.y + fly_up + player.height < h + player.height;
+    }
+    
+    private boolean not_too_low() {
+    	return player.y - drop_rate > -player.height;
+    }
 
 	@Override
 	public void resize(int width, int height) {	
@@ -116,7 +166,6 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 	    camera.update(); 
 	}
 	
-
 	@Override
 	public void pause() {
 	}
@@ -127,19 +176,16 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 
 	@Override
 	public boolean keyDown(int keycode) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean keyUp(int keycode) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean keyTyped(char character) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -148,13 +194,11 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 		touched.touchX = screenX;
 		touched.touchY = screenY;
 		touched.touched = true;
-	       y += 5;
-	       x += 20;	     
-		//	if(pointer < 5){
-		//		touches.get(pointer).touchX = screenX;
-	    //  	touches.get(pointer).touchY = screenX;
-	    //    	touches.get(pointer).touched = true;
-	    //	}
+		
+		if (fly_time == 0){
+			fly_time = max_fly_time;
+		}
+	   
 		return true;
 	}
 
@@ -165,11 +209,7 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 			touched.touchY = 0;
 			touched.touched = false;
     	}
-    	//	if(pointer < 5){
-    	//  	touches.get(pointer).touchX = 0;
-    	//      touches.get(pointer).touchY = 0;
-    	//      touches.get(pointer).touched = false;
-    	//  }
+
         return true;
     }
 
@@ -191,13 +231,11 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 
 	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean scrolled(int amount) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 }
