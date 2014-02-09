@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Rectangle;
+import com.swimyfish.Player;
 
 public class MyGdxGame implements ApplicationListener, InputProcessor{
 	private OrthographicCamera camera;
@@ -53,42 +53,7 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 		public float touchY = 0;
 		public boolean touched = false;
 	}
-	
-	class Player {
-		public float x = w/2;
-		public float y = h/2;
-		public Texture texture;
-		public float height;
-		public float width;
-		public Rectangle hitbox;
-			
-		public Player(){
-			width = 60;
-			height = 60;
-			x = (w/2) - 200;
-			y = (h/2) - (width/2);	
-			hitbox = new Rectangle(x,y,width,height);
-			texture = new Texture(Gdx.files.internal("data/libgdx.png"));
-		}
-	}
-	
-	class Obstacle {
-		public float x = 0;
-		public float y = 0;
-		public Texture texture;
-		public float height;
-		public float width;
-		public Rectangle hitbox;
-		
-		public Obstacle(){
-			width = 80;
-			height = 200;
-			x = w + 20;
-			y = 0;	
-			hitbox = new Rectangle(x,y,width,height);
-			texture = new Texture(Gdx.files.internal("data/libgdx.png"));
-		}
-	}
+
 	 
 	@Override
 	public void create() {		
@@ -122,7 +87,7 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 		texture = new Texture(Gdx.files.internal("data/libgdx.png"));
 		
 		// New Player
-		player = new Player();
+		player = new Player(w,h);
 		
 		// Game settings
 		hit          = false;
@@ -139,12 +104,12 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 		Obstacle obs_t, obs_b;
 		
 		for (int i = 0; i < 3; i++){
-			obs_b = new Obstacle();
+			obs_b = new Obstacle(w,h);
 			obs_b.x = (i * gap) + w;
 			obs_b.y = 0;
 			object_array.add(obs_b);	
 			
-			obs_t = new Obstacle();
+			obs_t = new Obstacle(w,h);
 			obs_t.x = obs_b.x;
 			obs_t.y = (h + 1) - obs_t.height;
 			object_array.add(obs_t);
@@ -208,7 +173,10 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 		camera.update();
 		
 		batch.begin();
+		// PLAYER
 		batch.draw(player.texture, player.x, player.y, player.width, player.height);
+		
+		// OBSTACLES
 		for (Obstacle obs : object_array){
 			batch.draw(obs.texture, obs.x, obs.y, obs.width, obs.height);	
 		}
@@ -233,12 +201,12 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 		Obstacle obs_t, obs_b;
 		
 		for (int i = 0; i < 3; i++){
-			obs_b = new Obstacle();
+			obs_b = new Obstacle(w,h);
 			obs_b.x = (i * gap) + w;
 			obs_b.y = 0;
 			object_array.add(obs_b);	
 			
-			obs_t = new Obstacle();
+			obs_t = new Obstacle(w,h);
 			obs_t.x = obs_b.x;
 			obs_t.y = (h + 1) - obs_t.height;
 			object_array.add(obs_t);
