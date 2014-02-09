@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector3;
 
 public class MyGdxGame implements ApplicationListener, InputProcessor{
 	private OrthographicCamera camera;
@@ -26,13 +25,13 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 
 	// Screen Settings
 	float aspectRatio;
-    	float scale;
-    	float ww, hh;
-    	float v_height;
-    	float v_width;
+    float scale;
+    float ww, hh;
+    float v_height;
+    float v_width;
     
-    	// Game Vars
-    	float fly_time;      // > 0 = moving up
+    // Game Vars
+    float fly_time;      // > 0 = moving up
 	float max_fly_time;  // Amount of time player raises and gravity disabled 
 	float drop_rate;     // Gravity
 	float fly_up;        // Increase Y by amount per tick
@@ -53,11 +52,11 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 	    public float width;
 		
 	    public Player(){
-	    	width = 60;
-	    	height = 60;
-		x = (w/2) - 200;
-		y = (h/2) - (width/2);	
-		texture = new Texture(Gdx.files.internal("data/libgdx.png"));
+	        width = 60;
+	        height = 60;
+		    x = (w/2) - 200;
+		    y = (h/2) - (width/2);	
+		    texture = new Texture(Gdx.files.internal("data/libgdx.png"));
 	    }
 	}
 	 
@@ -67,7 +66,7 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 	    camera = new OrthographicCamera();
 	    scale = 2;
 		
-            // Most Popular 16:9
+        // Most Popular 16:9
 	    v_height = 768;
 	    v_width = 1366;
 	
@@ -79,7 +78,7 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 	    re_size(w,h);
 			
 	    // holds touch info 
-            touched = new TouchInfo();
+        touched = new TouchInfo();
 
 	    font = new BitmapFont();
 	    font.setColor(Color.RED);
@@ -92,7 +91,7 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 	    screen = new SpriteBatch();
 	    texture = new Texture(Gdx.files.internal("data/libgdx.png"));
 	
-            // New Player
+        // New Player
 	    player = new Player();
 		
             // Game settings
@@ -113,39 +112,39 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 	@Override
 	public void render() {		
 	    Gdx.gl.glClearColor(1, 1, 1, 1);
-            Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-            camera.update();
+        Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+        camera.update();
         
-            batch.begin();
-            batch.draw(player.texture, player.x, player.y, player.width, player.height);
-            batch.end();
+        batch.begin();
+        batch.draw(player.texture, player.x, player.y, player.width, player.height);
+        batch.end();
                 
-            //screen.begin();
-            //screen.draw(texture, 0, 0, 32,32);
-            //screen.draw(fish.texture, fish.x, fish.y, fish.width, fish.height);
-            //screen.end();	
+        //screen.begin();
+        //screen.draw(texture, 0, 0, 32,32);
+        //screen.draw(fish.texture, fish.x, fish.y, fish.width, fish.height);
+        //screen.end();	
         
-            if (fly_time > glide){
+        if (fly_time > glide){
         	fly_time -= 1;
         	if ( not_too_high() ){
         		player.y += fly_up;	
         	}
-            } else if (fly_time > 0 && fly_time <= glide ){
-                fly_time -= 1;
-            } else {
-                if ( not_too_low() ){
-        	    player.y -= drop_rate;
-        	}
+        } else if (fly_time > 0 && fly_time <= glide ){
+            fly_time -= 1;
+        } else {
+            if ( not_too_low() ){
+            	player.y -= drop_rate;
             }
         }
+    }
 	
-        private boolean not_too_high() {
-    	    return player.y + fly_up + player.height < h + player.height;
-        }
-    
-        private boolean not_too_low() {
-    	    return player.y - drop_rate > -player.height;
-        }  
+    private boolean not_too_high() {
+	    return player.y + fly_up + player.height < h + player.height;
+    }
+
+    private boolean not_too_low() {
+	    return player.y - drop_rate > -player.height;
+    }  
 
 	@Override
 	public void resize(int width, int height) {	
@@ -153,7 +152,7 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 	}
 	
 	private void re_size(float w, float h){
-            if (w > v_width){
+        if (w > v_width){
 	        ww = (v_width/w)*scale;
 	    } else {
 	    	ww = (w/v_width)*scale;
@@ -205,20 +204,19 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 		return true;
 	}
 
-        @Override
-        public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-    	    if(pointer <= 2){
-    	        touched.touchX = 0;
-		touched.touchY = 0;
-		touched.touched = false;
-    	    }
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        if(pointer <= 2){
+    	    touched.touchX = 0;
+		    touched.touchY = 0;
+		    touched.touched = false;
+    	}
+        return true;
+    }
 
-            return true;
-        }
-
-        final Vector3 curr = new Vector3();
-        final Vector3 last = new Vector3(-1, -1, -1);
-        final Vector3 delta = new Vector3();
+    //final Vector3 curr = new Vector3();
+    //final Vector3 last = new Vector3(-1, -1, -1);
+    //final Vector3 delta = new Vector3();
 
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
