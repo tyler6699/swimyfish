@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
 
 public class MyGdxGame implements ApplicationListener, InputProcessor{
 	private OrthographicCamera camera;
@@ -41,9 +42,11 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 	float drop_rate;     // Gravity
 	float fly_up;        // Increase Y by amount per tick
 	float glide;         // 
+	boolean hit;         // If true end game
 	
 	// Difficulty / Speed
 	float scroll_speed;
+	private int gap;
 	
 	class TouchInfo {
 		public float touchX = 0;
@@ -57,12 +60,14 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 		public Texture texture;
 		public float height;
 		public float width;
+		public Rectangle hitbox;
 			
 		public Player(){
 			width = 60;
 			height = 60;
 			x = (w/2) - 200;
 			y = (h/2) - (width/2);	
+			hitbox = new Rectangle(x,y,width,height);
 			texture = new Texture(Gdx.files.internal("data/libgdx.png"));
 		}
 	}
@@ -73,12 +78,14 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 		public Texture texture;
 		public float height;
 		public float width;
-			
+		public Rectangle hitbox;
+		
 		public Obstacle(){
-			width = 60;
-			height = 300;
+			width = 80;
+			height = 200;
 			x = w + 20;
 			y = 0;	
+			hitbox = new Rectangle(x,y,width,height);
 			texture = new Texture(Gdx.files.internal("data/libgdx.png"));
 		}
 	}
@@ -91,7 +98,7 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 			
 		// Most Popular 16:9
 		v_height = 768;
-		v_width = 1366;
+		v_width = 1280;
 		
 		// Screen width and height
 		w = Gdx.graphics.getWidth();
@@ -118,6 +125,7 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 		player = new Player();
 		
 		// Game settings
+		hit          = false;
 		fly_time     = 0;
 		max_fly_time = 25;
 		drop_rate    = 9;
@@ -126,18 +134,19 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 		scroll_speed = 4;
 		
 		// Obstacles
+		gap = 450;
 		object_array = new ArrayList<Obstacle>();
 		Obstacle obs_t, obs_b;
 		
 		for (int i = 0; i < 3; i++){
 			obs_b = new Obstacle();
-			obs_b.x = w + (i*(w/3) + obs_b.width);
+			obs_b.x = (i * gap) + w;
 			obs_b.y = 0;
 			object_array.add(obs_b);	
 			
 			obs_t = new Obstacle();
 			obs_t.x = obs_b.x;
-			obs_t.y = h - obs_t.height;
+			obs_t.y = (h + 1) - obs_t.height;
 			object_array.add(obs_t);
 		}
 	}
@@ -151,29 +160,26 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 	
 	@Override
 	public void render() {		
-		Gdx.gl.glClearColor(1, 1, 1, 1);
-		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		camera.update();
-		
-		batch.begin();
-		batch.draw(player.texture, player.x, player.y, player.width, player.height);
-		
-		for (Obstacle obs : object_array){
-			batch.draw(obs.texture, obs.x, obs.y, obs.width, obs.height);	
+		if (!hit){ 
+			logic(); 
+		} else {
 			
+		}
+		draw();
+	}
+	
+	private void logic() {	
+		// Obstacles
+		for (Obstacle obs : object_array){			
 			if (obs.x < -obs.width){
-				//obs.x = w + obs.width;
+				obs.x += 3 * gap;
 			} else {
 				obs.x -= scroll_speed;	
 			}
-		}
-		batch.end();
-		            
-		//screen.begin();
-		//screen.draw(texture, 0, 0, 32,32);
-		//screen.draw(fish.texture, fish.x, fish.y, fish.width, fish.height);
-		//screen.end();	
-		    
+			obs.hitbox.setPosition(obs.x, obs.y);
+		}	
+		
+		// Player
 		if (fly_time > glide){
 			fly_time -= 1;
 			if ( not_too_high() ){
@@ -185,6 +191,64 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 			if ( not_too_low() ){
 				player.y -= drop_rate;
 			}
+		}
+		
+		player.hitbox.setPosition(player.x, player.y);
+		
+		for (Obstacle obs : object_array){
+			if (!hit){
+				check_collision(obs);
+			}
+		}
+	}
+
+	private void draw() {
+		Gdx.gl.glClearColor(1, 1, 1, 1);
+		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		camera.update();
+		
+		batch.begin();
+		batch.draw(player.texture, player.x, player.y, player.width, player.height);
+		for (Obstacle obs : object_array){
+			batch.draw(obs.texture, obs.x, obs.y, obs.width, obs.height);	
+		}
+		batch.end();
+		
+		//screen.begin();
+		//screen.draw(texture, 0, 0, 32,32);
+		//screen.draw(fish.texture, fish.x, fish.y, fish.width, fish.height);
+		//screen.end();	
+	}
+
+	private void reset_game() {
+		// Player
+		player.y = (w/2) - 200;
+		
+		// Game settings
+		hit          = false;
+		fly_time     = 0;
+		
+		// Obstacles
+		object_array.clear();
+		Obstacle obs_t, obs_b;
+		
+		for (int i = 0; i < 3; i++){
+			obs_b = new Obstacle();
+			obs_b.x = (i * gap) + w;
+			obs_b.y = 0;
+			object_array.add(obs_b);	
+			
+			obs_t = new Obstacle();
+			obs_t.x = obs_b.x;
+			obs_t.y = (h + 1) - obs_t.height;
+			object_array.add(obs_t);
+		}
+		
+	}
+	
+	private void check_collision(Obstacle obs) {		
+		if (obs.hitbox.overlaps(player.hitbox)){
+			hit = true;
 		}
 	}
 	
@@ -247,13 +311,18 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 		touched.touchY = screenY;
 		touched.touched = true;
 		
-		if (fly_time <= glide){
-			fly_time = max_fly_time;
+		if (!hit){ 
+			if (fly_time <= glide){
+				fly_time = max_fly_time;
+			}
+		} else {
+			reset_game();
 		}
-		   
+	 
 		return true;
 	}
 	
+
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 		if(pointer <= 2){
