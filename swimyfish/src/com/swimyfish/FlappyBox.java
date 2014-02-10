@@ -237,8 +237,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		float rand_height;
 		float hole =  h/3f;
 		int max, min;
-		max = (int) (h*.85);
-		min = (int) (h*.15);
+		max = (int) (h*.8);
+		min = (int) (h*.2);
 		
 		for (int i = 0; i < 4; i++){
 			
