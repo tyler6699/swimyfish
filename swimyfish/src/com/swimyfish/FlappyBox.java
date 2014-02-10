@@ -51,7 +51,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	// Difficulty / Speed
 	float scroll_speed;
 	private float gap;
-	
+	int max, min;
+		
 	class TouchInfo {
 		public float touchX = 0;
 		public float touchY = 0;
@@ -67,6 +68,10 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		// Screen width and height
 		w = Gdx.graphics.getWidth();
 		h = Gdx.graphics.getHeight();
+		
+		// Columns
+		max = (int) (h*.8);
+		min = (int) (h*.2);
 		
 		camera = new OrthographicCamera(2,2);
 						
@@ -142,10 +147,17 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	}
 	
 	private void logic() {	
+		float rand_height;
 		// Obstacles
 		for (Obstacle obs : object_array){			
 			if (obs.x < -obs.width){
 				obs.x += 4 * gap;
+				
+				// SET NEW RANDOM HEIGHT FOR TOP AND BOTTOM WITH ID
+				//rand_height = random_height(min,max);
+				//obs.height = rand_height;
+				//obs.set_hitboxes(rand_height);
+			
 				obs.scored = false;
 			} else {
 				obs.x -= scroll_speed;	
@@ -236,10 +248,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		float rand_height;
 		float hole =  h/3f;
-		int max, min;
-		max = (int) (h*.8);
-		min = (int) (h*.2);
-		
+				
 		for (int i = 0; i < 4; i++){
 			
 			// Set Random height for bottom box
