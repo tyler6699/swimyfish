@@ -27,4 +27,8 @@ public class Obstacle {
 		scored    = false;
 		texture   = new Texture(Gdx.files.internal("data/libgdx.png"));
 	}
+	
+	public void set_hitboxes(float h){
+		hitbox.set(x,y,width,h);
+	}
 }

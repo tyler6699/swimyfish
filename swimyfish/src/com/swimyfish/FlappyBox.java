@@ -1,6 +1,7 @@
 package com.swimyfish;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
 import com.swimyfish.Player;
 
 public class FlappyBox implements ApplicationListener, InputProcessor{
@@ -100,20 +102,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// Obstacles
 		gap = w/3;
-		object_array = new ArrayList<Obstacle>();
-		Obstacle obs_t, obs_b;
-		
-		for (int i = 0; i < 4; i++){
-			obs_b = new Obstacle(w, h, i+1);
-			obs_b.x = (i * gap) + w;
-			obs_b.y = 0;
-			object_array.add(obs_b);	
-			
-			obs_t = new Obstacle(w, h, i+1);
-			obs_t.x = obs_b.x;
-			obs_t.y = (h + 1) - obs_t.height;
-			object_array.add(obs_t);
-		}
+		object_array = new ArrayList<Obstacle>();		
 	}
 	
 	private void load_prefs(){
@@ -245,15 +234,31 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		object_array.clear();
 		Obstacle obs_t, obs_b;
 		
+		float rand_height;
+		float hole =  h/3f;
+		int max, min;
+		max = (int) (h*.85);
+		min = (int) (h*.15);
+		
 		for (int i = 0; i < 4; i++){
+			
+			// Set Random height for bottom box
+			rand_height = random_height(min,max);
+			
+			// BOTTOM BOX
 			obs_b = new Obstacle(w, h, i+1);
+			obs_b.height = rand_height;
 			obs_b.x = (i * gap) + w;
 			obs_b.y = 0;
+			obs_b.set_hitboxes(rand_height);
 			object_array.add(obs_b);	
 			
+			// TOP BOX
 			obs_t = new Obstacle(w, h, i+1);
 			obs_t.x = obs_b.x;
-			obs_t.y = (h + 1) - obs_t.height;
+			obs_t.y = obs_b.height + hole;
+			obs_t.height = h - (obs_b.height + hole);
+			obs_t.set_hitboxes(obs_t.height);
 			object_array.add(obs_t);
 		}
 	}
@@ -279,6 +284,25 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	private boolean not_too_low() {
 		return player.y - gravity > -player.height;
 	}  
+	
+	// Random Functions
+	public boolean go_up(int percentage){
+		Random r = new Random(); 
+		int chance = r.nextInt(100);
+		    
+		if(percentage > chance){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	public int random_height(int min, int max){
+		Random r = new Random(); 
+		int number = r.nextInt(max-min) + min;
+		    
+		return number;
+	}
 	
 	@Override
 	public void resize(int width, int height) {	
