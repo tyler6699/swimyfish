@@ -32,7 +32,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	
 	// Obstacles
 	private ArrayList<Obstacle> object_array;
-		
+	float hole;
+	
 	// Game Vars
 	float fly_time;      // > 0 = moving up
 	float max_fly_time;  // Amount of time player raises and gravity disabled 
@@ -148,15 +149,26 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	
 	private void logic() {	
 		float rand_height;
+		
 		// Obstacles
 		for (Obstacle obs : object_array){			
 			if (obs.x < -obs.width){
-				obs.x += 4 * gap;
-				
-				// SET NEW RANDOM HEIGHT FOR TOP AND BOTTOM WITH ID
-				//rand_height = random_height(min,max);
-				//obs.height = rand_height;
-				//obs.set_hitboxes(rand_height);
+				if (obs.t_or_b.equals("b")){
+					rand_height = random_height(min,max);
+					
+					obs.x += 4 * gap;	
+					obs.height = rand_height;
+					obs.set_hitboxes(rand_height);
+				} else {
+					for (Obstacle box : object_array){
+						if (box.id == obs.id && box.t_or_b.equals("b")){
+							obs.x += 4 * gap;
+							obs.y = box.height + hole;
+							obs.height = h - (box.height + hole);
+							obs.set_hitboxes(obs.height);
+						}
+					}
+				}
 			
 				obs.scored = false;
 			} else {
@@ -247,7 +259,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		Obstacle obs_t, obs_b;
 		
 		float rand_height;
-		float hole =  h/3f;
+		hole =  h/3f;
 				
 		for (int i = 0; i < 4; i++){
 			
@@ -255,7 +267,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			rand_height = random_height(min,max);
 			
 			// BOTTOM BOX
-			obs_b = new Obstacle(w, h, i+1);
+			obs_b = new Obstacle(w, h, i+1, "b");
 			obs_b.height = rand_height;
 			obs_b.x = (i * gap) + w;
 			obs_b.y = 0;
@@ -263,7 +275,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			object_array.add(obs_b);	
 			
 			// TOP BOX
-			obs_t = new Obstacle(w, h, i+1);
+			obs_t = new Obstacle(w, h, i+1, "t");
 			obs_t.x = obs_b.x;
 			obs_t.y = obs_b.height + hole;
 			obs_t.height = h - (obs_b.height + hole);

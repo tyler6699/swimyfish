@@ -14,10 +14,12 @@ public class Obstacle {
 	public Rectangle hitbox;
 	public Rectangle scorebox;
 	public boolean scored;
+	public String t_or_b;
 	
-	public Obstacle(float w, float h, int no){
+	public Obstacle(float w, float h, int no, String place){
 		// 1196 x 768	
 		id        = no;
+		t_or_b    = place;
 		width     = w/12;
 		height    = h/3.5f;
 		x         = w + 20;
