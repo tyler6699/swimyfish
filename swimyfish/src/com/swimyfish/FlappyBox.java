@@ -36,8 +36,11 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	float max_gravity; // Gravity
 	float min_gravity; // Gravity
 	float fly_up;        // Increase Y by amount per tick
+	float grace_period;
+	float max_grace;
 	float glide;         // 
 	boolean hit;         // If true end game
+	boolean start;
 	int score;
 	
 	// Difficulty / Speed
@@ -79,7 +82,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		player = new Player(w,h);
 		
 		// Game settings
-		hit           = false;
+		hit           = true;
+		max_grace	  = 30;
+		grace_period  = 0;
 		fly_time      = 0;
 		max_fly_time  = 25;
 		min_gravity   = 5;
@@ -136,29 +141,34 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}	
 		
 		// Player
-		if (fly_time > glide){
-			fly_time -= 1;
-			if ( not_too_high() ){
-				update_gravity(false);
-				player.y += fly_up;	
-			}
-		} else if (fly_time > 0 && fly_time <= glide ){
-			update_gravity(false);
-			fly_time -= 1;
+		if (grace_period <= max_grace){
+			grace_period ++;
 		} else {
-			if ( not_too_low() ){
-				update_gravity(true);
-				player.y -= gravity;
+			if (fly_time > glide){
+				fly_time -= 1;
+				if ( not_too_high() ){
+					update_gravity(false);
+					player.y += fly_up;	
+				}
+			} else if (fly_time > 0 && fly_time <= glide ){
+				update_gravity(false);
+				fly_time -= 1;
+			} else {
+				if ( not_too_low() ){
+					update_gravity(true);
+					player.y -= gravity;
+				}
+			}
+			
+			player.hitbox.setPosition(player.x, player.y);
+			
+			for (Obstacle obs : object_array){
+				if (!hit){
+					check_collision(obs);
+				}
 			}
 		}
 		
-		player.hitbox.setPosition(player.x, player.y);
-		
-		for (Obstacle obs : object_array){
-			if (!hit){
-				check_collision(obs);
-			}
-		}
 	}
 	
 	private void update_gravity(boolean falling){
@@ -170,7 +180,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		} else {
 			gravity = min_gravity;
 		}
-		System.out.println(gravity);
 	}
 
 	private void draw() {
@@ -197,6 +206,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	private void reset_game() {
 		score = 0;
 		scroll_speed = 4;
+		fly_time = max_fly_time;
+		grace_period  = 0;
 		
 		// Player
 		player.y = (w/2) - 200;
@@ -220,7 +231,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			obs_t.y = (h + 1) - obs_t.height;
 			object_array.add(obs_t);
 		}
-		
 	}
 	
 	private void check_collision(Obstacle obs) {		
