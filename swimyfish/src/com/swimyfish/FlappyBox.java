@@ -13,7 +13,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.swimyfish.Player;
 
-public class MyGdxGame implements ApplicationListener, InputProcessor{
+public class FlappyBox implements ApplicationListener, InputProcessor{
 	private OrthographicCamera camera;
 	private SpriteBatch batch;
 	private SpriteBatch screen;
@@ -28,25 +28,21 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 	
 	// Obstacles
 	private ArrayList<Obstacle> object_array;
-	
-	// Screen Settings
-	float aspectRatio;
-	float scale;
-	float ww, hh;
-	float v_height;
-	float v_width;
-	
+		
 	// Game Vars
 	float fly_time;      // > 0 = moving up
 	float max_fly_time;  // Amount of time player raises and gravity disabled 
-	float drop_rate;     // Gravity
+	float gravity;     // Gravity
+	float max_gravity; // Gravity
+	float min_gravity; // Gravity
 	float fly_up;        // Increase Y by amount per tick
 	float glide;         // 
 	boolean hit;         // If true end game
+	int score;
 	
 	// Difficulty / Speed
 	float scroll_speed;
-	private int gap;
+	private float gap;
 	
 	class TouchInfo {
 		public float touchX = 0;
@@ -58,20 +54,13 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 	@Override
 	public void create() {		
 		Gdx.input.setInputProcessor(this);
-		camera = new OrthographicCamera();
-		scale = 2;
-			
-		// Most Popular 16:9
-		v_height = 768;
-		v_width = 1280;
-		
+					
 		// Screen width and height
 		w = Gdx.graphics.getWidth();
 		h = Gdx.graphics.getHeight();
 		
-		// Set screen size
-		re_size(w,h);
-			
+		camera = new OrthographicCamera(2,2);
+						
 		// holds touch info 
 		touched = new TouchInfo();
 		
@@ -90,26 +79,28 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 		player = new Player(w,h);
 		
 		// Game settings
-		hit          = false;
-		fly_time     = 0;
-		max_fly_time = 25;
-		drop_rate    = 9;
-		fly_up       = 5;
-		glide        = 3;
-		scroll_speed = 4;
+		hit           = false;
+		fly_time      = 0;
+		max_fly_time  = 25;
+		min_gravity   = 5;
+		max_gravity   = 10;
+		gravity       = min_gravity;
+		fly_up        = 5;
+		glide         = 3;
+		scroll_speed  = 4;
 		
 		// Obstacles
-		gap = 450;
+		gap = w/3;
 		object_array = new ArrayList<Obstacle>();
 		Obstacle obs_t, obs_b;
 		
-		for (int i = 0; i < 3; i++){
-			obs_b = new Obstacle(w,h);
+		for (int i = 0; i < 4; i++){
+			obs_b = new Obstacle(w, h, i+1);
 			obs_b.x = (i * gap) + w;
 			obs_b.y = 0;
 			object_array.add(obs_b);	
 			
-			obs_t = new Obstacle(w,h);
+			obs_t = new Obstacle(w, h, i+1);
 			obs_t.x = obs_b.x;
 			obs_t.y = (h + 1) - obs_t.height;
 			object_array.add(obs_t);
@@ -126,9 +117,7 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 	@Override
 	public void render() {		
 		if (!hit){ 
-			logic(); 
-		} else {
-			
+			logic(); 			
 		}
 		draw();
 	}
@@ -137,24 +126,29 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 		// Obstacles
 		for (Obstacle obs : object_array){			
 			if (obs.x < -obs.width){
-				obs.x += 3 * gap;
+				obs.x += 4 * gap;
+				obs.scored = false;
 			} else {
 				obs.x -= scroll_speed;	
 			}
 			obs.hitbox.setPosition(obs.x, obs.y);
+			obs.scorebox.setPosition(obs.x + (obs.width/2), obs.y);
 		}	
 		
 		// Player
 		if (fly_time > glide){
 			fly_time -= 1;
 			if ( not_too_high() ){
+				update_gravity(false);
 				player.y += fly_up;	
 			}
 		} else if (fly_time > 0 && fly_time <= glide ){
+			update_gravity(false);
 			fly_time -= 1;
 		} else {
 			if ( not_too_low() ){
-				player.y -= drop_rate;
+				update_gravity(true);
+				player.y -= gravity;
 			}
 		}
 		
@@ -165,6 +159,18 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 				check_collision(obs);
 			}
 		}
+	}
+	
+	private void update_gravity(boolean falling){
+		if (falling){
+			if (gravity < max_gravity){
+				gravity += .5f;	
+			}
+			
+		} else {
+			gravity = min_gravity;
+		}
+		System.out.println(gravity);
 	}
 
 	private void draw() {
@@ -189,6 +195,9 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 	}
 
 	private void reset_game() {
+		score = 0;
+		scroll_speed = 4;
+		
 		// Player
 		player.y = (w/2) - 200;
 		
@@ -200,13 +209,13 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 		object_array.clear();
 		Obstacle obs_t, obs_b;
 		
-		for (int i = 0; i < 3; i++){
-			obs_b = new Obstacle(w,h);
+		for (int i = 0; i < 4; i++){
+			obs_b = new Obstacle(w, h, i+1);
 			obs_b.x = (i * gap) + w;
 			obs_b.y = 0;
 			object_array.add(obs_b);	
 			
-			obs_t = new Obstacle(w,h);
+			obs_t = new Obstacle(w, h, i+1);
 			obs_t.x = obs_b.x;
 			obs_t.y = (h + 1) - obs_t.height;
 			object_array.add(obs_t);
@@ -215,8 +224,13 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 	}
 	
 	private void check_collision(Obstacle obs) {		
-		if (obs.hitbox.overlaps(player.hitbox)){
-			hit = true;
+		if (obs.scorebox.overlaps(player.hitbox) && !obs.scored){
+			obs.scored = true;
+			score ++;
+		} else {
+			if (obs.hitbox.overlaps(player.hitbox)){
+				hit = true;
+			}
 		}
 	}
 	
@@ -225,31 +239,13 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 	}
 	
 	private boolean not_too_low() {
-		return player.y - drop_rate > -player.height;
+		return player.y - gravity > -player.height;
 	}  
 	
 	@Override
 	public void resize(int width, int height) {	
-		re_size(width, height);
 	}
-	
-	private void re_size(float w, float h){
-		if (w > v_width){
-			ww = (v_width/w)*scale;
-		} else {
-			ww = (w/v_width)*scale;
-		}
-			
-		if (h > v_height){
-			hh = (v_height/h)*scale;
-		} else {
-			hh = (h/v_height)*scale;
-		}
-		
-		camera.setToOrtho(false, ww, hh);
-		camera.update(); 
-	}
-	
+
 	@Override
 	public void pause() {
 	}
@@ -290,7 +286,6 @@ public class MyGdxGame implements ApplicationListener, InputProcessor{
 		return true;
 	}
 	
-
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 		if(pointer <= 2){
