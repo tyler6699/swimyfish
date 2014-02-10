@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -14,6 +15,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.swimyfish.Player;
 
 public class FlappyBox implements ApplicationListener, InputProcessor{
+	private Preferences prefs;
 	private OrthographicCamera camera;
 	private SpriteBatch batch;
 	private SpriteBatch screen;
@@ -42,6 +44,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	boolean hit;         // If true end game
 	boolean start;
 	int score;
+	int top_score;
 	
 	// Difficulty / Speed
 	float scroll_speed;
@@ -53,11 +56,12 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		public boolean touched = false;
 	}
 
-	 
 	@Override
 	public void create() {		
 		Gdx.input.setInputProcessor(this);
-					
+		// Load Top Score
+		load_prefs();
+		
 		// Screen width and height
 		w = Gdx.graphics.getWidth();
 		h = Gdx.graphics.getHeight();
@@ -110,6 +114,27 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			obs_t.y = (h + 1) - obs_t.height;
 			object_array.add(obs_t);
 		}
+	}
+	
+	private void load_prefs(){
+		// Settings
+		prefs = Gdx.app.getPreferences("flappy_box");
+
+		if (!prefs.contains("top_score")){
+			prefs.putInteger("top_score", 0);
+			top_score = 0;
+		} else {
+			top_score = prefs.getInteger("top_score");
+		}
+
+		prefs.flush();
+	}
+	
+	private void save_prefs(){
+		// Settings
+		prefs.putInteger("top_score",score);
+		prefs.flush();
+		top_score = score;
 	}
 	
 	@Override
@@ -197,10 +222,10 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}
 		batch.end();
 		
-		//screen.begin();
-		//screen.draw(texture, 0, 0, 32,32);
-		//screen.draw(fish.texture, fish.x, fish.y, fish.width, fish.height);
-		//screen.end();	
+		screen.begin();
+		font.draw(screen, "Score           "+score, 20, 50);
+		font.draw(screen, "High Score  "+ top_score, 20, 20);
+		screen.end();	
 	}
 
 	private void reset_game() {
@@ -240,6 +265,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		} else {
 			if (obs.hitbox.overlaps(player.hitbox)){
 				hit = true;
+				if (score > top_score ){
+					save_prefs();
+				}
 			}
 		}
 	}
