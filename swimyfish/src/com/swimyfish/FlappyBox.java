@@ -151,31 +151,25 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		float rand_height;
 		
 		// Obstacles
-		for (Obstacle obs : object_array){			
-			if (obs.x < -obs.width){
-				if (obs.t_or_b.equals("b")){
-					rand_height = random_height(min,max);
+		for (Obstacle box : object_array){			
+			if (box.bottom_x < -box.width){
+				// REPLACE BOX AT END
+				rand_height = random_height(min,max);
+				box.bottom_x += 4 * gap;	
+				box.bottom_h = rand_height;
 					
-					obs.x += 4 * gap;	
-					obs.height = rand_height;
-					obs.set_hitboxes(rand_height);
-				} else {
-					for (Obstacle box : object_array){
-						if (box.id == obs.id && box.t_or_b.equals("b")){
-							obs.x += 4 * gap;
-							obs.y = box.height + hole;
-							obs.height = h - (box.height + hole);
-							obs.set_hitboxes(obs.height);
-						}
-					}
-				}
-			
-				obs.scored = false;
+				box.top_x += 4 * gap;
+				box.top_y = box.bottom_h + hole;
+				box.top_h = h - (box.bottom_h + hole);
+					
+				box.set_hitboxes(rand_height);
+				
+				box.scored = false;
 			} else {
-				obs.x -= scroll_speed;	
+				box.bottom_x -= scroll_speed;	
+				box.top_x -= scroll_speed;
+				box.update_hitboxes(scroll_speed);
 			}
-			obs.hitbox.setPosition(obs.x, obs.y);
-			obs.scorebox.setPosition(obs.x + (obs.width/2), obs.y);
 		}	
 		
 		// Player
@@ -230,8 +224,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		batch.draw(player.texture, player.x, player.y, player.width, player.height);
 		
 		// OBSTACLES
-		for (Obstacle obs : object_array){
-			batch.draw(obs.texture, obs.x, obs.y, obs.width, obs.height);	
+		for (Obstacle box : object_array){
+			batch.draw(box.top_texture, box.top_x, box.top_y, box.width, box.top_h);	
+			batch.draw(box.top_texture, box.bottom_x, box.bottom_y, box.width, box.bottom_h);
 		}
 		batch.end();
 		
@@ -256,40 +251,36 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// Obstacles
 		object_array.clear();
-		Obstacle obs_t, obs_b;
+		Obstacle box;
 		
 		float rand_height;
 		hole =  h/3f;
 				
 		for (int i = 0; i < 4; i++){
-			
 			// Set Random height for bottom box
 			rand_height = random_height(min,max);
 			
 			// BOTTOM BOX
-			obs_b = new Obstacle(w, h, i+1, "b");
-			obs_b.height = rand_height;
-			obs_b.x = (i * gap) + w;
-			obs_b.y = 0;
-			obs_b.set_hitboxes(rand_height);
-			object_array.add(obs_b);	
+			box = new Obstacle(w, h, i+1);
+			box.bottom_h = rand_height;
+			box.bottom_x = (i * gap) + w;
+			box.bottom_y = 0;
 			
 			// TOP BOX
-			obs_t = new Obstacle(w, h, i+1, "t");
-			obs_t.x = obs_b.x;
-			obs_t.y = obs_b.height + hole;
-			obs_t.height = h - (obs_b.height + hole);
-			obs_t.set_hitboxes(obs_t.height);
-			object_array.add(obs_t);
+			box.top_x = box.bottom_x;
+			box.top_y = box.bottom_h + hole;
+			box.top_h = h - (box.bottom_h + hole);
+			box.set_hitboxes(rand_height);
+			object_array.add(box);				
 		}
 	}
 	
-	private void check_collision(Obstacle obs) {		
-		if (obs.scorebox.overlaps(player.hitbox) && !obs.scored){
-			obs.scored = true;
+	private void check_collision(Obstacle box) {		
+		if (box.scorebox.overlaps(player.hitbox) && !box.scored){
+			box.scored = true;
 			score ++;
 		} else {
-			if (obs.hitbox.overlaps(player.hitbox)){
+			if (box.top_hitbox.overlaps(player.hitbox) || box.bottom_hitbox.overlaps(player.hitbox)){
 				hit = true;
 				if (score > top_score ){
 					save_prefs();
