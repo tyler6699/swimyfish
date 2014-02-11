@@ -21,6 +21,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	private SpriteBatch batch;
 	private SpriteBatch screen;
 	private Texture texture;
+	private Texture dead;
 	
 	private TouchInfo touched;
 	private BitmapFont font;
@@ -55,7 +56,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	float scroll_speed;
 	private float gap;
 	int max, min;
-		
+			
 	class TouchInfo {
 		public float touchX = 0;
 		public float touchY = 0;
@@ -91,7 +92,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		// SpriteBatch for camera
 		screen = new SpriteBatch();
 		texture = new Texture(Gdx.files.internal("data/libgdx.png"));
-				
+		dead = new Texture(Gdx.files.internal("data/hit.png"));	
+		
 		// New Player
 		player = new Player(w,h);
 		
@@ -177,6 +179,25 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			}
 		}	
 		
+		// CLOUDS 
+		// SHOULD GO BEHIND LAST ENTITY - FIX NEW X
+		for (Entity e: level.eclouds){
+			if (e.x < -(e.w)){
+				e.x += level.eclouds.size() * e.w - 2;
+			} else {
+				e.x -= scroll_speed/2;
+			}
+		}
+		
+		for (Entity e: level.floor_toppers){
+			if (e.x < -(e.w)){
+				e.x += level.floor_toppers.size() * e.w - 3;
+			} else {
+				e.x -= scroll_speed*1.5;
+			}
+		}
+		
+				
 		// Player
 		if (grace_period <= max_grace){
 			grace_period ++;
@@ -229,12 +250,21 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		// BACKGROUND
 		batch.draw(level.esky.texture, level.esky.x, level.esky.y, level.esky.w, level.esky.h);
 		
+		// CLOUDS
+		for (Entity e: level.eclouds){
+			batch.draw(e.texture, e.x, e.y, e.w, e.h);
+		}
+				
 		// FLOOR
 		batch.draw(level.efloor.texture, level.efloor.x, level.efloor.y, level.efloor.w, level.efloor.h);
 		
 		// PLAYER
-		batch.draw(player.texture, player.x, player.y, player.width, player.height);
-		
+		if (!hit){
+			batch.draw(player.texture, player.x, player.y, player.width, player.height);
+		} else {	
+			batch.draw(dead, player.x, player.y, player.width, player.height);
+		}
+				
 		// OBSTACLES
 		// REFACTOR ALL OF THIS ITS A MESS
 		for (Blocker box : object_array){
@@ -251,7 +281,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		for (Entity e: level.floor_toppers){
 			batch.draw(e.texture, e.x, e.y, e.w, e.h);
 		}
-		
+				
 		batch.end();
 		
 		screen.begin();

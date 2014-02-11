@@ -19,6 +19,9 @@ public class Level {
 	public Texture rays_1;
 	public Texture rays_2;
 	public Texture sky;
+	public Texture cloud;
+	public Entity ecloud;
+	public ArrayList<Entity> eclouds;
 	
 	public Entity efloor;
 	public Entity efloor_top;
@@ -35,9 +38,9 @@ public class Level {
 		this.w = w;
 		this.h = h;
 		
-		// Array for toppers
+		// Array for toppers & clouds
 		floor_toppers = new ArrayList<Entity>(); 
-		
+		eclouds       = new ArrayList<Entity>(); 
 		if (level.equals("level_1")){
 			blocker_floor = new Texture(Gdx.files.internal("data/box_water.png"));
 			blocker       = new Texture(Gdx.files.internal("data/log.png"));
@@ -46,6 +49,7 @@ public class Level {
 			sky           = new Texture(Gdx.files.internal("data/sky.png"));
 			rays_1        = new Texture(Gdx.files.internal("data/rays_2.png"));
 			rays_2        = new Texture(Gdx.files.internal("data/rays_4.png"));
+			cloud         = new Texture(Gdx.files.internal("data/cloud.png"));
 		}
 		
 		efloor     = new Entity();
@@ -78,7 +82,9 @@ public class Level {
 		efloor.texture = floor;
 		
 		// FLOOR TOP
-		for (int i = 0; i < 4; i++){
+		int min = (int) Math.ceil(w/floor_top.getWidth());
+		min += 1;
+		for (int i = 0; i < min; i++){
 			efloor_top = new Entity();
 			efloor_top.x = floor_top.getWidth()*(i);
 			efloor_top.y = (0.2f*h)-8;
@@ -87,6 +93,20 @@ public class Level {
 			efloor_top.texture = floor_top;
 			floor_toppers.add(efloor_top);
 		}
+		
+		// CLOUDS
+		min = (int) Math.ceil(w/cloud.getWidth());
+		min += 2;
+		for (int i = 0; i < min; i++){
+			ecloud = new Entity();
+			ecloud.x = cloud.getWidth()*(i);
+			ecloud.y = h-cloud.getHeight();
+			ecloud.w = cloud.getWidth();
+			ecloud.h = cloud.getHeight();
+			ecloud.texture = cloud;
+			eclouds.add(ecloud);
+		}
+		
 		
 		// RAYS 1
 		erays_1.x = (w/5) *1;
