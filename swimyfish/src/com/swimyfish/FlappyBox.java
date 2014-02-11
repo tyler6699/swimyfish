@@ -44,6 +44,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	float max_gravity;  // Gravity
 	float min_gravity;  // Gravity
 	float fly_up;       // Increase Y by amount per tick
+	float re_jump_time;
 	float grace_period;
 	float max_grace;
 	float glide;        // 
@@ -102,8 +103,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// Game settings
 		hit           = true;
-		max_grace	  = 30;
+		max_grace	  = 5;
 		grace_period  = 0;
+		re_jump_time  = 3;
 		fly_time      = 0;
 		max_fly_time  = 25;
 		min_gravity   = 5;
@@ -199,34 +201,29 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 				
 		// Player
-		if (grace_period <= max_grace){
-			grace_period ++;
-		} else {
-			if (fly_time > glide){
-				fly_time -= 1;
-				if ( not_too_high() ){
-					update_gravity(false);
-					player.y += fly_up;	
-				}
-			} else if (fly_time > 0 && fly_time <= glide ){
+		if (fly_time > 0){
+			fly_time -= 1;
+			if ( not_too_high() ){
 				update_gravity(false);
-				fly_time -= 1;
-			} else {
-				if ( not_too_low() ){
-					update_gravity(true);
-					player.y -= gravity;
-				}
+				player.y += fly_up;	
 			}
-			
-			player.hitbox.setPosition(player.x, player.y);
-			
-			for (Blocker box : object_array){
-				if (!hit){
-					check_collision(box);
-				}
+		} else if (grace_period > 0){
+			grace_period -= 1;
+			update_gravity(false);
+		} else {
+			if ( not_too_low() ){
+				update_gravity(true);
+				player.y -= gravity;
 			}
-		}
-		
+		}	
+			
+		player.hitbox.setPosition(player.x, player.y);
+			
+		for (Blocker box : object_array){
+			if (!hit){
+				check_collision(box);
+			}
+		}	
 	}
 	
 	private void update_gravity(boolean falling){
@@ -294,7 +291,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		score = 0;
 		scroll_speed = 4;
 		fly_time = max_fly_time;
-		grace_period  = 0;
+		grace_period  = max_grace;
 		
 		// Player
 		player.y = (w/2) - 200;
@@ -405,8 +402,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		touched.touched = true;
 		
 		if (!hit){ 
-			if (fly_time <= glide){
+			if (fly_time <= re_jump_time){
 				fly_time = max_fly_time;
+				grace_period  = max_grace;
 			}
 		} else {
 			reset_game();
