@@ -29,7 +29,6 @@ public class Level {
 	public Entity erays_2;
 	public Entity esky;
 	
-	@SuppressWarnings("static-access")
 	public Level(String level, float w, float h){
 		// Scene	
 		GLTexture.setEnforcePotImages(false);
@@ -95,7 +94,7 @@ public class Level {
 		erays_1.w = rays_1.getWidth();
 		erays_1.h = rays_1.getHeight();
 		erays_1.texture = rays_1;
-		// 2
+		// RAYS 2
 		erays_2.x = (w/5) *4;
 		erays_2.y = efloor.h - rays_1.getHeight();
 		erays_2.w = rays_1.getWidth();

@@ -1,59 +1,49 @@
 package com.swimyfish;
-
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Blocker {
 	public int id;
-	public float width;
-	
-	// TOP
-	public float top_x = 0;
-	public float top_y = 0;
-	public Texture top_texture;
-	public float top_h;
-	public Rectangle top_hitbox;
-	
-	// BOTTOM
-	public float bottom_x = 0;
-	public float bottom_y = 0;
-	public Texture bottom_texture;
-	public float bottom_h;
-	public Rectangle bottom_hitbox;
-	
+	public float width;	
 	public Rectangle scorebox;
 	public boolean scored;
-		
-	public Blocker(float w, float h, int no){
+	public Entity high;
+	public Entity low;
+	
+	public Blocker(float w, float h, int no, Level level){
 		// 1196 x 768	
-		id         = no;
-		width      = 95;
-		top_x      = w + 20;
-		top_y      = 0;	
-		top_h      = h/3;
-		top_hitbox = new Rectangle(top_x,top_y,width,top_h);
+		id = no;
 		
-		bottom_x      = w + 20;
-		bottom_y      = 0;	
-		bottom_h      = h/3;
-		bottom_hitbox = new Rectangle(bottom_x,bottom_y,width,bottom_h);
-
+		// TOP BOX
+		high = new Entity();
+		high.x = w + 20;
+		high.y = 0;
+		high.w = 70;//level.floor.getWidth();
+		high.h = h/3;
+		high.hitbox = new Rectangle(high.x,high.y,high.w,high.h); 
+		high.texture = level.log_up;
+		
+		// BOTTOM BOX
+		low = new Entity();
+		low.x = w + 20;
+		low.y = 0;
+		low.w = 70;//level.floor.getWidth();
+		low.h = h/3;
+		low.hitbox = new Rectangle(low.x,low.y,low.w,low.h); 
+		low.texture = level.log_up;
+		
 		scorebox  = new Rectangle(0,0,10,h);
 		scored    = false;
-		
-		top_texture   = new Texture(Gdx.files.internal("data/libgdx.png"));
 	}
 	
 	public void set_hitboxes(float h){
-		top_hitbox.set(top_x,top_y,width,h);
-		bottom_hitbox.set(bottom_x,bottom_y,width,h);
+		high.hitbox.set(high.x,high.y,high.w,high.h);
+		low.hitbox.set(low.x,low.y,low.w,low.h);;
 	}
 	
 	public void update_hitboxes(float x){
-		top_hitbox.setPosition(top_x - x, top_y);
-		bottom_hitbox.setPosition(bottom_x - x, bottom_y);
-		scorebox.setPosition(top_x - x, 0);
+		high.hitbox.setPosition(high.x - x,high.y);	
+		low.hitbox.setPosition(low.x - x,low.y);	
+		scorebox.setPosition(high.x - x, 0);
 	}
 	
 }

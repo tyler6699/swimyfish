@@ -62,7 +62,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		public boolean touched = false;
 	}
 
-	@SuppressWarnings("static-access")
 	@Override
 	public void create() {		
 		Gdx.input.setInputProcessor(this);
@@ -158,22 +157,22 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// Obstacles
 		for (Blocker box : object_array){			
-			if (box.bottom_x < -box.width){
+			if (box.low.x < -(box.low.w*2)){
 				// REPLACE BOX AT END
 				rand_height = random_height(min,max);
-				box.bottom_x += 4 * gap;	
-				box.bottom_h = rand_height;
+				box.low.x += 4 * gap;	
+				box.low.h = rand_height;
 					
-				box.top_x += 4 * gap;
-				box.top_y = box.bottom_h + hole;
-				box.top_h = h - (box.bottom_h + hole);
+				box.high.x += 4 * gap;
+				box.high.y = box.low.h + hole;
+				box.high.h = h - (box.low.h + hole);
 					
 				box.set_hitboxes(rand_height);
 				
 				box.scored = false;
 			} else {
-				box.bottom_x -= scroll_speed;	
-				box.top_x -= scroll_speed;
+				box.low.x -= scroll_speed;	
+				box.high.x -= scroll_speed;
 				box.update_hitboxes(scroll_speed);
 			}
 		}	
@@ -237,10 +236,11 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		batch.draw(player.texture, player.x, player.y, player.width, player.height);
 		
 		// OBSTACLES
+		// REFACTOR ALL OF THIS ITS A MESS
 		for (Blocker box : object_array){
-			batch.draw(box.top_texture, box.top_x, box.top_y, box.width, box.top_h);	
-			batch.draw(level.log_up, box.bottom_x, box.bottom_h - 748 , box.width, 748);
-			batch.draw(level.log_floor, box.bottom_x, box.bottom_y, box.width, 0.2f*h);
+			batch.draw(box.high.texture, box.high.x, box.high.y, box.high.w, box.high.h);	
+			batch.draw(box.low.texture, box.low.x, box.low.y, box.low.w, box.low.h);
+			batch.draw(level.log_floor, box.low.x, box.low.y, box.low.w, 0.2f*h);
 		}
 		
 		// RAYS
@@ -285,15 +285,16 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			rand_height = random_height(min,max);
 			
 			// BOTTOM BOX
-			box = new Blocker(w, h, i+1);
-			box.bottom_h = rand_height;
-			box.bottom_x = (i * gap) + w;
-			box.bottom_y = 0;
+			box = new Blocker(w, h, i+1, level);
+			box.low.h = rand_height;
+			box.low.x = (i * gap) + w;
+			box.low.y = 0;
 			
 			// TOP BOX
-			box.top_x = box.bottom_x;
-			box.top_y = box.bottom_h + hole;
-			box.top_h = h - (box.bottom_h + hole);
+			box.high.x = box.low.x;
+			box.high.y = box.low.h + hole;
+			box.high.h = h - (box.low.h + hole);	
+						
 			box.set_hitboxes(rand_height);
 			object_array.add(box);				
 		}
@@ -304,7 +305,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			box.scored = true;
 			score ++;
 		} else {
-			if (box.top_hitbox.overlaps(player.hitbox) || box.bottom_hitbox.overlaps(player.hitbox)){
+			if (box.high.hitbox.overlaps(player.hitbox) || box.low.hitbox.overlaps(player.hitbox)){
 				hit = true;
 				if (score > top_score ){
 					save_prefs();
