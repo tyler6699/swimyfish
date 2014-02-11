@@ -238,9 +238,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		// OBSTACLES
 		// REFACTOR ALL OF THIS ITS A MESS
 		for (Blocker box : object_array){
-			batch.draw(box.high.texture, box.high.x, box.high.y, box.high.w, box.high.h);	
-			batch.draw(box.low.texture, box.low.x, box.low.y, box.low.w, box.low.h);
-			batch.draw(level.log_floor, box.low.x, box.low.y, box.low.w, 0.2f*h);
+			batch.draw(box.high.texture, box.high.x, box.high.y, box.high.w, box.high.texture.getHeight());	
+			batch.draw(box.low.texture, box.low.x, box.low.h - box.low.texture.getHeight(), box.low.w, box.low.texture.getHeight());
+			batch.draw(level.blocker_floor, box.low.x, box.low.y, box.low.w, 0.2f*h);
 		}
 		
 		// RAYS

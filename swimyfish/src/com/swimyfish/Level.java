@@ -14,8 +14,8 @@ public class Level {
 	// Scene
 	public Texture floor;
 	public Texture floor_top;
-	public Texture log_up;
-	public Texture log_floor;
+	public Texture blocker;
+	public Texture blocker_floor;
 	public Texture rays_1;
 	public Texture rays_2;
 	public Texture sky;
@@ -39,13 +39,13 @@ public class Level {
 		floor_toppers = new ArrayList<Entity>(); 
 		
 		if (level.equals("level_1")){
-			log_floor = new Texture(Gdx.files.internal("data/box_water.png"));
-			log_up    = new Texture(Gdx.files.internal("data/log_up.png"));
-			floor     = new Texture(Gdx.files.internal("data/sea.png"));
-			floor_top = new Texture(Gdx.files.internal("data/wave.png"));
-			sky       = new Texture(Gdx.files.internal("data/sky.png"));
-			rays_1    = new Texture(Gdx.files.internal("data/rays_2.png"));
-			rays_2    = new Texture(Gdx.files.internal("data/rays_4.png"));
+			blocker_floor = new Texture(Gdx.files.internal("data/box_water.png"));
+			blocker       = new Texture(Gdx.files.internal("data/log.png"));
+			floor         = new Texture(Gdx.files.internal("data/sea.png"));
+			floor_top     = new Texture(Gdx.files.internal("data/wave.png"));
+			sky           = new Texture(Gdx.files.internal("data/sky.png"));
+			rays_1        = new Texture(Gdx.files.internal("data/rays_2.png"));
+			rays_2        = new Texture(Gdx.files.internal("data/rays_4.png"));
 		}
 		
 		efloor     = new Entity();
@@ -59,9 +59,9 @@ public class Level {
 		// COLUMN
 		elog_up.x = 0;
 		elog_up.y = 0;
-		elog_up.w = log_up.getHeight();
-		elog_up.h = log_up.getHeight();
-		elog_up.texture = log_up;
+		elog_up.w = blocker.getHeight();
+		elog_up.h = blocker.getHeight();
+		elog_up.texture = blocker;
 		
 		// SKY
 		esky.x = 0;

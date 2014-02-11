@@ -20,7 +20,7 @@ public class Blocker {
 		high.w = 70;//level.floor.getWidth();
 		high.h = h/3;
 		high.hitbox = new Rectangle(high.x,high.y,high.w,high.h); 
-		high.texture = level.log_up;
+		high.texture = level.blocker;
 		
 		// BOTTOM BOX
 		low = new Entity();
@@ -29,7 +29,7 @@ public class Blocker {
 		low.w = 70;//level.floor.getWidth();
 		low.h = h/3;
 		low.hitbox = new Rectangle(low.x,low.y,low.w,low.h); 
-		low.texture = level.log_up;
+		low.texture = level.blocker;
 		
 		scorebox  = new Rectangle(0,0,10,h);
 		scored    = false;
