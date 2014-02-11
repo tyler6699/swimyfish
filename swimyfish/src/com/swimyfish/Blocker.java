@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 
-public class Obstacle {
+public class Blocker {
 	public int id;
 	public float width;
 	
@@ -25,10 +25,10 @@ public class Obstacle {
 	public Rectangle scorebox;
 	public boolean scored;
 		
-	public Obstacle(float w, float h, int no){
+	public Blocker(float w, float h, int no){
 		// 1196 x 768	
 		id         = no;
-		width      = w/12;
+		width      = 95;
 		top_x      = w + 20;
 		top_y      = 0;	
 		top_h      = h/3;

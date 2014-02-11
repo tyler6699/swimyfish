@@ -13,7 +13,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Rectangle;
 import com.swimyfish.Player;
 
 public class FlappyBox implements ApplicationListener, InputProcessor{
@@ -30,21 +29,24 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	// Player Entity
 	private Player player;
 	
+	//Level
+	private Level level;
+	
 	// Obstacles
-	private ArrayList<Obstacle> object_array;
+	private ArrayList<Blocker> object_array;
 	float hole;
 	
 	// Game Vars
 	float fly_time;      // > 0 = moving up
 	float max_fly_time;  // Amount of time player raises and gravity disabled 
-	float gravity;     // Gravity
-	float max_gravity; // Gravity
-	float min_gravity; // Gravity
-	float fly_up;        // Increase Y by amount per tick
+	float gravity;      // Gravity
+	float max_gravity;  // Gravity
+	float min_gravity;  // Gravity
+	float fly_up;       // Increase Y by amount per tick
 	float grace_period;
 	float max_grace;
-	float glide;         // 
-	boolean hit;         // If true end game
+	float glide;        // 
+	boolean hit;        // If true end game
 	boolean start;
 	int score;
 	int top_score;
@@ -60,6 +62,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		public boolean touched = false;
 	}
 
+	@SuppressWarnings("static-access")
 	@Override
 	public void create() {		
 		Gdx.input.setInputProcessor(this);
@@ -89,9 +92,12 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		// SpriteBatch for camera
 		screen = new SpriteBatch();
 		texture = new Texture(Gdx.files.internal("data/libgdx.png"));
-		
+				
 		// New Player
 		player = new Player(w,h);
+		
+		// Level
+		level = new Level("level_1", w, h);
 		
 		// Game settings
 		hit           = true;
@@ -108,7 +114,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// Obstacles
 		gap = w/3;
-		object_array = new ArrayList<Obstacle>();		
+		object_array = new ArrayList<Blocker>();		
 	}
 	
 	private void load_prefs(){
@@ -151,7 +157,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		float rand_height;
 		
 		// Obstacles
-		for (Obstacle box : object_array){			
+		for (Blocker box : object_array){			
 			if (box.bottom_x < -box.width){
 				// REPLACE BOX AT END
 				rand_height = random_height(min,max);
@@ -194,9 +200,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			
 			player.hitbox.setPosition(player.x, player.y);
 			
-			for (Obstacle obs : object_array){
+			for (Blocker box : object_array){
 				if (!hit){
-					check_collision(obs);
+					check_collision(box);
 				}
 			}
 		}
@@ -220,19 +226,37 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		camera.update();
 		
 		batch.begin();
+	
+		// BACKGROUND
+		batch.draw(level.esky.texture, level.esky.x, level.esky.y, level.esky.w, level.esky.h);
+		
+		// FLOOR
+		batch.draw(level.efloor.texture, level.efloor.x, level.efloor.y, level.efloor.w, level.efloor.h);
+		
 		// PLAYER
 		batch.draw(player.texture, player.x, player.y, player.width, player.height);
 		
 		// OBSTACLES
-		for (Obstacle box : object_array){
+		for (Blocker box : object_array){
 			batch.draw(box.top_texture, box.top_x, box.top_y, box.width, box.top_h);	
-			batch.draw(box.top_texture, box.bottom_x, box.bottom_y, box.width, box.bottom_h);
+			batch.draw(level.log_up, box.bottom_x, box.bottom_h - 748 , box.width, 748);
+			batch.draw(level.log_floor, box.bottom_x, box.bottom_y, box.width, 0.2f*h);
 		}
+		
+		// RAYS
+		batch.draw(level.erays_1.texture, level.erays_1.x, level.erays_1.y, level.erays_1.w, level.erays_1.h);
+		batch.draw(level.erays_2.texture, level.erays_2.x, level.erays_2.y, level.erays_2.w, level.erays_2.h);
+		
+		// FLOOR TOPPER
+		for (Entity e: level.floor_toppers){
+			batch.draw(e.texture, e.x, e.y, e.w, e.h);
+		}
+		
 		batch.end();
 		
 		screen.begin();
 		font.draw(screen, "Score           "+score, 20, 50);
-		font.draw(screen, "High Score  "+ top_score, 20, 20);
+		font.draw(screen, "High Score  "+ top_score, 20, 20);		
 		screen.end();	
 	}
 
@@ -251,7 +275,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// Obstacles
 		object_array.clear();
-		Obstacle box;
+		Blocker box;
 		
 		float rand_height;
 		hole =  h/3f;
@@ -261,7 +285,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			rand_height = random_height(min,max);
 			
 			// BOTTOM BOX
-			box = new Obstacle(w, h, i+1);
+			box = new Blocker(w, h, i+1);
 			box.bottom_h = rand_height;
 			box.bottom_x = (i * gap) + w;
 			box.bottom_y = 0;
@@ -275,7 +299,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}
 	}
 	
-	private void check_collision(Obstacle box) {		
+	private void check_collision(Blocker box) {		
 		if (box.scorebox.overlaps(player.hitbox) && !box.scored){
 			box.scored = true;
 			score ++;
