@@ -21,6 +21,7 @@ public class Player {
 		y = (h/2) - (width/2);	
 		hitbox = new Rectangle(x,y,width,height);
 		texture = new Texture(Gdx.files.internal("data/libgdx.png"));
+		// texture = new Texture(Gdx.files.internal("data/disco.png"));
 		texture_2 = new Texture(Gdx.files.internal("data/dark.png"));
 	}
 }

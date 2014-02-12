@@ -23,9 +23,11 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	private Texture texture;
 	private Texture dead;
 	
-	//debug
+	// DEBUG
+	boolean debug = true;
 	int tick = 0;
 	public ArrayList<Entity> plotter = new ArrayList<Entity>();
+	// DEBUG
 	
 	private TouchInfo touched;
 	private BitmapFont font;
@@ -107,7 +109,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// Game settings
 		hit           = true;
-		max_grace	  = 5;
+		max_grace	  = 2;
 		grace_period  = 0;
 		re_jump_time  = 3;
 		fly_time      = 0;
@@ -117,7 +119,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		gravity       = min_gravity;
 		fly_up        = 5;
 		glide         = 3;
-		scroll_speed  = 4;
+		scroll_speed  = 6;
 		
 		// Obstacles
 		gap = w/3;
@@ -229,15 +231,16 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}	
 		
 		//DEBUG
-		tick ++;
-		System.out.println(tick);
-		Entity tmp = new Entity();
-		tmp.x = player.x;
-		tmp.y = player.y;
-		tmp.w = player.width;
-		tmp.h = player.height;
-		tmp.texture = player.texture;
-		plotter.add(tmp);
+		if (debug){
+			tick ++;
+			Entity tmp = new Entity();
+			tmp.x = player.x;
+			tmp.y = player.y;
+			tmp.w = player.width;
+			tmp.h = player.height;
+			tmp.texture = player.texture;
+			plotter.add(tmp);
+			}
 	}
 	
 	private void update_gravity(boolean falling){
@@ -294,14 +297,14 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}
 		
 		// DEBUG
-		
-		for (Entity e: plotter){
-			if (!hit){
-				e.x -= 4;
+		if (debug){
+			for (Entity e: plotter){
+				if (!hit){
+					e.x -= 4;
+				}
+				batch.draw(e.texture, e.x, e.y, e.w, e.h);
 			}
-			batch.draw(e.texture, e.x, e.y, e.w, e.h);
-		}
-				
+		}		
 		batch.end();
 		
 		screen.begin();
