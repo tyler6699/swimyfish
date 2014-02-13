@@ -24,9 +24,10 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	private Texture dead;
 	
 	// DEBUG
-	boolean debug = true;
+	boolean trail = true;
 	int tick = 0;
 	public ArrayList<Entity> plotter = new ArrayList<Entity>();
+	int trail_length;
 	// DEBUG
 	
 	private TouchInfo touched;
@@ -73,6 +74,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	@Override
 	public void create() {		
 		Gdx.input.setInputProcessor(this);
+		
+		trail_length = 50;
+				
 		// Load Top Score
 		load_prefs();
 		
@@ -98,14 +102,14 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// SpriteBatch for camera
 		screen = new SpriteBatch();
-		texture = new Texture(Gdx.files.internal("data/libgdx.png"));
+		texture = new Texture(Gdx.files.internal("data/player.png"));
 		dead = new Texture(Gdx.files.internal("data/hit.png"));	
 		
 		// New Player
 		player = new Player(w,h);
 		
 		// Level
-		level = new Level("level_1", w, h);
+		level = new Level("level_2", w, h);
 		
 		// Game settings
 		hit           = true;
@@ -188,10 +192,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}	
 		
 		// CLOUDS 
-		// SHOULD GO BEHIND LAST ENTITY - FIX NEW X
 		for (Entity e: level.eclouds){
 			if (e.x < -(e.w)){
-				e.x += level.eclouds.size() * e.w - 2;
+				e.x += level.eclouds.size() * e.w - (scroll_speed/2);
 			} else {
 				e.x -= scroll_speed/2;
 			}
@@ -199,7 +202,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		for (Entity e: level.floor_toppers){
 			if (e.x < -(e.w)){
-				e.x += level.floor_toppers.size() * e.w - 3;
+				e.x += level.floor_toppers.size() * e.w - (scroll_speed*1.5);
 			} else {
 				e.x -= scroll_speed*1.5;
 			}
@@ -230,17 +233,21 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			}
 		}	
 		
-		//DEBUG
-		if (debug){
+		// TRAIL
+		if (trail){
 			tick ++;
 			Entity tmp = new Entity();
 			tmp.x = player.x;
 			tmp.y = player.y;
 			tmp.w = player.width;
 			tmp.h = player.height;
-			tmp.texture = player.texture;
+			tmp.texture = player.trail;
 			plotter.add(tmp);
-			}
+		}
+		
+		if (plotter.size() > trail_length){
+			plotter.remove(0);
+		}
 	}
 	
 	private void update_gravity(boolean falling){
@@ -271,12 +278,22 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				
 		// FLOOR
 		batch.draw(level.efloor.texture, level.efloor.x, level.efloor.y, level.efloor.w, level.efloor.h);
+
+		if (trail && plotter.size() > 0){
+			for (int i = 0; i < plotter.size(); i++){
+				Entity e = plotter.get(i);
+				if (!hit){
+					e.x -= 4;
+				}
+				batch.draw(e.texture, e.x, e.y, e.w - (plotter.size()-i), e.h - (plotter.size()-i));
+			}
+		}		
 		
 		// PLAYER
 		if (!hit){
-			batch.draw(player.texture, player.x, player.y, player.width, player.height);
+			batch.draw(player.player_alive, player.x, player.y, player.width, player.height);
 		} else {	
-			batch.draw(dead, player.x, player.y, player.width, player.height);
+			batch.draw(player.player_hit, player.x, player.y, player.width, player.height);
 		}
 				
 		// OBSTACLES
@@ -284,7 +301,10 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		for (Blocker box : object_array){
 			batch.draw(box.high.texture, box.high.x, box.high.y, box.high.w, box.high.texture.getHeight());	
 			batch.draw(box.low.texture, box.low.x, box.low.h - box.low.texture.getHeight(), box.low.w, box.low.texture.getHeight());
-			batch.draw(level.blocker_floor, box.low.x, box.low.y, box.low.w, 0.2f*h);
+			if (level.show_blocker_lower){
+				batch.draw(level.blocker_floor, box.low.x, box.low.y, box.low.w, level.floor_h);	
+			}
+			
 		}
 		
 		// RAYS
@@ -295,16 +315,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		for (Entity e: level.floor_toppers){
 			batch.draw(e.texture, e.x, e.y, e.w, e.h);
 		}
-		
-		// DEBUG
-		if (debug){
-			for (Entity e: plotter){
-				if (!hit){
-					e.x -= 4;
-				}
-				batch.draw(e.texture, e.x, e.y, e.w, e.h);
-			}
-		}		
 		batch.end();
 		
 		screen.begin();

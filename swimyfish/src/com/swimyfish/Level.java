@@ -10,6 +10,9 @@ public class Level {
 	
 	// Device
 	float w,h;
+	float floor_h;
+	float cloud_h;
+	public boolean show_blocker_lower = true;
 	
 	// Scene
 	public Texture floor;
@@ -41,15 +44,22 @@ public class Level {
 		// Array for toppers & clouds
 		floor_toppers = new ArrayList<Entity>(); 
 		eclouds       = new ArrayList<Entity>(); 
+				
+		blocker_floor = new Texture(Gdx.files.internal("data/" + level + "/blocker_floor.png"));
+		blocker       = new Texture(Gdx.files.internal("data/" + level + "/blocker.png"));
+		floor         = new Texture(Gdx.files.internal("data/" + level + "/floor.png"));
+		floor_top     = new Texture(Gdx.files.internal("data/" + level + "/floor_top.png"));
+		sky           = new Texture(Gdx.files.internal("data/" + level + "/sky.png"));
+		rays_1        = new Texture(Gdx.files.internal("data/" + level + "/rays_1.png"));
+		rays_2        = new Texture(Gdx.files.internal("data/" + level + "/rays_2.png"));
+		cloud         = new Texture(Gdx.files.internal("data/" + level + "/cloud.png"));
+
 		if (level.equals("level_1")){
-			blocker_floor = new Texture(Gdx.files.internal("data/box_water.png"));
-			blocker       = new Texture(Gdx.files.internal("data/log.png"));
-			floor         = new Texture(Gdx.files.internal("data/sea.png"));
-			floor_top     = new Texture(Gdx.files.internal("data/wave.png"));
-			sky           = new Texture(Gdx.files.internal("data/sky.png"));
-			rays_1        = new Texture(Gdx.files.internal("data/rays_2.png"));
-			rays_2        = new Texture(Gdx.files.internal("data/rays_4.png"));
-			cloud         = new Texture(Gdx.files.internal("data/cloud.png"));
+			floor_h = 0.2f*h;
+			cloud_h = h-cloud.getHeight();
+		} else if (level.equals("level_2")){
+			floor_h = 0.1f*h;
+			cloud_h = floor_h;
 		}
 		
 		efloor     = new Entity();
@@ -63,9 +73,9 @@ public class Level {
 		// COLUMN
 		elog_up.x = 0;
 		elog_up.y = 0;
-		elog_up.w = blocker.getHeight();
-		elog_up.h = blocker.getHeight();
 		elog_up.texture = blocker;
+		elog_up.w = blocker.getWidth();
+		elog_up.h = blocker.getHeight();
 		
 		// SKY
 		esky.x = 0;
@@ -78,7 +88,7 @@ public class Level {
 		efloor.x = 0;
 		efloor.y = 0;
 		efloor.w = w;
-		efloor.h = 0.2f*h;
+		efloor.h = floor_h;
 		efloor.texture = floor;
 		
 		// FLOOR TOP
@@ -87,7 +97,7 @@ public class Level {
 		for (int i = 0; i < min; i++){
 			efloor_top = new Entity();
 			efloor_top.x = floor_top.getWidth()*(i);
-			efloor_top.y = (0.2f*h)-8;
+			efloor_top.y = (floor_h)-8;
 			efloor_top.w = floor_top.getWidth();
 			efloor_top.h = floor_top.getHeight();
 			efloor_top.texture = floor_top;
@@ -100,7 +110,7 @@ public class Level {
 		for (int i = 0; i < min; i++){
 			ecloud = new Entity();
 			ecloud.x = cloud.getWidth()*(i);
-			ecloud.y = h-cloud.getHeight();
+			ecloud.y = cloud_h;
 			ecloud.w = cloud.getWidth();
 			ecloud.h = cloud.getHeight();
 			ecloud.texture = cloud;
