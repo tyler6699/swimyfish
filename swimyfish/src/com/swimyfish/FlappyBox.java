@@ -23,6 +23,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	private SpriteBatch screen;
 	
 	// DEBUG
+	int level_id;
 	boolean trail = true;
 	int tick = 0;
 	public ArrayList<Entity> plotter = new ArrayList<Entity>();
@@ -77,6 +78,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	public void create() {		
 		Gdx.input.setInputProcessor(this);
 		
+		// test level changer
+		level_id = 1;
+		
 		trail_length = 50;
 				
 		// Load Top Score
@@ -114,7 +118,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		player = new Player(w,h);
 		
 		// Level
-		level = new Level("level_2", w, h);
+		level = new Level("level_" + level_id, w, h);
 		
 		// Game settings
 		hit           = true;
@@ -333,6 +337,14 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	}
 
 	private void reset_game() {
+		
+		if (level_id == 1){
+			level_id = 2;
+		} else {
+			level_id = 1;
+		}
+		level = new Level("level_" + level_id, w, h);
+		
 		plotter.clear();
 		score = 0;
 		scroll_speed = 4;
