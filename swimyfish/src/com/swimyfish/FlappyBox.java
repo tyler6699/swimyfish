@@ -9,6 +9,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.GLTexture;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -20,8 +21,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	private OrthographicCamera camera;
 	private SpriteBatch batch;
 	private SpriteBatch screen;
-	private Texture texture;
-	private Texture dead;
 	
 	// DEBUG
 	boolean trail = true;
@@ -33,7 +32,10 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	private TouchInfo touched;
 	private BitmapFont font;
 	float w, h, x = 0, y = 0;
-		
+	
+	// Menu
+	private Texture menu, tubes;
+	
 	// Player Entity
 	private Player player;
 	
@@ -84,6 +86,11 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		w = Gdx.graphics.getWidth();
 		h = Gdx.graphics.getHeight();
 		
+		// MENU
+		GLTexture.setEnforcePotImages(false);
+		menu = new Texture(Gdx.files.internal("data/ui/menu_background.png"));
+		tubes = new Texture(Gdx.files.internal("data/ui/tubes.png"));
+		
 		// Columns
 		max = (int) (h*.8);
 		min = (int) (h*.2);
@@ -102,8 +109,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// SpriteBatch for camera
 		screen = new SpriteBatch();
-		texture = new Texture(Gdx.files.internal("data/player.png"));
-		dead = new Texture(Gdx.files.internal("data/hit.png"));	
 		
 		// New Player
 		player = new Player(w,h);
@@ -155,7 +160,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	public void dispose() {
 		screen.dispose();
 		batch.dispose();
-		texture.dispose();
 	}
 	
 	@Override
@@ -318,6 +322,11 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		batch.end();
 		
 		screen.begin();
+		if (hit){
+			screen.draw(menu, w/2 - menu.getWidth()/2 , h/2 - menu.getHeight()/2, menu.getWidth(), menu.getHeight());
+			screen.draw(tubes, w/2 - menu.getWidth()/2, h/2 - menu.getHeight()/2, tubes.getWidth(), tubes.getHeight());
+			
+		}
 		font.draw(screen, "Score           "+score, 20, 50);
 		font.draw(screen, "High Score  "+ top_score, 20, 20);		
 		screen.end();	
