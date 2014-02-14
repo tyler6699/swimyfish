@@ -95,11 +95,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		GLTexture.setEnforcePotImages(false);
 		menu = new Texture(Gdx.files.internal("data/ui/menu_background.png"));
 		tubes = new Texture(Gdx.files.internal("data/ui/tubes.png"));
-		
-		// Columns
-		max = (int) (h*.8);
-		min = (int) (h*.2);
-		
+				
 		// SCALE / RATIO
 		v_width = 1196;
 		v_height = 786;
@@ -184,19 +180,42 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	
 	private void logic() {	
 		float rand_height;
-		
+		Blocker last = new Blocker(w, h, 1, level, w_scale, h_scale);
+
 		// Obstacles
-		for (Blocker box : object_array){			
+		for (Blocker box : object_array){		
 			if (box.low.x < -(box.low.w*2)){
-				// REPLACE BOX AT END
-				rand_height = random_height(min,max);
+				// Check box in front to use as a guide for the new Y				
+				for (Blocker b : object_array){
+					if (box.id == 1 && b.id == 4){
+						last = b;
+					} else if (box.id == 2 && b.id == 1) {
+						last = b;
+					} else if (box.id == 3 && b.id == 2) {
+						last = b;
+					} else if (box.id == 4 && b.id == 3) {
+						last = b;
+					}
+				}
+						
+				max = (int) (box.high.y + box.high.h/3);
+				if (max > h){
+					max = (int) h;
+				}
+				min = (int) (box.high.y - box.high.h/3);
+				
+				//System.out.println("MOVE: " + box.id + " to Y:" + box.low.y + " Last (" + last.id +") Y: " + last.low.y);
+				System.out.println(" Currnet Y: " + box.high.y + " min: " +min + " max: " + max);
+				// Set Random height for bottom box
+				rand_height = random_height(min,max);		
+				
+				// LOW
 				box.low.x += 4 * gap;	
-				//box.low.h = rand_height;
-					
+				box.low.y = rand_height - box.low.h;
+				
+				// HIGH
 				box.high.x += 4 * gap;
-				//box.high.y = box.low.h + hole;
-				//box.high.h = h - (box.low.h + hole);
-					
+				box.high.y = box.low.y + box.low.h + hole;					
 				box.set_hitboxes();
 				
 				box.scored = false;
@@ -372,13 +391,19 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		hit          = false;
 		fly_time     = 0;
 		
+		// Columns
+		Blocker box;
+		box = new Blocker(w, h, 1, level, w_scale, h_scale);
+		max = (int) box.low.h;
+		min = (int) 0;
+				
 		// Obstacles
 		object_array.clear();
-		Blocker box;
 		
 		float rand_height;
 		hole =  h/3f;
-				
+		
+		
 		for (int i = 0; i < 4; i++){
 			// Set Random height for bottom box
 			rand_height = random_height(min,max);
@@ -394,7 +419,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 						
 			box.set_hitboxes();
 			object_array.add(box);	
-		}
+		}		
 	}
 	
 	private void check_collision(Blocker box) {		

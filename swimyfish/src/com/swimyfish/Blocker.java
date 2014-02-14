@@ -20,7 +20,6 @@ public class Blocker {
 		high.h = scale_h * level.blocker.getHeight();
 		high.x = w + (w/100)*scale_w;
 		high.y = h - third;
-		System.out.println(h + " " + high.h);
 		high.hitbox = new Rectangle(high.x,high.y,high.w,high.h); 
 		high.texture = level.blocker;
 		
