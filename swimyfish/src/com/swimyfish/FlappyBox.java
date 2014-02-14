@@ -46,6 +46,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	
 	// Obstacles
 	private ArrayList<Blocker> object_array;
+	// Gap player has to fit through
 	float hole;
 	
 	// Game Vars
@@ -198,24 +199,25 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 					}
 				}
 						
-				max = (int) (box.high.y + box.high.h/3);
-				if (max > h){
-					max = (int) h;
+				max = (int) (last.high.y + box.high.h/3);
+				if (max > h - (.95*h)){
+					max = (int) (.9f*h);
 				}
-				min = (int) (box.high.y - box.high.h/3);
+				min = (int) (last.high.y - box.high.h/3);
+				if (min < .1*h){
+					min = (int) (.1f*h);
+				}
 				
-				//System.out.println("MOVE: " + box.id + " to Y:" + box.low.y + " Last (" + last.id +") Y: " + last.low.y);
-				System.out.println(" Currnet Y: " + box.high.y + " min: " +min + " max: " + max);
-				// Set Random height for bottom box
-				rand_height = random_height(min,max);		
-				
-				// LOW
-				box.low.x += 4 * gap;	
-				box.low.y = rand_height - box.low.h;
+				System.out.println(max);
+				rand_height = random_height(min,max);	
 				
 				// HIGH
 				box.high.x += 4 * gap;
-				box.high.y = box.low.y + box.low.h + hole;					
+				box.high.y = rand_height;	
+				
+				// LOW
+				box.low.x += 4 * gap;	
+				box.low.y = box.high.y - box.low.h - (hole*.9f); // CLOSE HOLE HERE		 
 				box.set_hitboxes();
 				
 				box.scored = false;
@@ -376,8 +378,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		} else {
 			level_id = 1;
 		}
-		level = new Level("level_" + level_id, w, h, w_scale, h_scale);
 		
+		level = new Level("level_" + level_id, w, h, w_scale, h_scale);
 		plotter.clear();
 		score = 0;
 		scroll_speed = 4;
@@ -403,25 +405,24 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		float rand_height;
 		hole =  h/3f;
 		
-		
 		for (int i = 0; i < 4; i++){
-			// Set Random height for bottom box
-			rand_height = random_height(min,max);
-			
-			// BOTTOM BOX
+			// TODO CLEAN UP
 			box = new Blocker(w, h, i+1, level, w_scale, h_scale);
 			box.low.x = (i * gap) + w;
-			//box.low.y = 0;
-			
-			// TOP BOX
 			box.high.x = box.low.x;
-			//box.high.y = 400;
+						
+			if (i > 1){
+				min = (int) (box.high.y-(h_scale*50));
+				rand_height = random_height( (int) (box.high.y-(h_scale*50)),  (int) (box.high.y+(h_scale*50)));
+				box.high.y = rand_height;
+				box.low.y = box.high.y - box.low.h - hole;;
+			}
 						
 			box.set_hitboxes();
 			object_array.add(box);	
 		}		
 	}
-	
+		
 	private void check_collision(Blocker box) {		
 		if (box.scorebox.overlaps(player.hitbox) && !box.scored){
 			box.scored = true;
