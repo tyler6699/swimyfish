@@ -22,53 +22,51 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	private SpriteBatch batch;
 	private SpriteBatch screen;
 	public float v_width, v_height, w_scale, h_scale;
-	
-	// DEBUG
-	int level_id;
-	boolean trail = true;
-	int tick = 0;
-	public ArrayList<Entity> plotter = new ArrayList<Entity>();
-	int trail_length;
-	// DEBUG
-	
+	int level_id, tick = 0,trail_length;
+	float w, h, x = 0, y = 0;
 	private TouchInfo touched;
 	private BitmapFont font;
-	float w, h, x = 0, y = 0;
+
+	// TRAIL
+	boolean trail = true;
+	public ArrayList<Entity> plotter = new ArrayList<Entity>();
 	
-	// Menu
+	// MENU
 	private Texture menu, tubes;
 	
-	// Player Entity
+	// PLAYER ENTITY
 	private Player player;
 	
-	//Level
+	// LEVEL
 	private Level level;
 	
-	// Obstacles
+	// BLOCKERS
 	private ArrayList<Blocker> object_array;
 	// Gap player has to fit through
 	float hole;
 	
-	// Game Vars
+	// GAME VARS & FLIGHT SETTINGS
 	float fly_time;      // > 0 = moving up
 	float max_fly_time;  // Amount of time player raises and gravity disabled 
-	float gravity;      // Gravity
-	float max_gravity;  // Gravity
-	float min_gravity;  // Gravity
-	float fly_up;       // Increase Y by amount per tick
-	float re_jump_time;
-	float grace_period;
-	float max_grace;
-	float glide;        // 
-	boolean hit;        // If true end game
-	boolean start;
-	int score;
-	int top_score;
+	float gravity;       // Gravity
+	float max_gravity;   // Gravity
+	float min_gravity;   // Gravity
+	float drop_gravity;  // Gravity
+	float fly_up;        // Increase Y by amount per tick
+	float re_jump_time;  //
+	float grace_period;  //
+	float max_grace;     //
+	float glide;         // 
+	boolean hit;         // If true end game
+	boolean start; 
+	boolean up;
+	int score, top_score, bank;       
 	
 	// Difficulty / Speed
 	float scroll_speed;
 	private float gap;
-	int max, min;
+	float max;
+	int min;
 			
 	class TouchInfo {
 		public float touchX = 0;
@@ -80,9 +78,10 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	public void create() {		
 		Gdx.input.setInputProcessor(this);
 		
-		// test level changer
+		// LEVEL TOGGLE
 		level_id = 1;
 	
+		// TRAIL
 		trail_length = 50;
 				
 		// Load Top Score
@@ -103,29 +102,28 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		w_scale = w/v_width;
 		h_scale = h/v_height;
 				
+		// CAMERA SETUP
 	    camera = new OrthographicCamera(2,2);
 	    camera.update();
 						
-		// holds touch info 
 		touched = new TouchInfo();
-		
 		font = new BitmapFont();
 		font.setColor(Color.RED);
 		
-		// SpriteBatch for Screen
+		// SB FOR CAMERA
 		batch = new SpriteBatch();
 		batch.setTransformMatrix(camera.combined);
 		
-		// SpriteBatch for camera
+		// SB FOR SCREEN
 		screen = new SpriteBatch();
 		
-		// New Player
+		// NEW PLAYER
 		player = new Player(w, h, w_scale, h_scale);
 		
-		// Level
+		// NEW LEVEL
 		level = new Level("level_" + level_id, w, h, w_scale, h_scale);
 		
-		// Game settings
+		// GAME CONFIG
 		hit           = true;
 		max_grace	  = 1;
 		grace_period  = 0;
@@ -134,33 +132,42 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		max_fly_time  = 25;
 		min_gravity   = 0;
 		max_gravity   = h_scale*20;
+		drop_gravity  = h_scale*.5f;
 		gravity       = min_gravity;
 		fly_up        = h_scale*5;
-		glide         = 3;
+		glide         = h_scale*3;
 		scroll_speed  = w_scale*6;
-		
-		// Obstacles
-		gap = w/3;
+				
+		// BLOCKERS
+		gap = w/3; // Horizontal distance between blockers
 		object_array = new ArrayList<Blocker>();		
 	}
 	
 	private void load_prefs(){
-		// Settings
 		prefs = Gdx.app.getPreferences("flappy_box");
 
+		// TOP SCORE
 		if (!prefs.contains("top_score")){
 			prefs.putInteger("top_score", 0);
 			top_score = 0;
 		} else {
 			top_score = prefs.getInteger("top_score");
 		}
+		
+		// BANK
+		if (!prefs.contains("bank")){
+			prefs.putInteger("bank", 0);
+			bank = 0;
+		} else {
+			bank = prefs.getInteger("bank");
+		}
 
 		prefs.flush();
 	}
 	
 	private void save_prefs(){
-		// Settings
 		prefs.putInteger("top_score",score);
+		prefs.putInteger("bank",bank);
 		prefs.flush();
 		top_score = score;
 	}
@@ -178,7 +185,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}
 		draw();
 	}
-	
+
 	private void logic() {	
 		float rand_height;
 		Blocker last = new Blocker(w, h, 1, level, w_scale, h_scale);
@@ -198,22 +205,25 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 						last = b;
 					}
 				}
-						
-				max = (int) (last.high.y + box.high.h/3);
-				if (max > h - (.95*h)){
-					max = (int) (.9f*h);
-				}
-				min = (int) (last.high.y - box.high.h/3);
-				if (min < .1*h){
-					min = (int) (.1f*h);
+								
+				// UP OR DOWN?
+				up = go_up(50);
+				min = 0;
+				max = h_scale*(h/4f);
+				
+				if (up){
+					if (last.high.y + max >= h ){max = h - last.high.y - (h_scale*30);}
+					rand_height = random_height(min,(int) max);
+					box.high.y = last.high.y + rand_height;
+				} else { // DOWN	
+					if ((last.high.y + last.high.h - (2*max)) > h ){
+						rand_height = random_height(min,(int) max);
+						box.high.y = last.high.y - rand_height;
+					}
+					System.out.println((last.high.y + last.high.h) + " " + h);
 				}
 				
-				System.out.println(max);
-				rand_height = random_height(min,max);	
-				
-				// HIGH
 				box.high.x += 4 * gap;
-				box.high.y = rand_height;	
 				
 				// LOW
 				box.low.x += 4 * gap;	
@@ -290,7 +300,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	private void update_gravity(boolean falling){
 		if (falling){
 			if (gravity < max_gravity){
-				gravity += .5f;	
+				gravity += drop_gravity;	
 			}
 			
 		} else {
@@ -382,11 +392,12 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		level = new Level("level_" + level_id, w, h, w_scale, h_scale);
 		plotter.clear();
 		score = 0;
-		scroll_speed = 4;
+		scroll_speed = w_scale*6;
 		fly_time = max_fly_time;
 		grace_period  = max_grace;
 		
 		// Player
+		// FIX
 		player.y = (h/2) - (h/100) * 16.52f;
 		
 		// Game settings
@@ -429,7 +440,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			score ++;
 		} else {
 			if (box.high.hitbox.overlaps(player.hitbox) || box.low.hitbox.overlaps(player.hitbox)){
-				hit = true;
+				//hit = true;
 				if (score > top_score ){
 					save_prefs();
 				}
@@ -457,6 +468,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	}
 	
 	public int random_height(int min, int max){
+		min = min > 0 ? min : 0;
+		max = max > 0 ? max : 1;
+		
 		Random r = new Random(); 
 		int number = r.nextInt(max-min) + min;
 		    
