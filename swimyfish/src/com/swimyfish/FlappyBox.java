@@ -21,6 +21,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	private OrthographicCamera camera;
 	private SpriteBatch batch;
 	private SpriteBatch screen;
+	public float v_width, v_height, w_scale, h_scale;
 	
 	// DEBUG
 	int level_id;
@@ -80,7 +81,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// test level changer
 		level_id = 1;
-		
+	
 		trail_length = 50;
 				
 		// Load Top Score
@@ -99,7 +100,14 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		max = (int) (h*.8);
 		min = (int) (h*.2);
 		
-		camera = new OrthographicCamera(2,2);
+		// SCALE / RATIO
+		v_width = 1196;
+		v_height = 786;
+		w_scale = w/v_width;
+		h_scale = h/v_height;
+				
+	    camera = new OrthographicCamera(2,2);
+	    camera.update();
 						
 		// holds touch info 
 		touched = new TouchInfo();
@@ -115,24 +123,24 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		screen = new SpriteBatch();
 		
 		// New Player
-		player = new Player(w,h);
+		player = new Player(w, h, w_scale, h_scale);
 		
 		// Level
-		level = new Level("level_" + level_id, w, h);
+		level = new Level("level_" + level_id, w, h, w_scale, h_scale);
 		
 		// Game settings
 		hit           = true;
-		max_grace	  = 2;
+		max_grace	  = 1;
 		grace_period  = 0;
 		re_jump_time  = 3;
 		fly_time      = 0;
 		max_fly_time  = 25;
 		min_gravity   = 0;
-		max_gravity   = 20;
+		max_gravity   = h_scale*20;
 		gravity       = min_gravity;
-		fly_up        = 5;
+		fly_up        = h_scale*5;
 		glide         = 3;
-		scroll_speed  = 6;
+		scroll_speed  = w_scale*6;
 		
 		// Obstacles
 		gap = w/3;
@@ -183,13 +191,13 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				// REPLACE BOX AT END
 				rand_height = random_height(min,max);
 				box.low.x += 4 * gap;	
-				box.low.h = rand_height;
+				//box.low.h = rand_height;
 					
 				box.high.x += 4 * gap;
-				box.high.y = box.low.h + hole;
-				box.high.h = h - (box.low.h + hole);
+				//box.high.y = box.low.h + hole;
+				//box.high.h = h - (box.low.h + hole);
 					
-				box.set_hitboxes(rand_height);
+				box.set_hitboxes();
 				
 				box.scored = false;
 			} else {
@@ -307,8 +315,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		// OBSTACLES
 		// REFACTOR ALL OF THIS ITS A MESS
 		for (Blocker box : object_array){
-			batch.draw(box.high.texture, box.high.x, box.high.y, box.high.w, box.high.texture.getHeight());	
-			batch.draw(box.low.texture, box.low.x, box.low.h - box.low.texture.getHeight(), box.low.w, box.low.texture.getHeight());
+			batch.draw(box.high.texture, box.high.x, box.high.y, box.high.w, box.high.h);	
+			batch.draw(box.low.texture, box.low.x, box.low.y, box.low.w, box.low.h);
 			if (level.show_blocker_lower){
 				batch.draw(level.blocker_floor, box.low.x, box.low.y, box.low.w, level.floor_h);	
 			}
@@ -323,27 +331,33 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		for (Entity e: level.floor_toppers){
 			batch.draw(e.texture, e.x, e.y, e.w, e.h);
 		}
+		
+		if (hit){
+			// MOVE TO MENU CLASS
+			float m_width  = w_scale * menu.getWidth();
+			float m_height = h_scale * menu.getHeight();
+			batch.draw(menu, w/2 - m_width/2 , h/2 - m_height/2, m_width, m_height);
+			
+			float t_width  = w_scale * tubes.getWidth();
+			float t_height = h_scale * menu.getHeight();
+			batch.draw(tubes, w/2 - m_width/2, h/2 - m_height/2, t_width, t_height);
+		}
 		batch.end();
 		
 		screen.begin();
-		if (hit){
-			screen.draw(menu, w/2 - menu.getWidth()/2 , h/2 - menu.getHeight()/2, menu.getWidth(), menu.getHeight());
-			screen.draw(tubes, w/2 - menu.getWidth()/2, h/2 - menu.getHeight()/2, tubes.getWidth(), tubes.getHeight());
-			
-		}
+		
 		font.draw(screen, "Score           "+score, 20, 50);
 		font.draw(screen, "High Score  "+ top_score, 20, 20);		
 		screen.end();	
 	}
 
 	private void reset_game() {
-		
 		if (level_id == 1){
 			level_id = 2;
 		} else {
 			level_id = 1;
 		}
-		level = new Level("level_" + level_id, w, h);
+		level = new Level("level_" + level_id, w, h, w_scale, h_scale);
 		
 		plotter.clear();
 		score = 0;
@@ -352,7 +366,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		grace_period  = max_grace;
 		
 		// Player
-		player.y = (w/2) - 200;
+		player.y = (h/2) - (h/100) * 16.52f;
 		
 		// Game settings
 		hit          = false;
@@ -370,18 +384,16 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			rand_height = random_height(min,max);
 			
 			// BOTTOM BOX
-			box = new Blocker(w, h, i+1, level);
-			box.low.h = rand_height;
+			box = new Blocker(w, h, i+1, level, w_scale, h_scale);
 			box.low.x = (i * gap) + w;
-			box.low.y = 0;
+			//box.low.y = 0;
 			
 			// TOP BOX
 			box.high.x = box.low.x;
-			box.high.y = box.low.h + hole;
-			box.high.h = h - (box.low.h + hole);	
+			//box.high.y = 400;
 						
-			box.set_hitboxes(rand_height);
-			object_array.add(box);				
+			box.set_hitboxes();
+			object_array.add(box);	
 		}
 	}
 	
@@ -407,7 +419,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		return player.y - gravity > -player.height;
 	}  
 	
-	// Random Functions
 	public boolean go_up(int percentage){
 		Random r = new Random(); 
 		int chance = r.nextInt(100);
@@ -427,7 +438,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	}
 	
 	@Override
-	public void resize(int width, int height) {	
+	public void resize(int width, int height) {		      
 	}
 
 	@Override
@@ -480,20 +491,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}
 		return true;
 	}
-	
-	//final Vector3 curr = new Vector3();
-	//final Vector3 last = new Vector3(-1, -1, -1);
-	//final Vector3 delta = new Vector3();
-	
+		
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		//camera.unproject(curr.set(x, y, 0));
-		//if (!(last.x == -1 && last.y == -1 && last.z == -1)) {
-		//camera.unproject(delta.set(last.x, last.y, 0));
-		//delta.sub(curr);
-		//camera.position.add(delta.x, delta.y, 0);
-		//}
-		//last.set(x, y, 0);
 		return false;
 	}
 	

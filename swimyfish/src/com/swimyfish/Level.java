@@ -35,7 +35,7 @@ public class Level {
 	public Entity erays_2;
 	public Entity esky;
 	
-	public Level(String level, float w, float h){
+	public Level(String level, float w, float h, float w_scale, float h_scale){
 		// Scene	
 		GLTexture.setEnforcePotImages(false);
 		this.w = w;
@@ -56,7 +56,7 @@ public class Level {
 
 		if (level.equals("level_1")){
 			floor_h = 0.2f*h;
-			cloud_h = h-cloud.getHeight();
+			cloud_h = h-(h_scale * cloud.getHeight());
 		} else if (level.equals("level_2")){
 			floor_h = 0.1f*h;
 			cloud_h = floor_h;
@@ -74,8 +74,8 @@ public class Level {
 		elog_up.x = 0;
 		elog_up.y = 0;
 		elog_up.texture = blocker;
-		elog_up.w = blocker.getWidth();
-		elog_up.h = blocker.getHeight();
+		elog_up.w = w_scale * blocker.getWidth();
+		elog_up.h = h_scale * blocker.getHeight();
 		
 		// SKY
 		esky.x = 0;
@@ -96,10 +96,10 @@ public class Level {
 		min += 1;
 		for (int i = 0; i < min; i++){
 			efloor_top = new Entity();
-			efloor_top.x = floor_top.getWidth()*(i);
+			efloor_top.x = (w_scale * floor_top.getWidth())*(i);
 			efloor_top.y = (floor_h)-8;
-			efloor_top.w = floor_top.getWidth();
-			efloor_top.h = floor_top.getHeight();
+			efloor_top.w = w_scale * floor_top.getWidth();
+			efloor_top.h = h_scale * floor_top.getHeight();
 			efloor_top.texture = floor_top;
 			floor_toppers.add(efloor_top);
 		}
@@ -109,10 +109,10 @@ public class Level {
 		min += 2;
 		for (int i = 0; i < min; i++){
 			ecloud = new Entity();
-			ecloud.x = cloud.getWidth()*(i);
+			ecloud.x = (w_scale * cloud.getWidth())*(i);
 			ecloud.y = cloud_h;
-			ecloud.w = cloud.getWidth();
-			ecloud.h = cloud.getHeight();
+			ecloud.w = w_scale * cloud.getWidth();
+			ecloud.h = h_scale * cloud.getHeight();
 			ecloud.texture = cloud;
 			eclouds.add(ecloud);
 		}
@@ -120,15 +120,15 @@ public class Level {
 		
 		// RAYS 1
 		erays_1.x = (w/5) *1;
-		erays_1.y = efloor.h - rays_1.getHeight();
-		erays_1.w = rays_1.getWidth();
-		erays_1.h = rays_1.getHeight();
+		erays_1.y = efloor.h - (h_scale * rays_1.getHeight());
+		erays_1.w = w_scale * rays_1.getWidth();
+		erays_1.h = h_scale * rays_1.getHeight();
 		erays_1.texture = rays_1;
 		// RAYS 2
 		erays_2.x = (w/5) *4;
-		erays_2.y = efloor.h - rays_1.getHeight();
-		erays_2.w = rays_1.getWidth();
-		erays_2.h = rays_1.getHeight();
+		erays_2.y = efloor.h - (h_scale * rays_1.getHeight());
+		erays_2.w = w_scale * rays_1.getWidth();
+		erays_2.h = h_scale * rays_1.getHeight();
 		erays_2.texture = rays_2;
 	}
 

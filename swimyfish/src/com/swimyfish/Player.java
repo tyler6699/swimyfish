@@ -15,10 +15,10 @@ public class Player {
 	public Rectangle hitbox;
 
 		
-	public Player(float w, float h){
-		width = 60;
-		height = 60;
-		x = (w/2) - 200;
+	public Player(float w, float h, float scale_w, float scale_h){
+		width = scale_w * 60;
+		height = scale_h * 60;
+		x = (w/2) - (scale_w*200);
 		y = (h/2) - (width/2);	
 		hitbox = new Rectangle(x,y,width,height);
 		player_alive = new Texture(Gdx.files.internal("data/player.png"));

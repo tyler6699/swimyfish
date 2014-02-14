@@ -9,25 +9,27 @@ public class Blocker {
 	public Entity high;
 	public Entity low;
 	
-	public Blocker(float w, float h, int no, Level level){
+	public Blocker(float w, float h, int no, Level level, float scale_w, float scale_h){
 		// 1196 x 768	
 		id = no;
+		float third = h/3;
 		
 		// TOP BOX
 		high = new Entity();
-		high.x = w + 20;
-		high.y = 0;
-		high.w = 70;//level.floor.getWidth();
-		high.h = h/3;
+		high.w = scale_w * level.blocker.getWidth();
+		high.h = scale_h * level.blocker.getHeight();
+		high.x = w + (w/100)*scale_w;
+		high.y = h - third;
+		System.out.println(h + " " + high.h);
 		high.hitbox = new Rectangle(high.x,high.y,high.w,high.h); 
 		high.texture = level.blocker;
 		
 		// BOTTOM BOX
 		low = new Entity();
-		low.x = w + 20;
-		low.y = 0;
-		low.w = 70;//level.floor.getWidth();
-		low.h = h/3;
+		low.w = scale_w * level.blocker.getWidth();
+		low.h = scale_h * level.blocker.getHeight();
+		low.x = w + (w/100)*scale_w;
+		low.y = -low.h + third;
 		low.hitbox = new Rectangle(low.x,low.y,low.w,low.h); 
 		low.texture = level.blocker;
 		
@@ -35,9 +37,9 @@ public class Blocker {
 		scored    = false;
 	}
 	
-	public void set_hitboxes(float h){
+	public void set_hitboxes(){
 		high.hitbox.set(high.x,high.y,high.w,high.h);
-		low.hitbox.set(low.x,low.y,low.w,low.h);;
+		low.hitbox.set(low.x,low.y,low.w,low.h);
 	}
 	
 	public void update_hitboxes(float x){
