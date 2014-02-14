@@ -9,9 +9,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
-import com.badlogic.gdx.graphics.GLTexture;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.swimyfish.Player;
@@ -26,13 +24,14 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	float w, h, x = 0, y = 0;
 	private TouchInfo touched;
 	private BitmapFont font;
+	float delta;
 
 	// TRAIL
 	boolean trail = true;
 	public ArrayList<Entity> plotter = new ArrayList<Entity>();
 	
 	// MENU
-	private Texture menu, tubes;
+	Menu menu;
 	
 	// PLAYER ENTITY
 	private Player player;
@@ -90,17 +89,15 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		// Screen width and height
 		w = Gdx.graphics.getWidth();
 		h = Gdx.graphics.getHeight();
-		
-		// MENU
-		GLTexture.setEnforcePotImages(false);
-		menu = new Texture(Gdx.files.internal("data/ui/menu_background.png"));
-		tubes = new Texture(Gdx.files.internal("data/ui/tubes.png"));
 				
 		// SCALE / RATIO
 		v_width = 1196;
 		v_height = 786;
 		w_scale = w/v_width;
 		h_scale = h/v_height;
+		
+		// MENU
+		menu = new Menu(w, h, w_scale, h_scale);
 				
 		// CAMERA SETUP
 	    camera = new OrthographicCamera(2,2);
@@ -180,6 +177,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	
 	@Override
 	public void render() {		
+		delta = Gdx.graphics.getDeltaTime();
+
 		if (!hit){ 
 			logic(); 			
 		}
@@ -330,7 +329,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			for (int i = 0; i < plotter.size(); i++){
 				Entity e = plotter.get(i);
 				if (!hit){
-					e.x -= 4;
+					e.x -= w_scale*6;
 				}
 				batch.draw(e.texture, e.x, e.y, e.w - (plotter.size()-i), e.h - (plotter.size()-i));
 			}
@@ -365,13 +364,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		if (hit){
 			// MOVE TO MENU CLASS
-			float m_width  = w_scale * menu.getWidth();
-			float m_height = h_scale * menu.getHeight();
-			batch.draw(menu, w/2 - m_width/2 , h/2 - m_height/2, m_width, m_height);
-			
-			float t_width  = w_scale * tubes.getWidth();
-			float t_height = h_scale * menu.getHeight();
-			batch.draw(tubes, w/2 - m_width/2, h/2 - m_height/2, t_width, t_height);
+			menu.tick(batch, player, delta);
 		}
 		batch.end();
 		
@@ -383,6 +376,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	}
 
 	private void reset_game() {
+		menu.ready = false;
+		
 		if (level_id == 1){
 			level_id = 2;
 		} else {
@@ -440,7 +435,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			score ++;
 		} else {
 			if (box.high.hitbox.overlaps(player.hitbox) || box.low.hitbox.overlaps(player.hitbox)){
-				//hit = true;
+				hit = true;
+				
 				if (score > top_score ){
 					save_prefs();
 				}
@@ -515,8 +511,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				fly_time = max_fly_time;
 				grace_period  = max_grace;
 			}
-		} else {
-			reset_game();
+		} else if (hit && menu.ready) {
+			reset_game();	
 		}
 	 
 		return true;
