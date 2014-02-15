@@ -370,7 +370,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		//SCORE
 		if (!hit){
-			menu.update_score(score);
 			int i = 0;
 			float fw = menu.letters.size(); 
 			for(Texture t: menu.letters){
@@ -446,6 +445,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		if (box.scorebox.overlaps(player.hitbox) && !box.scored){
 			box.scored = true;
 			score ++;
+			menu.update_score(score);
 		} else {
 			if (box.high.hitbox.overlaps(player.hitbox) || box.low.hitbox.overlaps(player.hitbox)){
 				hit = true;
