@@ -31,7 +31,7 @@ public class Alphabet {
 		no_6 = new Texture(Gdx.files.internal("data/numbers/6.png"));
 		no_7 = new Texture(Gdx.files.internal("data/numbers/7.png"));
 		no_8 = new Texture(Gdx.files.internal("data/numbers/8.png"));
-		no_9 = new Texture(Gdx.files.internal("data/numbers/8.png"));
+		no_9 = new Texture(Gdx.files.internal("data/numbers/9.png"));
 	}
 	
 		public ArrayList<Texture> get_number(String number){
