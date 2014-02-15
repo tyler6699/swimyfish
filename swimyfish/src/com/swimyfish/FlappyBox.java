@@ -10,6 +10,7 @@ import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.swimyfish.Player;
@@ -66,6 +67,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	private float gap;
 	float max;
 	int min;
+	private Object letters;
 			
 	class TouchInfo {
 		public float touchX = 0;
@@ -74,7 +76,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	}
 
 	@Override
-	public void create() {		
+	public void create(){
 		Gdx.input.setInputProcessor(this);
 		
 		// LEVEL TOGGLE
@@ -176,7 +178,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	}
 	
 	@Override
-	public void render() {		
+	public void render(){
 		delta = Gdx.graphics.getDeltaTime();
 
 		if (!hit){ 
@@ -329,7 +331,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			for (int i = 0; i < plotter.size(); i++){
 				Entity e = plotter.get(i);
 				if (!hit){
-					e.x -= w_scale*6;
+					e.x -= w_scale*3;
 				}
 				batch.draw(e.texture, e.x, e.y, e.w - (plotter.size()-i), e.h - (plotter.size()-i));
 			}
@@ -343,7 +345,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}
 				
 		// OBSTACLES
-		// REFACTOR ALL OF THIS ITS A MESS
 		for (Blocker box : object_array){
 			batch.draw(box.high.texture, box.high.x, box.high.y, box.high.w, box.high.h);	
 			batch.draw(box.low.texture, box.low.x, box.low.y, box.low.w, box.low.h);
@@ -363,9 +364,21 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}
 		
 		if (hit){
-			// MOVE TO MENU CLASS
-			menu.tick(batch, player, delta);
+			menu.tick();
+			menu.tick(batch, player, delta, score);
 		}
+		
+		//SCORE
+		if (!hit){
+			menu.update_score(score);
+			int i = 0;
+			float fw = menu.letters.size(); 
+			for(Texture t: menu.letters){
+				batch.draw(t, (w/2) + i * (w_scale*t.getWidth()) - (fw * (w_scale*t.getWidth()/2)), h - (h_scale*t.getHeight()) - h_scale*10, w_scale*t.getWidth(), h_scale*t.getHeight());
+				i ++;
+			}
+		}
+		
 		batch.end();
 		
 		screen.begin();
@@ -429,7 +442,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}		
 	}
 		
-	private void check_collision(Blocker box) {		
+	private void check_collision(Blocker box) {
 		if (box.scorebox.overlaps(player.hitbox) && !box.scored){
 			box.scored = true;
 			score ++;
@@ -444,11 +457,11 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}
 	}
 	
-	private boolean not_too_high() {
+	private boolean not_too_high(){
 		return player.y + fly_up + player.height < h + player.height;
 	}
 	
-	private boolean not_too_low() {
+	private boolean not_too_low(){
 		return player.y - gravity > -player.height;
 	}  
 	
@@ -474,16 +487,13 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	}
 	
 	@Override
-	public void resize(int width, int height) {		      
-	}
+	public void resize(int width, int height){}
 
 	@Override
-	public void pause() {
-	}
+	public void pause(){}
 	
 	@Override
-	public void resume() {
-	}
+	public void resume(){}
 	
 	@Override
 	public boolean keyDown(int keycode) {
@@ -514,7 +524,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		} else if (hit && menu.ready) {
 			reset_game();	
 		}
-	 
 		return true;
 	}
 	

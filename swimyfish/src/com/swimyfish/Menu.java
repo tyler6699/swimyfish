@@ -1,44 +1,45 @@
 package com.swimyfish;
 
+import java.util.ArrayList;
+
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GLTexture;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class Menu {
-	float m_width;
-	float m_height; 
-	float t_width;
-	float t_height;
 	float w, h, tick;
-	Texture tubes, menu;
+	Entity test_tubes;
+	Entity background;
 	public boolean ready;
+	Alphabet alphabet;
+	ArrayList<Texture> letters;
 	
 	public Menu(float w, float h, float w_scale, float h_scale){
 		this.w = w;
 		this.h = h;
 		tick = 0;
 		ready = false;
+		alphabet = new Alphabet();
+		letters = new ArrayList<Texture>();
 		
-		GLTexture.setEnforcePotImages(false);
-		menu = new Texture(Gdx.files.internal("data/ui/menu_background.png"));
-		tubes = new Texture(Gdx.files.internal("data/ui/tubes.png"));
+		background = new Entity();
+		background.texture = new Texture(Gdx.files.internal("data/ui/menu_background.png"));
+		background.x = w/2 - background.texture.getWidth()/2;
+		background.y = h/2 - background.texture.getHeight()/2;
+		background.w = w_scale * background.texture.getWidth();
+		background.h = h_scale * background.texture.getHeight();
 		
-		m_width  = w_scale * menu.getWidth();
-		m_height = h_scale * menu.getHeight();
-		
-		
-		t_width  = w_scale * tubes.getWidth();
-		t_height = h_scale * menu.getHeight();
+		test_tubes = new Entity();
+		test_tubes.texture = new Texture(Gdx.files.internal("data/ui/tubes.png"));
+		test_tubes.x = w/2 - test_tubes.texture.getWidth()/2;
+		test_tubes.y = h/2 - test_tubes.texture.getHeight()/2;
+		test_tubes.w = w_scale * test_tubes.texture.getWidth();
+		test_tubes.h = h_scale * test_tubes.texture.getHeight();
 	}
 	
-	public void tick(SpriteBatch sb, Player player, float delta){
-		sb.draw(menu, w/2 - m_width/2 , h/2 - m_height/2, m_width, m_height);
-		sb.draw(tubes, w/2 - m_width/2, h/2 - m_height/2, t_width, t_height);
-		
+	public void tick(){
 		if (!ready){
 			if (tick > 40){
-				System.out.println("Ready!");
 				ready = true;
 			}
 			
@@ -46,7 +47,22 @@ public class Menu {
 		} else {
 			tick = 0;
 		}
-
+	}
+	
+	public void update_score(int score){
+		letters = alphabet.get_number(Integer.toString(score));
+	}
+	
+	public void tick(SpriteBatch sb, Player player, float delta, int score){
+		letters = alphabet.get_number(Integer.toString(score));
+		sb.draw(background.texture, background.x, background.y, background.w, background.h);
+		sb.draw(test_tubes.texture, test_tubes.x, test_tubes.y, test_tubes.w, test_tubes.h);
+		
+		int i = 0;
+		for(Texture t:letters){
+			sb.draw(t,background.x + i * t.getWidth(), background.y, t.getWidth(), t.getHeight());
+			i ++;
+		}
 	}
 
 }
