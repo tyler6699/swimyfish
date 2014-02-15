@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.swimyfish.FlappyBox.TouchInfo;
 
 public class Menu {
 	float w, h, tick;
@@ -33,11 +34,11 @@ public class Menu {
 		test_tubes.texture = new Texture(Gdx.files.internal("data/ui/tubes.png"));
 		test_tubes.x = w/2 - test_tubes.texture.getWidth()/2;
 		test_tubes.y = h/2 - test_tubes.texture.getHeight()/2;
-		test_tubes.w = w_scale * test_tubes.texture.getWidth();
-		test_tubes.h = h_scale * test_tubes.texture.getHeight();
+		test_tubes.w = w_scale * (test_tubes.texture.getWidth()/2);
+		test_tubes.h = h_scale * (test_tubes.texture.getHeight()/2);
 	}
 	
-	public void tick(){
+	public void tick(TouchInfo touch){
 		if (!ready){
 			if (tick > 40){
 				ready = true;
@@ -46,6 +47,10 @@ public class Menu {
 			tick ++;
 		} else {
 			tick = 0;
+		}
+		
+		if (!touch.checked_click){
+			//System.out.println(touch.clicked_at.x + " " + touch.clicked_at.y + " "  + touch.clicked_at.width + " " + touch.clicked_at.height);
 		}
 	}
 	

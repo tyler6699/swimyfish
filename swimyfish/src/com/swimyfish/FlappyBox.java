@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
 import com.swimyfish.Player;
 
 public class FlappyBox implements ApplicationListener, InputProcessor{
@@ -23,7 +24,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	public float v_width, v_height, w_scale, h_scale;
 	int level_id, tick = 0,trail_length;
 	float w, h, x = 0, y = 0;
-	private TouchInfo touched;
+	private TouchInfo touch;
 	private BitmapFont font;
 	float delta;
 
@@ -67,12 +68,14 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	private float gap;
 	float max;
 	int min;
-	private Object letters;
+	//private Object letters;
 			
 	class TouchInfo {
 		public float touchX = 0;
 		public float touchY = 0;
 		public boolean touched = false;
+		public boolean checked_click = true;
+		public Rectangle clicked_at = new Rectangle();
 	}
 
 	@Override
@@ -105,7 +108,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	    camera = new OrthographicCamera(2,2);
 	    camera.update();
 						
-		touched = new TouchInfo();
+		touch = new TouchInfo();
 		font = new BitmapFont();
 		font.setColor(Color.RED);
 		
@@ -364,8 +367,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}
 		
 		if (hit){
-			menu.tick();
-			menu.tick(batch, player, delta, score);
+			menu.tick(touch);
+			menu.tick(batch,player, delta, score);
 		}
 		
 		//SCORE
@@ -512,9 +515,11 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		touched.touchX = screenX;
-		touched.touchY = screenY;
-		touched.touched = true;
+		touch.touchX = screenX;
+		touch.touchY = screenY;
+		touch.touched = true;
+		touch.checked_click = false;
+		touch.clicked_at.set(screenX, screenY, w_scale+5, h_scale*5);
 		
 		if (!hit){ 
 			if (fly_time <= re_jump_time){
@@ -530,9 +535,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 		if(pointer <= 2){
-			touched.touchX = 0;
-			touched.touchY = 0;
-			touched.touched = false;
+			touch.touchX = 0;
+			touch.touchY = 0;
+			touch.touched = false;
 		}
 		return true;
 	}
