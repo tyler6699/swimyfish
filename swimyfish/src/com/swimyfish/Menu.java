@@ -1,5 +1,4 @@
 package com.swimyfish;
-
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
@@ -14,6 +13,7 @@ public class Menu {
 	public boolean ready;
 	Alphabet alphabet;
 	ArrayList<Texture> letters;
+	ArrayList<iButton> buttons;
 	
 	public Menu(float w, float h, float w_scale, float h_scale){
 		this.w = w;
@@ -21,7 +21,7 @@ public class Menu {
 		tick = 0;
 		ready = false;
 		alphabet = new Alphabet();
-		letters = new ArrayList<Texture>();
+		letters = new ArrayList<Texture>();	
 		
 		background = new Entity();
 		background.texture = new Texture(Gdx.files.internal("data/ui/menu_background.png"));
@@ -36,6 +36,13 @@ public class Menu {
 		test_tubes.y = h/2 - test_tubes.texture.getHeight()/2;
 		test_tubes.w = w_scale * (test_tubes.texture.getWidth()/2);
 		test_tubes.h = h_scale * (test_tubes.texture.getHeight()/2);
+		
+		// BUTTONS
+		buttons = new ArrayList<iButton>();
+		iButton button;
+		button = new iButton(background.x/2,background.y/2, "RETRY", "RETRY", new Texture(Gdx.files.internal("data/ui/tubes.png")));
+		
+		buttons.add(button);
 	}
 	
 	public void tick(TouchInfo touch){
