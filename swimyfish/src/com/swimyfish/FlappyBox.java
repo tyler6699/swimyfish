@@ -180,15 +180,36 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		delta = Gdx.graphics.getDeltaTime();
 
 		if (!hit){ 
-			logic(); 			
+			logic(); 
+		} else {
+			menu_logic();
 		}
 		draw();
+	}
+	
+	private void menu_logic() {
+		if (!menu.action.equals("")){
+			if (menu.action.equals("LEFT_ARROW")){
+				if (level_id > 1){
+					level_id -= 1;
+				}
+				menu.action = "";
+			} else if (menu.action.equals("RIGHT_ARROW")){
+				if (level_id < 2){
+					level_id += 1;
+				}
+				menu.action = "";
+			} else if (menu.action.equals("PLAY") && menu.ready) {
+				reset_game();	
+				menu.action = "";
+			}
+		}
 	}
 
 	private void logic() {	
 		float rand_height;
 		Blocker last = new Blocker(w, h, 1, level, w_scale, h_scale);
-
+								
 		// Obstacles
 		for (Blocker box : object_array){		
 			if (box.low.x < -(box.low.w*2)){
@@ -219,7 +240,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 						rand_height = random_height(min,(int) max);
 						box.high.y = last.high.y - rand_height;
 					}
-					System.out.println((last.high.y + last.high.h) + " " + h);
 				}
 				
 				box.high.x += 4 * gap;
@@ -381,12 +401,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		menu.ready = false;
 		menu.update_score(0, top_score);
 		
-		if (level_id == 1){
-			level_id = 2;
-		} else {
-			level_id = 1;
-		}
-		
 		level = new Level("level_" + level_id,level_id, w, h, w_scale, h_scale);
 		plotter.clear();
 		score = 0;
@@ -507,16 +521,15 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		touch.touchX = screenX;
 		touch.touchY = screenY;
 		touch.touched = true;
-		touch.checked_click = false;
-		touch.clicked_at.set(screenX, screenY, w_scale+5, h_scale*5);
-		
+				
 		if (!hit){ 
 			if (fly_time <= re_jump_time){
 				fly_time = max_fly_time;
 				grace_period  = max_grace;
-			}
-		} else if (hit && menu.ready) {
-			reset_game();	
+			}	
+		} else {
+			touch.checked_click = false;
+			touch.clicked_at.set(screenX, screenY, w_scale+5, h_scale*5);
 		}
 		return true;
 	}

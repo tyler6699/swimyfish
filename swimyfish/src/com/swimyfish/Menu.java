@@ -10,8 +10,10 @@ public class Menu {
 	float w, h, tick;
 	Entity background;
 	Entity e_score, best, bank, level, level_number;
-
+	iButton play, left_arrow, right_arrow;
+	
 	public boolean ready;
+	public String action = ""; // Processed by main game
 	Alphabet alphabet;
 	ArrayList<Entity> score_array;
 	ArrayList<Entity> top_score_array;
@@ -74,7 +76,7 @@ public class Menu {
 		level_number.texture =  alphabet.get_number_texture(1);
 		level_number.w = w_scale * level_number.texture.getWidth();
 		level_number.h = h_scale * level_number.texture.getHeight();
-		level_number.x = level.x + level.w;
+		level_number.x = level.x + level.w + w_pad;
 		level_number.y = level.y;
 		
 		best = new Entity();
@@ -88,10 +90,26 @@ public class Menu {
 		
 		// BUTTONS
 		buttons = new ArrayList<iButton>();
-		iButton button;
-		button = new iButton(background.x/2,background.y/2, "RETRY", "RETRY", new Texture(Gdx.files.internal("data/ui/tubes.png")));
+				
+		left_arrow = new iButton(0,0, "LEFT_ARROW", "LEFT_ARROW", new Texture(Gdx.files.internal("data/ui/left_arrow.png")), w_scale, h_scale);
+		left_arrow.x = background.x + w_pad;
+		left_arrow.y = (background.y + (background.h/2)) - (left_arrow.h/2);
+		left_arrow.set_hitbox();
+		buttons.add(left_arrow);
 		
-		buttons.add(button);
+		right_arrow = new iButton(0,0, "RIGHT_ARROW", "RIGHT_ARROW", new Texture(Gdx.files.internal("data/ui/right_arrow.png")), w_scale, h_scale);
+		right_arrow.x = left_arrow.x + (w_scale * 600);
+		right_arrow.y = left_arrow.y;
+		right_arrow.set_hitbox();
+		buttons.add(right_arrow);
+		
+		play = new iButton(0,0, "PLAY", "PLAY", new Texture(Gdx.files.internal("data/ui/play.png")), w_scale, h_scale);
+		play.x = ((left_arrow.x + left_arrow.w + right_arrow.x)/2) - (play.w/2) ;
+		play.y = left_arrow.y - ((play.h - left_arrow.h)/2);
+		play.set_hitbox();
+		buttons.add(play);
+		
+		System.out.println(left_arrow.y + " " + play.y);
 	}
 	
 	public void tick(TouchInfo touch){
@@ -106,7 +124,12 @@ public class Menu {
 		}
 		
 		if (!touch.checked_click){
-			//System.out.println(touch.clicked_at.x + " " + touch.clicked_at.y + " "  + touch.clicked_at.width + " " + touch.clicked_at.height);
+			for (iButton btn:buttons){
+				if (touch.clicked_at.overlaps(btn.hitbox)){
+					action = btn.target;					
+					touch.checked_click = true;
+				}
+			}
 		}
 	}
 	
@@ -136,6 +159,11 @@ public class Menu {
 			sb.draw(e.texture, score_x - (i*e.w), t_score_y, w_scale * e.w, h_scale * e.h);
 			i ++;
 		}
+		
+		// BUTTONS
+		sb.draw(play.texture, play.x, play.y, play.w, play.h);
+		sb.draw(left_arrow.texture, left_arrow.x, left_arrow.y, left_arrow.w, left_arrow.h);
+		sb.draw(right_arrow.texture, right_arrow.x, right_arrow.y, right_arrow.w, right_arrow.h);
 	}
 
 }
