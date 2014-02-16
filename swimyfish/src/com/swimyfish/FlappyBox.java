@@ -17,6 +17,11 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	private Preferences prefs;
 	private OrthographicCamera camera;
 	private SpriteBatch batch;
+	
+	// SOUND PLAYER
+	private HiFi hifi;
+	private int jump_id;
+	
 	public float v_width, v_height, w_scale, h_scale;
 	int level_id, tick = 0,trail_length;
 	float w, h, x = 0, y = 0;
@@ -83,6 +88,10 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// NUMBER OF LEVELS!!!
 		number_of_levels = 2;
+		
+		//SOUND
+		hifi = new HiFi();
+		jump_id = 1;
 		
 		// SCORE ARRAY
 		level_scores = new ArrayList<LevelScores>();
@@ -513,9 +522,11 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		if (box.scorebox.overlaps(player.hitbox) && !box.scored){
 			box.scored = true;
 			score ++;
+			hifi.play_collect();
 		} else {
 			if (box.high.hitbox.overlaps(player.hitbox) || box.low.hitbox.overlaps(player.hitbox)){
 				hit = true;
+				hifi.play_death();
 				// BANK
 				bank += score;
 				
@@ -535,9 +546,10 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				}
 				
 				// UNLOCK LEVELS?
-				if (current_level.progress > current_level.points_needed){
+				if (current_level.progress >= current_level.points_needed && level_scores.get(level_id).locked == true){
 					if(current_level.level_id < number_of_levels){
 						level_scores.get(level_id).locked = false;
+						hifi.play_unlock();
 					}
 				}
 				
@@ -610,6 +622,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				
 		if (!hit){ 
 			if (fly_time <= re_jump_time){
+				hifi.play_jump(jump_id);
+				jump_id = jump_id == 1 ? 2 : 1;
+				
 				fly_time = max_fly_time;
 				grace_period  = max_grace;
 			}	

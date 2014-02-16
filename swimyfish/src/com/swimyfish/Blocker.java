@@ -8,10 +8,12 @@ public class Blocker {
 	public boolean scored;
 	public Entity high;
 	public Entity low;
+	private float scale_w;
 	
 	public Blocker(float w, float h, int no, Level level, float scale_w, float scale_h){
 		// 1196 x 768	
 		id = no;
+		this.scale_w = scale_w;
 		float third = h/3;
 		
 		// TOP BOX
@@ -32,7 +34,7 @@ public class Blocker {
 		low.hitbox = new Rectangle(low.x,low.y,low.w,low.h); 
 		low.texture = level.blocker;
 		
-		scorebox  = new Rectangle(0,0,w,h);
+		scorebox  = new Rectangle(0,0,high.w,high.h);
 		scored    = false;
 	}
 	
@@ -44,7 +46,7 @@ public class Blocker {
 	public void update_hitboxes(float x){
 		high.hitbox.setPosition(high.x - x,high.y);	
 		low.hitbox.setPosition(low.x - x,low.y);	
-		scorebox.setPosition((high.x + high.w/2) - x, 0);
+		scorebox.setPosition((high.x + 30*scale_w) - x, 0);
 	}
 	
 }
