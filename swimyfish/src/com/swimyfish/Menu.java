@@ -21,6 +21,7 @@ public class Menu {
 	Alphabet alphabet;
 	ArrayList<Entity> score_array;
 	ArrayList<Entity> top_score_array;
+	ArrayList<Entity> percent_array;
 	ArrayList<Entity> level_array;
 	ArrayList<iButton> buttons;
 	float w_scale, h_scale;
@@ -42,10 +43,13 @@ public class Menu {
 		
 		// SCORES
 		score_array = new ArrayList<Entity>();	
-		score_array = alphabet.get_number("0");
+		score_array = alphabet.get_number("0", true);
 		
-		top_score_array = new ArrayList<Entity>();	
-		top_score_array = alphabet.get_number("0");
+		top_score_array = new ArrayList<Entity>();
+		top_score_array = alphabet.get_number("0", true);
+		
+		percent_array = new ArrayList<Entity>();
+		percent_array = alphabet.get_number("0", true);
 		
 		w_pad = w_scale * 30;
 		h_pad = h_scale * 30;
@@ -185,8 +189,8 @@ public class Menu {
 	}
 	
 	public void update_score(int score, int top_score){
-		score_array = alphabet.get_number(Integer.toString(score));
-		top_score_array = alphabet.get_number(Integer.toString(top_score));
+		score_array = alphabet.get_number(Integer.toString(score), true);
+		top_score_array = alphabet.get_number(Integer.toString(top_score), true);
 	}
 	
 	public void tick(SpriteBatch sb, Player player, float delta, int score, LevelScores ls){
@@ -221,7 +225,17 @@ public class Menu {
 
 		sb.draw(current_level.texture, current_level.x, current_level.y, current_level.w, current_level.h);
 		sb.draw(progress_back.texture, progress_back.x, progress_back.y, progress_back.w, progress_back.h);		
-		sb.draw(progress_bar.texture, progress_bar.x, progress_bar.y, percent*full_progress, progress_bar.h);	
+		sb.draw(progress_bar.texture, progress_bar.x, progress_bar.y, percent*full_progress, progress_bar.h);
+		
+		i = 1;
+		percent_array.clear();
+		percent_array = alphabet.get_number(Float.toString(percent*100), false);
+		for(Entity e : percent_array){
+			//  
+			float t = percent_array.size() * (e.w/4); 
+			sb.draw(e.texture, progress_back.x + (progress_back.w/2) + t/2 - (i*(e.w/4)), progress_bar.y + h_scale * 3, w_scale * (e.w/4), h_scale * (e.h/4));
+			i ++;
+		}
 				
 		// BUTTONS
 		if (!ls.locked){

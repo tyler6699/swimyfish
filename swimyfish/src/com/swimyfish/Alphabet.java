@@ -19,6 +19,17 @@ public class Alphabet {
 	private Texture no_8;
 	private Texture no_9;
 	
+	private Texture s_no_0;
+	private Texture s_no_1;
+	private Texture s_no_2;
+	private Texture s_no_3;
+	private Texture s_no_4;
+	private Texture s_no_5;
+	private Texture s_no_6;
+	private Texture s_no_7;
+	private Texture s_no_8;
+	private Texture s_no_9;
+	
 	public Alphabet(){
 		GLTexture.setEnforcePotImages(false);
 		
@@ -32,9 +43,20 @@ public class Alphabet {
 		no_7 = new Texture(Gdx.files.internal("data/numbers/7.png"));
 		no_8 = new Texture(Gdx.files.internal("data/numbers/8.png"));
 		no_9 = new Texture(Gdx.files.internal("data/numbers/9.png"));
+		
+		s_no_0 = new Texture(Gdx.files.internal("data/numbers/small/0.png"));
+		s_no_1 = new Texture(Gdx.files.internal("data/numbers/1.png"));
+		s_no_2 = new Texture(Gdx.files.internal("data/numbers/2.png"));
+		s_no_3 = new Texture(Gdx.files.internal("data/numbers/3.png"));
+		s_no_4 = new Texture(Gdx.files.internal("data/numbers/4.png"));
+		s_no_5 = new Texture(Gdx.files.internal("data/numbers/5.png"));
+		s_no_6 = new Texture(Gdx.files.internal("data/numbers/6.png"));
+		s_no_7 = new Texture(Gdx.files.internal("data/numbers/7.png"));
+		s_no_8 = new Texture(Gdx.files.internal("data/numbers/8.png"));
+		s_no_9 = new Texture(Gdx.files.internal("data/numbers/9.png"));
 	}
 	
-	public ArrayList<Entity> get_number(String number){
+	public ArrayList<Entity> get_number(String number, boolean large){
 		ArrayList<Entity> numbers;
 		numbers = new ArrayList<Entity>();
 		
@@ -43,55 +65,97 @@ public class Alphabet {
 		
 		for (String no: nos){
 			if (no.equals("0")){
-				e.texture = no_0;
+				if (large){
+					e.texture = no_0;
+				} else {
+					e.texture = s_no_0;
+				}
 				e.w = no_0.getWidth();
 				e.h =  no_0.getHeight();
 				numbers.add(e);	
 			} else if (no.equals("1")){
-				e.texture = no_1;
+				if (large){
+					e.texture = no_1;
+				} else {
+					e.texture = s_no_1;
+				}
 				e.w = no_1.getWidth();
 				e.h =  no_1.getHeight();
 				numbers.add(e);	
 			} else if (no.equals("2")){
-				e.texture = no_2;
+				if (large){
+					e.texture = no_2;
+				} else {
+					e.texture = s_no_2;
+				}
 				e.w = no_2.getWidth();
 				e.h =  no_2.getHeight();
 				numbers.add(e);	
 			} else if (no.equals("3")){
-				e.texture = no_3;
+				if (large){
+					e.texture = no_3;
+				} else {
+					e.texture = s_no_3;
+				}
 				e.w = no_3.getWidth();
 				e.h =  no_3.getHeight();
 				numbers.add(e);	
 			} else if (no.equals("4")){
-				e.texture = no_4;
+				if (large){
+					e.texture = no_4;
+				} else {
+					e.texture = s_no_4;
+				}
 				e.w = no_4.getWidth();
 				e.h =  no_4.getHeight();
 				numbers.add(e);	
 			} else if (no.equals("5")){
-				e.texture = no_5;
+				if (large){
+					e.texture = no_5;
+				} else {
+					e.texture = s_no_5;
+				}
 				e.w = no_5.getWidth();
 				e.h =  no_5.getHeight();
 				numbers.add(e);	
 			} else if (no.equals("6")){
-				e.texture = no_6;
+				if (large){
+					e.texture = no_6;
+				} else {
+					e.texture = s_no_6;
+				}
 				e.w = no_6.getWidth();
 				e.h =  no_6.getHeight();
 				numbers.add(e);	
 			} else if (no.equals("7")){
-				e.texture = no_7;
+				if (large){
+					e.texture = no_7;
+				} else {
+					e.texture = s_no_7;
+				}
 				e.w = no_7.getWidth();
 				e.h =  no_7.getHeight();
 				numbers.add(e);	
 			} else if (no.equals("8")){
-				e.texture = no_8;
+				if (large){
+					e.texture = no_8;
+				} else {
+					e.texture = s_no_8;
+				}
 				e.w = no_8.getWidth();
 				e.h =  no_8.getHeight();
 				numbers.add(e);	
 			} else if (no.equals("9")){
-				e.texture = no_9;
+				if (large){
+					e.texture = no_9;
+				} else {
+					e.texture = s_no_9;
+				}
 				e.w = no_9.getWidth();
 				e.h =  no_9.getHeight();
 				numbers.add(e);	
+			} else if (no.equals(".")){
+				break;
 			}
 			e = new Entity();
 		}
