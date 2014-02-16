@@ -57,7 +57,12 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	boolean hit;         // If true end game
 	boolean start; 
 	boolean up;
-	int score, top_score, bank;       
+	
+	// BANK AND SCORES
+	int score, top_score, bank; 
+	ArrayList<LevelScores> level_scores;
+	LevelScores current_level;	
+	int number_of_levels = 2;
 	
 	// Difficulty / Speed
 	float scroll_speed;
@@ -77,6 +82,15 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	@Override
 	public void create(){
 		Gdx.input.setInputProcessor(this);
+		
+		// SCORE ARRAY
+		level_scores = new ArrayList<LevelScores>();
+		for (int i = 1; i <= number_of_levels; i++){
+			current_level = new LevelScores();
+			current_level.level_id = i;
+			current_level.top_score = 0;
+			level_scores.add(current_level);
+		}
 		
 		// LEVEL TOGGLE
 		level_id = 1;
@@ -98,6 +112,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		h_scale = h/v_height;
 		
 		// MENU
+		top_score = level_scores.get(level_id-1).top_score;
 		menu = new Menu(w, h, w_scale, h_scale);
 		menu.update_score(score, top_score);
 		
@@ -141,16 +156,18 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	}
 	
 	private void load_prefs(){
-		prefs = Gdx.app.getPreferences("flappy_box");
-
-		// TOP SCORE
-		if (!prefs.contains("top_score")){
-			prefs.putInteger("top_score", 0);
-			top_score = 0;
-		} else {
-			top_score = prefs.getInteger("top_score");
-		}
+		prefs = Gdx.app.getPreferences("flappy_pixel");
 		
+		for (LevelScores ls : level_scores){
+			// TOP SCORE
+			if (!prefs.contains("top_score_" + ls.level_id)){
+				prefs.putInteger("top_score_" + ls.level_id, ls.top_score);
+				top_score = 0;
+			} else {
+				ls.top_score = prefs.getInteger("top_score_" + ls.level_id);
+			}
+		}
+				
 		// BANK
 		if (!prefs.contains("bank")){
 			prefs.putInteger("bank", 0);
@@ -163,7 +180,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	}
 	
 	private void save_prefs(){
-		prefs.putInteger("top_score",score);
+		for (LevelScores ls : level_scores){
+			prefs.putInteger("top_score_" + ls.level_id, ls.top_score);
+		}	
 		prefs.putInteger("bank",bank);
 		prefs.flush();
 		top_score = score;
@@ -192,11 +211,15 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			if (menu.action.equals("LEFT_ARROW")){
 				if (level_id > 1){
 					level_id -= 1;
+					top_score = level_scores.get(level_id-1).top_score;
+					menu.update_score(score,top_score);
 				}
 				menu.action = "";
 			} else if (menu.action.equals("RIGHT_ARROW")){
-				if (level_id < 2){
+				if (level_id < number_of_levels){
 					level_id += 1;
+					top_score = level_scores.get(level_id-1).top_score;
+					menu.update_score(score,top_score);
 				}
 				menu.action = "";
 			} else if (menu.action.equals("PLAY") && menu.ready) {
@@ -455,7 +478,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			if (box.high.hitbox.overlaps(player.hitbox) || box.low.hitbox.overlaps(player.hitbox)){
 				hit = true;
 				
-				if (score > top_score ){
+				if (score > level_scores.get(level_id-1).top_score){
+					level_scores.get(level_id-1).top_score = score;
 					save_prefs();
 					menu.update_score(score, top_score);
 				}
