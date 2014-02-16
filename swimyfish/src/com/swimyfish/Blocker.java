@@ -32,7 +32,7 @@ public class Blocker {
 		low.hitbox = new Rectangle(low.x,low.y,low.w,low.h); 
 		low.texture = level.blocker;
 		
-		scorebox  = new Rectangle(0,0,10,h);
+		scorebox  = new Rectangle(0,0,w,h);
 		scored    = false;
 	}
 	
@@ -44,7 +44,7 @@ public class Blocker {
 	public void update_hitboxes(float x){
 		high.hitbox.setPosition(high.x - x,high.y);	
 		low.hitbox.setPosition(low.x - x,low.y);	
-		scorebox.setPosition(high.x - x, 0);
+		scorebox.setPosition((high.x + high.w/2) - x, 0);
 	}
 	
 }

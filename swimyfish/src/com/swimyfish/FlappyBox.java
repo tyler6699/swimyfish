@@ -162,7 +162,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	}
 	
 	private void load_prefs(){
-		prefs = Gdx.app.getPreferences("flappy_pixel");
+		prefs = Gdx.app.getPreferences("pixel_jump");
 		
 		for (LevelScores ls : level_scores){
 			// TOP SCORE
@@ -516,9 +516,17 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		} else {
 			if (box.high.hitbox.overlaps(player.hitbox) || box.low.hitbox.overlaps(player.hitbox)){
 				hit = true;
+				// BANK
+				bank += score;
 				
 				// UPDATE PROGRESS
-				current_level.progress += score;
+				if(current_level.progress <= current_level.points_needed){
+					if (current_level.progress + score > current_level.points_needed){
+						current_level.progress = current_level.points_needed;
+					} else {
+						current_level.progress += score;
+					}
+				}
 				
 				// CHECK HIGH SCORES
 				if (score > current_level.top_score){

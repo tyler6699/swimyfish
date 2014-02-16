@@ -231,7 +231,6 @@ public class Menu {
 		percent_array.clear();
 		percent_array = alphabet.get_number(Float.toString(percent*100), false);
 		for(Entity e : percent_array){
-			//  
 			float t = percent_array.size() * (e.w/4); 
 			sb.draw(e.texture, progress_back.x + (progress_back.w/2) + t/2 - (i*(e.w/4)), progress_bar.y + h_scale * 3, w_scale * (e.w/4), h_scale * (e.h/4));
 			i ++;
