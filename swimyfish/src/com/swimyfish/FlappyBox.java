@@ -243,11 +243,19 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 					level_id -= 1;
 					top_score = level_scores.get(level_id-1).top_score;
 					menu.update_score(score,top_score);
+				} else {
+					level_id = number_of_levels;
+					top_score = level_scores.get(level_id-1).top_score;
+					menu.update_score(score,top_score);
 				}
 				menu.action = "";
 			} else if (menu.action.equals("RIGHT_ARROW")){
 				if (level_id < number_of_levels){
 					level_id += 1;
+					top_score = level_scores.get(level_id-1).top_score;
+					menu.update_score(score,top_score);
+				} else {
+					level_id = 1;
 					top_score = level_scores.get(level_id-1).top_score;
 					menu.update_score(score,top_score);
 				}
@@ -520,7 +528,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				
 				// UNLOCK LEVELS?
 				if (current_level.progress > current_level.points_needed){
-					level_scores.get(level_id).locked = false;
+					if(current_level.level_id < number_of_levels){
+						level_scores.get(level_id).locked = false;
+					}
 				}
 				
 				save_prefs();
