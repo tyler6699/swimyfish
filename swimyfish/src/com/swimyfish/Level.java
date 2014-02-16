@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.GLTexture;
 import com.badlogic.gdx.graphics.Texture;
 
 public class Level {
-	
+	int level_id;
 	// Device
 	float w,h;
 	float floor_h;
@@ -35,12 +35,12 @@ public class Level {
 	public Entity erays_2;
 	public Entity esky;
 	
-	public Level(String level, float w, float h, float w_scale, float h_scale){
+	public Level(String level, int level_id, float w, float h, float w_scale, float h_scale){
 		// Scene	
 		GLTexture.setEnforcePotImages(false);
 		this.w = w;
 		this.h = h;
-		
+		this.level_id = level_id;
 		// Array for toppers & clouds
 		floor_toppers = new ArrayList<Entity>(); 
 		eclouds       = new ArrayList<Entity>(); 

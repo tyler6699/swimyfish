@@ -118,7 +118,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		player = new Player(w, h, w_scale, h_scale);
 		
 		// NEW LEVEL
-		level = new Level("level_" + level_id, w, h, w_scale, h_scale);
+		level = new Level("level_" + level_id, level_id, w, h, w_scale, h_scale);
 		
 		// GAME CONFIG
 		hit           = true;
@@ -362,7 +362,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		if (hit){
 			menu.tick(touch);
-			menu.tick(batch,player, delta, score);
+			menu.tick(batch,player, delta, score, level_id);
 		}
 		
 		//SCORE
@@ -387,7 +387,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			level_id = 1;
 		}
 		
-		level = new Level("level_" + level_id, w, h, w_scale, h_scale);
+		level = new Level("level_" + level_id,level_id, w, h, w_scale, h_scale);
 		plotter.clear();
 		score = 0;
 		scroll_speed = w_scale*6;

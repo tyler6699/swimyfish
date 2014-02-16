@@ -98,4 +98,56 @@ public class Alphabet {
 		Collections.reverse(numbers);
 		return numbers;
 	}
+	
+	public Texture get_number_texture(String no){
+		if (no.equals("0")){
+			return no_0;
+		} else if (no.equals("1")){
+			return no_1;
+		} else if (no.equals("2")){
+			return no_2;
+		} else if (no.equals("3")){
+			return no_3;
+		} else if (no.equals("4")){
+			return no_4;
+		} else if (no.equals("5")){
+			return no_5;
+		} else if (no.equals("6")){
+			return no_6;
+		} else if (no.equals("7")){
+			return no_7;
+		} else if (no.equals("8")){
+			return no_8;
+		} else if (no.equals("9")){
+			return no_9;
+		} else {
+			return no_0;
+		}
+	}
+	
+	public Texture get_number_texture(int no){
+		if (no == 0){
+			return no_0;
+		} else if (no == 1){
+			return no_1;
+		} else if (no == 2){
+			return no_2;
+		} else if (no == 3){
+			return no_3;
+		} else if (no == 4){
+			return no_4;
+		} else if (no == 5){
+			return no_5;
+		} else if (no == 6){
+			return no_6;
+		} else if (no == 7){
+			return no_7;
+		} else if (no == 8){
+			return no_8;
+		} else if (no == 9){
+			return no_9;
+		} else {
+			return no_0;
+		}
+	}
 }

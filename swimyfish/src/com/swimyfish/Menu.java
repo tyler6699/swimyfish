@@ -9,7 +9,8 @@ import com.swimyfish.FlappyBox.TouchInfo;
 public class Menu {
 	float w, h, tick;
 	Entity background;
-	Entity e_score, best, bank;
+	Entity e_score, best, bank, level, level_number;
+
 	public boolean ready;
 	Alphabet alphabet;
 	ArrayList<Entity> score_array;
@@ -19,7 +20,7 @@ public class Menu {
 	
 	// Background coords
 	float bx, by, bxx, byy;
-	float score_y, score_x, t_score_y, t_score_x, w_pad, h_pad;
+	float score_y, score_x, t_score_y, w_pad, h_pad;
 	
 	public Menu(float w, float h, float w_scale, float h_scale){
 		this.w_scale = w_scale;
@@ -37,17 +38,15 @@ public class Menu {
 		top_score_array = new ArrayList<Entity>();	
 		top_score_array = alphabet.get_number("0");
 		
-		w_pad = w_scale * 45;
-		h_pad = h_scale * 20;
-				
+		w_pad = w_scale * 30;
+		h_pad = h_scale * 30;
+		
 		background = new Entity();
 		background.texture = new Texture(Gdx.files.internal("data/ui/menu_background.png"));
 		background.w = w_scale * background.texture.getWidth();
 		background.h = h_scale * background.texture.getHeight();
 		background.x = w/2 - background.w/2;
 		background.y = h/2 - background.h/2;
-
-		System.out.println(background.x );
 		
 		bx = background.x;
 		by = background.y;
@@ -60,19 +59,32 @@ public class Menu {
 		e_score.h = h_scale * e_score.texture.getHeight();
 		e_score.x = bxx - (e_score.w + w_pad);
 		e_score.y = byy - (e_score.h + h_pad);
-		
+			
 		score_y = e_score.y - e_score.h; 
-		score_x	= e_score.x + e_score.w - w_pad; 
+		score_x	= e_score.x + e_score.w; 
+		
+		level = new Entity();
+		level.texture = new Texture(Gdx.files.internal("data/text/level.png"));
+		level.w = w_scale * level.texture.getWidth();
+		level.h = h_scale * level.texture.getHeight();
+		level.x = bx + w_pad;
+		level.y = byy - (level.h + h_pad);
+		
+		level_number = new Entity();
+		level_number.texture =  alphabet.get_number_texture(1);
+		level_number.w = w_scale * level_number.texture.getWidth();
+		level_number.h = h_scale * level_number.texture.getHeight();
+		level_number.x = level.x + level.w;
+		level_number.y = level.y;
 		
 		best = new Entity();
 		best.texture = new Texture(Gdx.files.internal("data/text/best.png"));
 		best.w = w_scale * best.texture.getWidth();
 		best.h = h_scale * best.texture.getHeight();
-		best.x = bxx - (best.w + w_pad);
+		best.x = e_score.x;
 		best.y = score_y - best.h - h_pad;
 		
 		t_score_y = best.y - best.h; 
-		t_score_x	= e_score.x + e_score.w - w_pad; 
 		
 		// BUTTONS
 		buttons = new ArrayList<iButton>();
@@ -103,12 +115,15 @@ public class Menu {
 		top_score_array = alphabet.get_number(Integer.toString(top_score));
 	}
 	
-	public void tick(SpriteBatch sb, Player player, float delta, int score){
+	public void tick(SpriteBatch sb, Player player, float delta, int score, int level_id){
+		level_number.texture = alphabet.get_number_texture(level_id);
 		sb.draw(background.texture, background.x, background.y, background.w, background.h);
+		sb.draw(level.texture, level.x, level.y, level.w, level.h);	
+		sb.draw(level_number.texture, level_number.x, level_number.y, level_number.w, level_number.h);	
 		
 		//SCORE
 		sb.draw(e_score.texture, e_score.x, e_score.y, e_score.w, e_score.h);		
-		int i = 0;
+		int i = 1;
 		for(Entity e : score_array){
 			sb.draw(e.texture, score_x - (i*e.w), score_y , w_scale * e.w, h_scale * e.h);
 			i ++;
@@ -116,7 +131,7 @@ public class Menu {
 		
 		// TOP SCORE
 		sb.draw(best.texture, best.x, best.y, best.w, best.h);
-		i = 0;
+		i = 1;
 		for(Entity e : top_score_array){
 			sb.draw(e.texture, score_x - (i*e.w), t_score_y, w_scale * e.w, h_scale * e.h);
 			i ++;
