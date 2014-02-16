@@ -93,6 +93,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			current_level.level_id = i;
 			current_level.top_score = 0;
 			current_level.progress = 0;
+			current_level.points_needed = i*100;
 			if (i == 1){
 				current_level.locked = false;
 			} else {
@@ -189,10 +190,16 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			}
 			
 			if (!prefs.contains("progress_" + ls.level_id)){
-				prefs.putFloat("progress_" + ls.level_id, ls.progress);
+				prefs.putInteger("progress_" + ls.level_id, ls.progress);
 				ls.progress = 0;
 			} else {
-				ls.progress = prefs.getFloat("progress_" + ls.progress);
+				ls.progress = prefs.getInteger("progress_" + ls.level_id);
+			}
+			
+			if (!prefs.contains("required_" + ls.level_id)){
+				prefs.putInteger("required_" + ls.level_id, ls.points_needed);
+			} else {
+				ls.points_needed = prefs.getInteger("required_" + ls.level_id);
 			}
 		}
 				
@@ -210,6 +217,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	private void save_prefs(){
 		for (LevelScores ls : level_scores){
 			prefs.putInteger("top_score_" + ls.level_id, ls.top_score);
+			prefs.putInteger("progress_" + ls.level_id, ls.progress);
+			prefs.putBoolean("locked_" + ls.level_id, ls.locked);
 		}	
 		prefs.putInteger("bank",bank);
 		prefs.flush();
@@ -498,6 +507,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	}
 		
 	private void check_collision(Blocker box) {
+		current_level = level_scores.get(level_id-1);
+		
 		if (box.scorebox.overlaps(player.hitbox) && !box.scored){
 			box.scored = true;
 			score ++;
@@ -505,12 +516,21 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		} else {
 			if (box.high.hitbox.overlaps(player.hitbox) || box.low.hitbox.overlaps(player.hitbox)){
 				hit = true;
+				// UPDATE PROGRESS
+				current_level.progress += score;
 				
-				if (score > level_scores.get(level_id-1).top_score){
-					level_scores.get(level_id-1).top_score = score;
-					save_prefs();
+				// CHECK HIGH SCORES
+				if (score > current_level.top_score){
+					current_level.top_score = score;
 					menu.update_score(score, top_score);
 				}
+				
+				// UNLOCK LEVELS?
+				if (current_level.progress > current_level.points_needed){
+					level_scores.get(level_id).locked = false;
+				}
+				
+				save_prefs();
 			}
 		}
 	}

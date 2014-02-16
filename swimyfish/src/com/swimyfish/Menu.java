@@ -12,7 +12,8 @@ public class Menu {
 	Entity e_score, best, bank, level, level_number;
 	Entity current_level;
 	Entity lockdown;
-	Entity progress_back;
+	Entity progress_back, progress_bar;
+	float full_progress;
 	iButton play, left_arrow, right_arrow;
 	
 	public boolean ready;
@@ -38,6 +39,7 @@ public class Menu {
 		tick = 0;
 		ready = false;
 		alphabet = new Alphabet();
+		full_progress = h_scale*438;
 		
 		// SCORES
 		score_array = new ArrayList<Entity>();	
@@ -144,6 +146,12 @@ public class Menu {
 		progress_back.x = current_level.x;
 		progress_back.y = current_level.y - progress_back.h - (h_pad/8);
 		
+		progress_bar = new Entity();
+		progress_bar.texture = new Texture(Gdx.files.internal("data/ui/pro_bar.png"));
+		progress_bar.w = w_scale * progress_bar.texture.getWidth();
+		progress_bar.h = h_scale * progress_bar.texture.getHeight();
+		progress_bar.x = progress_back.x + (w_scale*6);
+		progress_bar.y = progress_back.y + (h_scale*16);
 	}
 	
 	public void tick(TouchInfo touch){
@@ -196,8 +204,15 @@ public class Menu {
 
 		// LEVEL IMAGE
 		current_level = level_array.get(ls.level_id-1);
+		
+		// Progress (Cannot be more than 1)
+		float percent = (float) ls.progress/(float) ls.points_needed;
+		percent = percent >= 1 ? 1 : percent;
+
 		sb.draw(current_level.texture, current_level.x, current_level.y, current_level.w, current_level.h);
 		sb.draw(progress_back.texture, progress_back.x, progress_back.y, progress_back.w, progress_back.h);		
+		sb.draw(progress_bar.texture, progress_bar.x, progress_bar.y, percent*full_progress, progress_bar.h);	
+				
 		// BUTTONS
 		if (!ls.locked){
 			sb.draw(play.texture, play.x, play.y, play.w, play.h);
