@@ -62,7 +62,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	int score, top_score, bank; 
 	ArrayList<LevelScores> level_scores;
 	LevelScores current_level;	
-	int number_of_levels = 2;
+	int number_of_levels;
 	
 	// Difficulty / Speed
 	float scroll_speed;
@@ -83,12 +83,22 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	public void create(){
 		Gdx.input.setInputProcessor(this);
 		
+		// NUMBER OF LEVELS!!!
+		number_of_levels = 2;
+		
 		// SCORE ARRAY
 		level_scores = new ArrayList<LevelScores>();
 		for (int i = 1; i <= number_of_levels; i++){
 			current_level = new LevelScores();
 			current_level.level_id = i;
 			current_level.top_score = 0;
+			current_level.progress = 0;
+			if (i == 1){
+				current_level.locked = false;
+			} else {
+				current_level.locked = true;
+			}
+			
 			level_scores.add(current_level);
 		}
 		
@@ -113,7 +123,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// MENU
 		top_score = level_scores.get(level_id-1).top_score;
-		menu = new Menu(w, h, w_scale, h_scale);
+		menu = new Menu(w, h, w_scale, h_scale, number_of_levels);
 		menu.update_score(score, top_score);
 		
 		// CAMERA SETUP
@@ -165,6 +175,24 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				top_score = 0;
 			} else {
 				ls.top_score = prefs.getInteger("top_score_" + ls.level_id);
+			}
+			
+			if (!prefs.contains("locked_" + ls.level_id)){
+				prefs.putBoolean("locked_" + ls.level_id, ls.locked);
+				if(ls.level_id == 1){
+					ls.locked = false;
+				} else {
+					ls.locked = true;
+				}
+			} else {
+				ls.locked = prefs.getBoolean("locked_" + ls.level_id);
+			}
+			
+			if (!prefs.contains("progress_" + ls.level_id)){
+				prefs.putFloat("progress_" + ls.level_id, ls.progress);
+				ls.progress = 0;
+			} else {
+				ls.progress = prefs.getFloat("progress_" + ls.progress);
 			}
 		}
 				
@@ -222,7 +250,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 					menu.update_score(score,top_score);
 				}
 				menu.action = "";
-			} else if (menu.action.equals("PLAY") && menu.ready) {
+			} else if (menu.action.equals("PLAY") && menu.ready && !level_scores.get(level_id-1).locked) {
 				reset_game();	
 				menu.action = "";
 			}
@@ -405,7 +433,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		if (hit){
 			menu.tick(touch);
-			menu.tick(batch,player, delta, score, level_id);
+			menu.tick(batch,player, delta, score, level_scores.get(level_id-1));
 		}
 		
 		//SCORE

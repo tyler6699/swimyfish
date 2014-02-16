@@ -17,18 +17,23 @@ public class Menu {
 	Alphabet alphabet;
 	ArrayList<Entity> score_array;
 	ArrayList<Entity> top_score_array;
+	ArrayList<Entity> level_array;
+	Entity current_level;
+	Entity lockdown;
 	ArrayList<iButton> buttons;
 	float w_scale, h_scale;
+	int number_of_levels;
 	
 	// Background coords
 	float bx, by, bxx, byy;
 	float score_y, score_x, t_score_y, w_pad, h_pad;
 	
-	public Menu(float w, float h, float w_scale, float h_scale){
+	public Menu(float w, float h, float w_scale, float h_scale, int number_of_levels){
 		this.w_scale = w_scale;
 		this.h_scale = h_scale;
 		this.w = w;
 		this.h = h;
+		this.number_of_levels = number_of_levels;
 		tick = 0;
 		ready = false;
 		alphabet = new Alphabet();
@@ -87,7 +92,7 @@ public class Menu {
 		best.y = score_y - best.h - h_pad;
 		
 		t_score_y = best.y - best.h; 
-		
+				
 		// BUTTONS
 		buttons = new ArrayList<iButton>();
 				
@@ -108,8 +113,26 @@ public class Menu {
 		play.y = left_arrow.y - ((play.h - left_arrow.h)/2);
 		play.set_hitbox();
 		buttons.add(play);
+				
+		// IMAGES FOR LEVELS
+		level_array = new ArrayList<Entity>();
+		for (int i = 1; i <= number_of_levels; i++){
+			Entity level = new Entity();
+			level.texture =  new Texture(Gdx.files.internal("data/ui/level_" + i + ".png"));
+			level.w = w_scale * level.texture.getWidth();
+			level.h = h_scale * level.texture.getHeight();
+			level.x = play.x - (level.w/4);
+			level.y = play.y - (level.h/3);	
+			level_array.add(level);
+		}
+		current_level = level_array.get(0);
 		
-		System.out.println(left_arrow.y + " " + play.y);
+		lockdown = new Entity();
+		lockdown.texture = new Texture(Gdx.files.internal("data/ui/lockdown.png"));
+		lockdown.w = w_scale * lockdown.texture.getWidth();
+		lockdown.h = h_scale * lockdown.texture.getHeight();
+		lockdown.x = current_level.x;
+		lockdown.y = current_level.y;
 	}
 	
 	public void tick(TouchInfo touch){
@@ -138,8 +161,8 @@ public class Menu {
 		top_score_array = alphabet.get_number(Integer.toString(top_score));
 	}
 	
-	public void tick(SpriteBatch sb, Player player, float delta, int score, int level_id){
-		level_number.texture = alphabet.get_number_texture(level_id);
+	public void tick(SpriteBatch sb, Player player, float delta, int score, LevelScores ls){
+		level_number.texture = alphabet.get_number_texture(ls.level_id);
 		sb.draw(background.texture, background.x, background.y, background.w, background.h);
 		sb.draw(level.texture, level.x, level.y, level.w, level.h);	
 		sb.draw(level_number.texture, level_number.x, level_number.y, level_number.w, level_number.h);	
@@ -159,9 +182,18 @@ public class Menu {
 			sb.draw(e.texture, score_x - (i*e.w), t_score_y, w_scale * e.w, h_scale * e.h);
 			i ++;
 		}
-		
+
+		// LEVEL IMAGE
+		current_level = level_array.get(ls.level_id-1);
+		sb.draw(current_level.texture, current_level.x, current_level.y, current_level.w, current_level.h);
+				
 		// BUTTONS
-		sb.draw(play.texture, play.x, play.y, play.w, play.h);
+		if (!ls.locked){
+			sb.draw(play.texture, play.x, play.y, play.w, play.h);
+		} else{
+			sb.draw(lockdown.texture, lockdown.x, lockdown.y, lockdown.w, lockdown.h);
+		}
+		
 		sb.draw(left_arrow.texture, left_arrow.x, left_arrow.y, left_arrow.w, left_arrow.h);
 		sb.draw(right_arrow.texture, right_arrow.x, right_arrow.y, right_arrow.w, right_arrow.h);
 	}
