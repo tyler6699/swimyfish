@@ -14,6 +14,10 @@ public class Level {
 	float cloud_h;
 	public boolean show_blocker_lower = true;
 	
+	// SETTINGS
+	public float scroll_speed;
+	public float gap;
+	
 	// Scene
 	public Texture floor;
 	public Texture floor_top;
@@ -41,6 +45,7 @@ public class Level {
 		this.w = w;
 		this.h = h;
 		this.level_id = level_id;
+		
 		// Array for toppers & clouds
 		floor_toppers = new ArrayList<Entity>(); 
 		eclouds       = new ArrayList<Entity>(); 
@@ -57,11 +62,16 @@ public class Level {
 		if (level.equals("level_1")){
 			floor_h = 0.2f*h;
 			cloud_h = h-(h_scale * cloud.getHeight());
+			scroll_speed = 6;
+			gap = w/3;
 		} else if (level.equals("level_2")){
 			floor_h = 0.1f*h;
 			cloud_h = floor_h;
+			scroll_speed = 7;
+			gap = (w/3) - w_scale*20;
 		}
 		
+		// FLOOR
 		efloor     = new Entity();
 		efloor_top = new Entity();
 		elog_up    = new Entity();
@@ -117,13 +127,13 @@ public class Level {
 			eclouds.add(ecloud);
 		}
 		
-		
 		// RAYS 1
 		erays_1.x = (w/5) *1;
 		erays_1.y = efloor.h - (h_scale * rays_1.getHeight());
 		erays_1.w = w_scale * rays_1.getWidth();
 		erays_1.h = h_scale * rays_1.getHeight();
 		erays_1.texture = rays_1;
+		
 		// RAYS 2
 		erays_2.x = (w/5) *4;
 		erays_2.y = efloor.h - (h_scale * rays_1.getHeight());

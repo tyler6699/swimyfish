@@ -17,7 +17,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	private Preferences prefs;
 	private OrthographicCamera camera;
 	private SpriteBatch batch;
-	private SpriteBatch screen;
 	public float v_width, v_height, w_scale, h_scale;
 	int level_id, tick = 0,trail_length;
 	float w, h, x = 0, y = 0;
@@ -69,7 +68,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	private float gap;
 	float max;
 	int min;
-	//private Object letters;
 			
 	class TouchInfo {
 		public float touchX = 0;
@@ -137,9 +135,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		batch = new SpriteBatch();
 		batch.setTransformMatrix(camera.combined);
 		
-		// SB FOR SCREEN
-		screen = new SpriteBatch();
-		
 		// NEW PLAYER
 		player = new Player(w, h, w_scale, h_scale);
 		
@@ -159,7 +154,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		gravity       = min_gravity;
 		fly_up        = h_scale*5;
 		glide         = h_scale*3;
-		scroll_speed  = w_scale*6;
+		scroll_speed  = w_scale * level.scroll_speed;
 				
 		// BLOCKERS
 		gap = w/3; // Horizontal distance between blockers
@@ -222,19 +217,17 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}	
 		prefs.putInteger("bank",bank);
 		prefs.flush();
-		top_score = score;
 	}
 	
 	@Override
 	public void dispose() {
-		screen.dispose();
 		batch.dispose();
 	}
 	
 	@Override
 	public void render(){
 		delta = Gdx.graphics.getDeltaTime();
-
+			
 		if (!hit){ 
 			logic(); 
 		} else {
@@ -308,7 +301,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				box.low.x += 4 * gap;	
 				box.low.y = box.high.y - box.low.h - (hole*.9f); // CLOSE HOLE HERE		 
 				box.set_hitboxes();
-				
 				box.scored = false;
 			} else {
 				box.low.x -= scroll_speed;	
@@ -464,7 +456,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		level = new Level("level_" + level_id,level_id, w, h, w_scale, h_scale);
 		plotter.clear();
 		score = 0;
-		scroll_speed = w_scale*6;
+		scroll_speed  = w_scale * level.scroll_speed;
+		gap = level.gap;
 		fly_time = max_fly_time;
 		grace_period  = max_grace;
 		
@@ -512,17 +505,17 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		if (box.scorebox.overlaps(player.hitbox) && !box.scored){
 			box.scored = true;
 			score ++;
-			menu.update_score(score, top_score);
 		} else {
 			if (box.high.hitbox.overlaps(player.hitbox) || box.low.hitbox.overlaps(player.hitbox)){
 				hit = true;
+				
 				// UPDATE PROGRESS
 				current_level.progress += score;
 				
 				// CHECK HIGH SCORES
 				if (score > current_level.top_score){
 					current_level.top_score = score;
-					menu.update_score(score, top_score);
+					top_score = score;
 				}
 				
 				// UNLOCK LEVELS?
@@ -533,6 +526,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				save_prefs();
 			}
 		}
+		
+		//UPDATE SCORES
+		menu.update_score(score, top_score);
 	}
 	
 	private boolean not_too_high(){
@@ -591,7 +587,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 		touch.touchX = screenX;
-		touch.touchY = screenY;
+		touch.touchY = h-screenY;
 		touch.touched = true;
 				
 		if (!hit){ 
@@ -601,7 +597,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			}	
 		} else {
 			touch.checked_click = false;
-			touch.clicked_at.set(screenX, screenY, w_scale+5, h_scale*5);
+			touch.clicked_at.set(screenX, h-screenY, w_scale+5, h_scale*5);
 		}
 		return true;
 	}

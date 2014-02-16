@@ -14,7 +14,7 @@ public class Menu {
 	Entity lockdown;
 	Entity progress_back, progress_bar;
 	float full_progress;
-	iButton play, left_arrow, right_arrow;
+	iButton play, play_2, left_arrow, right_arrow;
 	
 	public boolean ready;
 	public String action = ""; // Processed by main game
@@ -39,7 +39,6 @@ public class Menu {
 		tick = 0;
 		ready = false;
 		alphabet = new Alphabet();
-		full_progress = h_scale*438;
 		
 		// SCORES
 		score_array = new ArrayList<Entity>();	
@@ -110,12 +109,18 @@ public class Menu {
 		right_arrow.y = left_arrow.y;
 		right_arrow.set_hitbox();
 		buttons.add(right_arrow);
-		
+				
 		play = new iButton(0,0, "PLAY", "PLAY", new Texture(Gdx.files.internal("data/ui/play.png")), w_scale, h_scale);
 		play.x = ((left_arrow.x + left_arrow.w + right_arrow.x)/2) - (play.w/2) ;
 		play.y = left_arrow.y - ((play.h - left_arrow.h)/2);
-		play.set_hitbox();
-		buttons.add(play);
+		//	play.set_hitbox();
+		//	buttons.add(play);
+		
+		play_2 = new iButton(0,0, "PLAY", "PLAY", new Texture(Gdx.files.internal("data/ui/play.png")), w_scale, h_scale);
+		play_2.x = bxx - play_2.w - w_pad;
+		play_2.y = by + h_pad;
+		play_2.set_hitbox();
+		buttons.add(play_2);
 				
 		// IMAGES FOR LEVELS
 		level_array = new ArrayList<Entity>();
@@ -150,8 +155,10 @@ public class Menu {
 		progress_bar.texture = new Texture(Gdx.files.internal("data/ui/pro_bar.png"));
 		progress_bar.w = w_scale * progress_bar.texture.getWidth();
 		progress_bar.h = h_scale * progress_bar.texture.getHeight();
-		progress_bar.x = progress_back.x + (w_scale*6);
+		progress_bar.x = progress_back.x + (w_scale*7);
 		progress_bar.y = progress_back.y + (h_scale*16);
+		
+		full_progress = progress_back.w - (h_scale*21);
 	}
 	
 	public void tick(TouchInfo touch){
@@ -170,8 +177,10 @@ public class Menu {
 				if (touch.clicked_at.overlaps(btn.hitbox)){
 					action = btn.target;					
 					touch.checked_click = true;
+					break;
 				}
 			}
+			touch.checked_click = true;
 		}
 	}
 	
@@ -203,6 +212,7 @@ public class Menu {
 		}
 
 		// LEVEL IMAGE
+		// TODO MOVE CURRENT LEVEL TO MAIN CLASS
 		current_level = level_array.get(ls.level_id-1);
 		
 		// Progress (Cannot be more than 1)
@@ -215,7 +225,8 @@ public class Menu {
 				
 		// BUTTONS
 		if (!ls.locked){
-			sb.draw(play.texture, play.x, play.y, play.w, play.h);
+			//sb.draw(play.texture, play.x, play.y, play.w, play.h);
+			sb.draw(play_2.texture, play_2.x, play_2.y, play_2.w, play_2.h);
 		} else{
 			sb.draw(lockdown.texture, lockdown.x, lockdown.y, lockdown.w, lockdown.h);
 		}
