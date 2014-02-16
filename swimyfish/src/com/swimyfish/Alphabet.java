@@ -1,13 +1,13 @@
 package com.swimyfish;
 
 import java.util.ArrayList;
+import java.util.Collections;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GLTexture;
 import com.badlogic.gdx.graphics.Texture;
 
 public class Alphabet {
-	
-	private ArrayList<Texture> numbers;
 	private Texture no_0;
 	private Texture no_1;
 	private Texture no_2;
@@ -21,7 +21,7 @@ public class Alphabet {
 	
 	public Alphabet(){
 		GLTexture.setEnforcePotImages(false);
-		numbers = new ArrayList<Texture>();
+		
 		no_0 = new Texture(Gdx.files.internal("data/numbers/0.png"));
 		no_1 = new Texture(Gdx.files.internal("data/numbers/1.png"));
 		no_2 = new Texture(Gdx.files.internal("data/numbers/2.png"));
@@ -34,34 +34,68 @@ public class Alphabet {
 		no_9 = new Texture(Gdx.files.internal("data/numbers/9.png"));
 	}
 	
-		public ArrayList<Texture> get_number(String number){
-		numbers.clear();
+	public ArrayList<Entity> get_number(String number){
+		ArrayList<Entity> numbers;
+		numbers = new ArrayList<Entity>();
 		
+		Entity e = new Entity();
 		String[] nos = number.split("");
 		
 		for (String no: nos){
 			if (no.equals("0")){
-				numbers.add(no_0);
+				e.texture = no_0;
+				e.w = no_0.getWidth();
+				e.h =  no_0.getHeight();
+				numbers.add(e);	
 			} else if (no.equals("1")){
-				numbers.add(no_1);
+				e.texture = no_1;
+				e.w = no_1.getWidth();
+				e.h =  no_1.getHeight();
+				numbers.add(e);	
 			} else if (no.equals("2")){
-				numbers.add(no_2);
+				e.texture = no_2;
+				e.w = no_2.getWidth();
+				e.h =  no_2.getHeight();
+				numbers.add(e);	
 			} else if (no.equals("3")){
-				numbers.add(no_3);
+				e.texture = no_3;
+				e.w = no_3.getWidth();
+				e.h =  no_3.getHeight();
+				numbers.add(e);	
 			} else if (no.equals("4")){
-				numbers.add(no_4);
+				e.texture = no_4;
+				e.w = no_4.getWidth();
+				e.h =  no_4.getHeight();
+				numbers.add(e);	
 			} else if (no.equals("5")){
-				numbers.add(no_5);
+				e.texture = no_5;
+				e.w = no_5.getWidth();
+				e.h =  no_5.getHeight();
+				numbers.add(e);	
 			} else if (no.equals("6")){
-				numbers.add(no_6);
+				e.texture = no_6;
+				e.w = no_6.getWidth();
+				e.h =  no_6.getHeight();
+				numbers.add(e);	
 			} else if (no.equals("7")){
-				numbers.add(no_7);
+				e.texture = no_7;
+				e.w = no_7.getWidth();
+				e.h =  no_7.getHeight();
+				numbers.add(e);	
 			} else if (no.equals("8")){
-				numbers.add(no_8);
+				e.texture = no_8;
+				e.w = no_8.getWidth();
+				e.h =  no_8.getHeight();
+				numbers.add(e);	
 			} else if (no.equals("9")){
-				numbers.add(no_9);
+				e.texture = no_9;
+				e.w = no_9.getWidth();
+				e.h =  no_9.getHeight();
+				numbers.add(e);	
 			}
+			e = new Entity();
 		}
+		Collections.reverse(numbers);
 		return numbers;
 	}
 }

@@ -8,34 +8,71 @@ import com.swimyfish.FlappyBox.TouchInfo;
 
 public class Menu {
 	float w, h, tick;
-	Entity test_tubes;
 	Entity background;
+	Entity e_score, best, bank;
 	public boolean ready;
 	Alphabet alphabet;
-	ArrayList<Texture> letters;
+	ArrayList<Entity> score_array;
+	ArrayList<Entity> top_score_array;
 	ArrayList<iButton> buttons;
+	float w_scale, h_scale;
+	
+	// Background coords
+	float bx, by, bxx, byy;
+	float score_y, score_x, t_score_y, t_score_x, w_pad, h_pad;
 	
 	public Menu(float w, float h, float w_scale, float h_scale){
+		this.w_scale = w_scale;
+		this.h_scale = h_scale;
 		this.w = w;
 		this.h = h;
 		tick = 0;
 		ready = false;
 		alphabet = new Alphabet();
-		letters = new ArrayList<Texture>();	
 		
+		// SCORES
+		score_array = new ArrayList<Entity>();	
+		score_array = alphabet.get_number("0");
+		
+		top_score_array = new ArrayList<Entity>();	
+		top_score_array = alphabet.get_number("0");
+		
+		w_pad = w_scale * 45;
+		h_pad = h_scale * 20;
+				
 		background = new Entity();
 		background.texture = new Texture(Gdx.files.internal("data/ui/menu_background.png"));
-		background.x = w/2 - background.texture.getWidth()/2;
-		background.y = h/2 - background.texture.getHeight()/2;
 		background.w = w_scale * background.texture.getWidth();
 		background.h = h_scale * background.texture.getHeight();
+		background.x = w/2 - background.w/2;
+		background.y = h/2 - background.h/2;
+
+		System.out.println(background.x );
 		
-		test_tubes = new Entity();
-		test_tubes.texture = new Texture(Gdx.files.internal("data/ui/tubes.png"));
-		test_tubes.x = w/2 - test_tubes.texture.getWidth()/2;
-		test_tubes.y = h/2 - test_tubes.texture.getHeight()/2;
-		test_tubes.w = w_scale * (test_tubes.texture.getWidth()/2);
-		test_tubes.h = h_scale * (test_tubes.texture.getHeight()/2);
+		bx = background.x;
+		by = background.y;
+		bxx = background.x + background.w;
+		byy = background.y + background.h;
+				
+		e_score = new Entity();
+		e_score.texture = new Texture(Gdx.files.internal("data/text/score.png"));
+		e_score.w = w_scale * e_score.texture.getWidth();
+		e_score.h = h_scale * e_score.texture.getHeight();
+		e_score.x = bxx - (e_score.w + w_pad);
+		e_score.y = byy - (e_score.h + h_pad);
+		
+		score_y = e_score.y - e_score.h; 
+		score_x	= e_score.x + e_score.w - w_pad; 
+		
+		best = new Entity();
+		best.texture = new Texture(Gdx.files.internal("data/text/best.png"));
+		best.w = w_scale * best.texture.getWidth();
+		best.h = h_scale * best.texture.getHeight();
+		best.x = bxx - (best.w + w_pad);
+		best.y = score_y - best.h - h_pad;
+		
+		t_score_y = best.y - best.h; 
+		t_score_x	= e_score.x + e_score.w - w_pad; 
 		
 		// BUTTONS
 		buttons = new ArrayList<iButton>();
@@ -61,18 +98,27 @@ public class Menu {
 		}
 	}
 	
-	public void update_score(int score){
-		letters = alphabet.get_number(Integer.toString(score));
+	public void update_score(int score, int top_score){
+		score_array = alphabet.get_number(Integer.toString(score));
+		top_score_array = alphabet.get_number(Integer.toString(top_score));
 	}
 	
 	public void tick(SpriteBatch sb, Player player, float delta, int score){
-		letters = alphabet.get_number(Integer.toString(score));
 		sb.draw(background.texture, background.x, background.y, background.w, background.h);
-		sb.draw(test_tubes.texture, test_tubes.x, test_tubes.y, test_tubes.w, test_tubes.h);
 		
+		//SCORE
+		sb.draw(e_score.texture, e_score.x, e_score.y, e_score.w, e_score.h);		
 		int i = 0;
-		for(Texture t:letters){
-			sb.draw(t,background.x + i * t.getWidth(), background.y, t.getWidth(), t.getHeight());
+		for(Entity e : score_array){
+			sb.draw(e.texture, score_x - (i*e.w), score_y , w_scale * e.w, h_scale * e.h);
+			i ++;
+		}
+		
+		// TOP SCORE
+		sb.draw(best.texture, best.x, best.y, best.w, best.h);
+		i = 0;
+		for(Entity e : top_score_array){
+			sb.draw(e.texture, score_x - (i*e.w), t_score_y, w_scale * e.w, h_scale * e.h);
 			i ++;
 		}
 	}

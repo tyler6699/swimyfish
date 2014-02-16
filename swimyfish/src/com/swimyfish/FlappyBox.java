@@ -7,11 +7,8 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Preferences;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.swimyfish.Player;
@@ -25,7 +22,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	int level_id, tick = 0,trail_length;
 	float w, h, x = 0, y = 0;
 	private TouchInfo touch;
-	private BitmapFont font;
 	float delta;
 
 	// TRAIL
@@ -103,14 +99,13 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// MENU
 		menu = new Menu(w, h, w_scale, h_scale);
-				
+		menu.update_score(score, top_score);
+		
 		// CAMERA SETUP
 	    camera = new OrthographicCamera(2,2);
 	    camera.update();
 						
 		touch = new TouchInfo();
-		font = new BitmapFont();
-		font.setColor(Color.RED);
 		
 		// SB FOR CAMERA
 		batch = new SpriteBatch();
@@ -318,7 +313,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		camera.update();
 		
 		batch.begin();
-	
 		// BACKGROUND
 		batch.draw(level.esky.texture, level.esky.x, level.esky.y, level.esky.w, level.esky.h);
 		
@@ -374,24 +368,18 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		//SCORE
 		if (!hit){
 			int i = 0;
-			float fw = menu.letters.size(); 
-			for(Texture t: menu.letters){
-				batch.draw(t, (w/2) + i * (w_scale*t.getWidth()) - (fw * (w_scale*t.getWidth()/2)), h - (h_scale*t.getHeight()) - h_scale*10, w_scale*t.getWidth(), h_scale*t.getHeight());
+			float fw = menu.score_array.size(); 
+			for(Entity e: menu.score_array){
+				batch.draw(e.texture, (w/2) - i * (w_scale*e.texture.getWidth()) - (fw * (w_scale*e.texture.getWidth()/2)), h - (h_scale*e.texture.getHeight()) - h_scale*10, w_scale*e.texture.getWidth(), h_scale*e.texture.getHeight());
 				i ++;
 			}
 		}
-		
 		batch.end();
-		
-		screen.begin();
-		
-		font.draw(screen, "Score           "+score, 20, 50);
-		font.draw(screen, "High Score  "+ top_score, 20, 20);		
-		screen.end();	
 	}
 
 	private void reset_game() {
 		menu.ready = false;
+		menu.update_score(0, top_score);
 		
 		if (level_id == 1){
 			level_id = 2;
@@ -448,13 +436,14 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		if (box.scorebox.overlaps(player.hitbox) && !box.scored){
 			box.scored = true;
 			score ++;
-			menu.update_score(score);
+			menu.update_score(score, top_score);
 		} else {
 			if (box.high.hitbox.overlaps(player.hitbox) || box.low.hitbox.overlaps(player.hitbox)){
 				hit = true;
 				
 				if (score > top_score ){
 					save_prefs();
+					menu.update_score(score, top_score);
 				}
 			}
 		}
