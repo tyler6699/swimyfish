@@ -10,6 +10,9 @@ public class Menu {
 	float w, h, tick;
 	Entity background;
 	Entity e_score, best, bank, level, level_number;
+	Entity current_level;
+	Entity lockdown;
+	Entity progress_back;
 	iButton play, left_arrow, right_arrow;
 	
 	public boolean ready;
@@ -18,8 +21,6 @@ public class Menu {
 	ArrayList<Entity> score_array;
 	ArrayList<Entity> top_score_array;
 	ArrayList<Entity> level_array;
-	Entity current_level;
-	Entity lockdown;
 	ArrayList<iButton> buttons;
 	float w_scale, h_scale;
 	int number_of_levels;
@@ -127,12 +128,22 @@ public class Menu {
 		}
 		current_level = level_array.get(0);
 		
+		// For locked levels
 		lockdown = new Entity();
 		lockdown.texture = new Texture(Gdx.files.internal("data/ui/lockdown.png"));
 		lockdown.w = w_scale * lockdown.texture.getWidth();
 		lockdown.h = h_scale * lockdown.texture.getHeight();
 		lockdown.x = current_level.x;
 		lockdown.y = current_level.y;
+		
+		// Progress Bar Background
+		progress_back = new Entity();
+		progress_back.texture = new Texture(Gdx.files.internal("data/ui/pro_back.png"));
+		progress_back.w = w_scale * progress_back.texture.getWidth();
+		progress_back.h = h_scale * progress_back.texture.getHeight();
+		progress_back.x = current_level.x;
+		progress_back.y = current_level.y - progress_back.h - (h_pad/8);
+		
 	}
 	
 	public void tick(TouchInfo touch){
@@ -186,7 +197,7 @@ public class Menu {
 		// LEVEL IMAGE
 		current_level = level_array.get(ls.level_id-1);
 		sb.draw(current_level.texture, current_level.x, current_level.y, current_level.w, current_level.h);
-				
+		sb.draw(progress_back.texture, progress_back.x, progress_back.y, progress_back.w, progress_back.h);		
 		// BUTTONS
 		if (!ls.locked){
 			sb.draw(play.texture, play.x, play.y, play.w, play.h);
