@@ -14,16 +14,15 @@ public class Player {
 	public float width;
 	public Rectangle hitbox;
 
-		
-	public Player(float w, float h, float scale_w, float scale_h){
+	public Player(float w, float h, float scale_w, float scale_h, int player_id){
 		width = scale_w * 60;
 		height = scale_h * 60;
 		x = (w/2) - (scale_w*200);
 		y = (h/2) - (width/2);	
 		hitbox = new Rectangle(x,y,width,height);
-		player_alive = new Texture(Gdx.files.internal("data/player.png"));
-		player_hit = new Texture(Gdx.files.internal("data/hit.png"));
-		trail = new Texture(Gdx.files.internal("data/player-trail.png"));
+		player_alive = new Texture(Gdx.files.internal("data/hero/" + player_id + "/player.png"));
+		player_hit = new Texture(Gdx.files.internal("data/hero/" + player_id + "/hit.png"));
+		trail = new Texture(Gdx.files.internal("data/hero/" + player_id + "/player-trail.png"));
 		// texture = new Texture(Gdx.files.internal("data/disco.png"));
 	}
 }

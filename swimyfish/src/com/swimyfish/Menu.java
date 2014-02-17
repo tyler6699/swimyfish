@@ -12,9 +12,9 @@ public class Menu {
 	Entity e_score, best, bank, level, level_number;
 	Entity current_level;
 	Entity lockdown;
-	Entity progress_back, progress_bar;
+	Entity progress_back, progress_bar, percent_sign;
 	float full_progress;
-	iButton play, play_2, left_arrow, right_arrow;
+	iButton play, play_2, shop, left_arrow, right_arrow, sound;
 	
 	public boolean ready;
 	public String action = ""; // Processed by main game
@@ -68,8 +68,8 @@ public class Menu {
 				
 		e_score = new Entity();
 		e_score.texture = new Texture(Gdx.files.internal("data/text/score.png"));
-		e_score.w = w_scale * e_score.texture.getWidth();
-		e_score.h = h_scale * e_score.texture.getHeight();
+		e_score.w = w_scale * (e_score.texture.getWidth()*.85f);
+		e_score.h = h_scale * (e_score.texture.getHeight()*.85f);
 		e_score.x = bxx - (e_score.w + w_pad);
 		e_score.y = byy - (e_score.h + h_pad);
 			
@@ -92,8 +92,8 @@ public class Menu {
 		
 		best = new Entity();
 		best.texture = new Texture(Gdx.files.internal("data/text/best.png"));
-		best.w = w_scale * best.texture.getWidth();
-		best.h = h_scale * best.texture.getHeight();
+		best.w = w_scale * (best.texture.getWidth()*.85f);
+		best.h = h_scale * (best.texture.getHeight()*.85f);
 		best.x = e_score.x;
 		best.y = score_y - best.h - h_pad;
 		
@@ -125,6 +125,19 @@ public class Menu {
 		play_2.y = by + h_pad;
 		play_2.set_hitbox();
 		buttons.add(play_2);
+		
+		shop = new iButton(0,0, "SHOP", "SHOP", new Texture(Gdx.files.internal("data/ui/shop.png")), w_scale, h_scale);
+		shop.x = bxx - play_2.w - w_pad;
+		shop.y = play_2.y + play_2.h + h_pad;
+		shop.set_hitbox();
+		buttons.add(shop);
+				
+		// SOUND ON
+		sound = new iButton(0,0, "SOUND_ON", "SOUND_ON", new Texture(Gdx.files.internal("data/ui/sound_on.png")), w_scale, h_scale);
+		sound.x = w - sound.w;
+		sound.y = h - sound.h;
+		sound.set_hitbox();
+		buttons.add(sound);
 				
 		// IMAGES FOR LEVELS
 		level_array = new ArrayList<Entity>();
@@ -162,6 +175,13 @@ public class Menu {
 		progress_bar.x = progress_back.x + (w_scale*7);
 		progress_bar.y = progress_back.y + (h_scale*16);
 		
+		percent_sign = new Entity();
+		percent_sign.texture = new Texture(Gdx.files.internal("data/numbers/percent.png"));
+		percent_sign.y = progress_bar.y + h_scale * 3;
+		percent_sign.w = w_scale * (percent_sign.texture.getWidth()/4);
+		percent_sign.x = progress_back.x + (progress_back.w/2) + (1.5f * percent_sign.w);
+		percent_sign.h = h_scale * (percent_sign.texture.getHeight()/4);
+				
 		full_progress = progress_back.w - (h_scale*21);
 	}
 	
@@ -203,7 +223,7 @@ public class Menu {
 		sb.draw(e_score.texture, e_score.x, e_score.y, e_score.w, e_score.h);		
 		int i = 1;
 		for(Entity e : score_array){
-			sb.draw(e.texture, score_x - (i*e.w), score_y , w_scale * e.w, h_scale * e.h);
+			sb.draw(e.texture, score_x - (i*(e.w*.85f)), score_y , w_scale * (e.w*.85f), h_scale * (e.h*.85f));
 			i ++;
 		}
 		
@@ -211,7 +231,7 @@ public class Menu {
 		sb.draw(best.texture, best.x, best.y, best.w, best.h);
 		i = 1;
 		for(Entity e : top_score_array){
-			sb.draw(e.texture, score_x - (i*e.w), t_score_y, w_scale * e.w, h_scale * e.h);
+			sb.draw(e.texture, score_x - (i*(e.w*.85f)), t_score_y, w_scale * (e.w*.85f), h_scale * (e.h*.85f));
 			i ++;
 		}
 
@@ -227,14 +247,19 @@ public class Menu {
 		sb.draw(progress_back.texture, progress_back.x, progress_back.y, progress_back.w, progress_back.h);		
 		sb.draw(progress_bar.texture, progress_bar.x, progress_bar.y, percent*full_progress, progress_bar.h);
 		
+		// PROGRESS PERCENTAGE
 		i = 1;
 		percent_array.clear();
 		percent_array = alphabet.get_number(Float.toString(percent*100), false);
+		float t = percent_array.size() * (percent_sign.texture.getWidth()/4); 
 		for(Entity e : percent_array){
-			float t = percent_array.size() * (e.w/4); 
+			
 			sb.draw(e.texture, progress_back.x + (progress_back.w/2) + t/2 - (i*(e.w/4)), progress_bar.y + h_scale * 3, w_scale * (e.w/4), h_scale * (e.h/4));
 			i ++;
 		}
+		
+		// %
+		sb.draw(percent_sign.texture, percent_sign.x, percent_sign.y, percent_sign.w, percent_sign.h);
 				
 		// BUTTONS
 		if (!ls.locked){
@@ -244,8 +269,13 @@ public class Menu {
 			sb.draw(lockdown.texture, lockdown.x, lockdown.y, lockdown.w, lockdown.h);
 		}
 		
+		sb.draw(shop.texture, shop.x, shop.y, shop.w, shop.h);
 		sb.draw(left_arrow.texture, left_arrow.x, left_arrow.y, left_arrow.w, left_arrow.h);
 		sb.draw(right_arrow.texture, right_arrow.x, right_arrow.y, right_arrow.w, right_arrow.h);
 	}
-
+	
+	public void tick(SpriteBatch sb){
+		sb.draw(sound.texture, sound.x, sound.y, sound.w, sound.h);
+	}
+	
 }

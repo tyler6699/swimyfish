@@ -145,7 +145,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		batch.setTransformMatrix(camera.combined);
 		
 		// NEW PLAYER
-		player = new Player(w, h, w_scale, h_scale);
+		player = new Player(w, h, w_scale, h_scale, 1);
 		
 		// NEW LEVEL
 		level = new Level("level_" + level_id, level_id, w, h, w_scale, h_scale);
@@ -452,6 +452,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		if (hit){
 			menu.tick(touch);
 			menu.tick(batch,player, delta, score, level_scores.get(level_id-1));
+		} else {
+			menu.tick(batch);
 		}
 		
 		//SCORE
