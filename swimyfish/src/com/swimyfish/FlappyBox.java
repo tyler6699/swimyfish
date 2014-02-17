@@ -92,7 +92,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		//SOUND
 		hifi = new HiFi();
-		sound = true;
 		jump_id = 1;
 		
 		// SCORE ARRAY
@@ -216,7 +215,14 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		} else {
 			bank = prefs.getInteger("bank");
 		}
-
+		
+		// SOUND ON/OFF
+		if (!prefs.contains("sound")){
+			prefs.putBoolean("sound", true);
+			sound = true;
+		} else {
+			sound = prefs.getBoolean("sound");
+		}
 		prefs.flush();
 	}
 	
@@ -227,6 +233,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			prefs.putBoolean("locked_" + ls.level_id, ls.locked);
 		}	
 		prefs.putInteger("bank",bank);
+		prefs.putBoolean("sound",sound);
 		prefs.flush();
 	}
 	
@@ -256,21 +263,25 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 					level_id -= 1;
 					top_score = level_scores.get(level_id-1).top_score;
 					menu.update_score(score,top_score);
+					hifi.play_jump(1, sound);
 				} else {
 					level_id = number_of_levels;
 					top_score = level_scores.get(level_id-1).top_score;
 					menu.update_score(score,top_score);
+					hifi.play_jump(1, sound);
 				}
 				menu.action = "";
 			} else if (menu.action.equals("RIGHT_ARROW")){
 				if (level_id < number_of_levels){
 					level_id += 1;
 					top_score = level_scores.get(level_id-1).top_score;
+					hifi.play_jump(1, sound);
 					menu.update_score(score,top_score);
 				} else {
 					level_id = 1;
 					top_score = level_scores.get(level_id-1).top_score;
 					menu.update_score(score,top_score);
+					hifi.play_jump(1, sound);
 				}
 				menu.action = "";
 			} else if (menu.action.equals("PLAY") && menu.ready && !level_scores.get(level_id-1).locked) {
