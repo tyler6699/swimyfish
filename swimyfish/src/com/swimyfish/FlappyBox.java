@@ -41,6 +41,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	
 	// LEVEL
 	private Level level;
+	boolean started = false;
 	
 	// BLOCKERS
 	private ArrayList<Blocker> object_array;
@@ -245,7 +246,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	@Override
 	public void render(){
 		delta = Gdx.graphics.getDeltaTime();
-			
+		
 		if (!hit){ 
 			logic(); 
 			menu_logic();
@@ -291,119 +292,126 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				menu.action = "";
 				sound = !sound;
 			}
+			
+			touch.checked_click = true;
 		}
 	}
 
 	private void logic() {	
 		float rand_height;
 		Blocker last = new Blocker(w, h, 1, level, w_scale, h_scale);
-								
-		// Obstacles
-		for (Blocker box : object_array){		
-			if (box.low.x < -(box.low.w*2)){
-				// Check box in front to use as a guide for the new Y				
-				for (Blocker b : object_array){
-					if (box.id == 1 && b.id == 4){
-						last = b;
-					} else if (box.id == 2 && b.id == 1) {
-						last = b;
-					} else if (box.id == 3 && b.id == 2) {
-						last = b;
-					} else if (box.id == 4 && b.id == 3) {
-						last = b;
-					}
-				}
-								
-				// UP OR DOWN?
-				up = go_up(50);
-				min = 0;
-				max = h_scale*(h/4f);
-				
-				if (up){
-					if (last.high.y + max >= h ){max = h - last.high.y - (h_scale*30);}
-					rand_height = random_height(min,(int) max);
-					box.high.y = last.high.y + rand_height;
-				} else { // DOWN	
-					if ((last.high.y + last.high.h - (2*max)) > h ){
-						rand_height = random_height(min,(int) max);
-						box.high.y = last.high.y - rand_height;
-					}
-				}
-				
-				box.high.x += 4 * gap;
-				
-				// LOW
-				box.low.x += 4 * gap;	
-				box.low.y = box.high.y - box.low.h - (hole*.9f); // CLOSE HOLE HERE		 
-				box.set_hitboxes();
-				box.scored = false;
-			} else {
-				box.low.x -= scroll_speed;	
-				box.high.x -= scroll_speed;
-				box.update_hitboxes(scroll_speed);
-			}
-		}	
 		
-		// CLOUDS 
-		for (Entity e: level.eclouds){
-			if (e.x < -(e.w)){
-				e.x += level.eclouds.size() * e.w - (scroll_speed/2);
-			} else {
-				e.x -= scroll_speed/2;
+		if (!started){
+			if (!touch.checked_click){
+				started = true;
 			}
-		}
-		
-		for (Entity e: level.floor_toppers){
-			if (e.x < -(e.w)){
-				e.x += level.floor_toppers.size() * e.w - (scroll_speed*1.5);
-			} else {
-				e.x -= scroll_speed*1.5;
-			}
-		}
-				
-		// Player
-		if (fly_time > 0){
-			fly_time -= 1;
-			if ( not_too_high() ){
-				update_gravity(false);
-				player.y += fly_up;	
-			}
-		} else if (grace_period > 0){
-			grace_period -= 1;
-			update_gravity(false);
 		} else {
-			if ( not_too_low() ){
-				update_gravity(true);
-				player.y -= gravity;
-			}
-		}	
+			// Obstacles
+			for (Blocker box : object_array){		
+				if (box.low.x < -(box.low.w*2)){
+					// Check box in front to use as a guide for the new Y				
+					for (Blocker b : object_array){
+						if (box.id == 1 && b.id == 4){
+							last = b;
+						} else if (box.id == 2 && b.id == 1) {
+							last = b;
+						} else if (box.id == 3 && b.id == 2) {
+							last = b;
+						} else if (box.id == 4 && b.id == 3) {
+							last = b;
+						}
+					}
+									
+					// UP OR DOWN?
+					up = go_up(50);
+					min = 0;
+					max = h_scale*(h/4f);
+					
+					if (up){
+						if (last.high.y + max >= h ){max = h - last.high.y - (h_scale*30);}
+						rand_height = random_height(min,(int) max);
+						box.high.y = last.high.y + rand_height;
+					} else { // DOWN	
+						if ((last.high.y + last.high.h - (2*max)) > h ){
+							rand_height = random_height(min,(int) max);
+							box.high.y = last.high.y - rand_height;
+						}
+					}
+					
+					box.high.x += 4 * gap;
+					
+					// LOW
+					box.low.x += 4 * gap;	
+					box.low.y = box.high.y - box.low.h - (hole*.9f); // CLOSE HOLE HERE		 
+					box.set_hitboxes();
+					box.scored = false;
+				} else {
+					box.low.x -= scroll_speed;	
+					box.high.x -= scroll_speed;
+					box.update_hitboxes(scroll_speed);
+				}
+			}	
 			
-		player.hitbox.setPosition(player.x, player.y);
-			
-		for (Blocker box : object_array){
-			if (!hit){
-				check_collision(box);
+			// CLOUDS 
+			for (Entity e: level.eclouds){
+				if (e.x < -(e.w)){
+					e.x += level.eclouds.size() * e.w - (scroll_speed/2);
+				} else {
+					e.x -= scroll_speed/2;
+				}
 			}
-		}	
-		
-		// TRAIL
-		if (trail){
-			tick ++;
-			Entity tmp = new Entity();
-			tmp.x = player.x;
-			tmp.y = player.y;
-			tmp.w = player.width;
-			tmp.h = player.height;
-			tmp.texture = player.trail;
-			plotter.add(tmp);
-		}
-		
-		if (plotter.size() > trail_length){
-			plotter.remove(0);
+			
+			for (Entity e: level.floor_toppers){
+				if (e.x < -(e.w)){
+					e.x += level.floor_toppers.size() * e.w - (scroll_speed*1.5);
+				} else {
+					e.x -= scroll_speed*1.5;
+				}
+			}
+					
+			// Player
+			if (fly_time > 0){
+				fly_time -= 1;
+				if ( not_too_high() ){
+					update_gravity(false);
+					player.y += fly_up;	
+				}
+			} else if (grace_period > 0){
+				grace_period -= 1;
+				update_gravity(false);
+			} else {
+				if ( not_too_low() ){
+					update_gravity(true);
+					player.y -= gravity;
+				}
+			}	
+				
+			player.hitbox.setPosition(player.x, player.y);
+				
+			for (Blocker box : object_array){
+				if (!hit){
+					check_collision(box);
+				}
+			}	
+			
+			// TRAIL
+			if (trail){
+				tick ++;
+				Entity tmp = new Entity();
+				tmp.x = player.x;
+				tmp.y = player.y;
+				tmp.w = player.width;
+				tmp.h = player.height;
+				tmp.texture = player.trail;
+				plotter.add(tmp);
+			}
+			
+			if (plotter.size() > trail_length){
+				plotter.remove(0);
+			}
 		}
 	}
-	
-	
+		
 	private void update_gravity(boolean falling){
 		if (falling){
 			if (gravity < max_gravity){
@@ -415,7 +423,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}
 	}
 	
-
 	private void draw() {
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
@@ -439,7 +446,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				if (!hit){
 					e.x -= w_scale*3;
 				}
-				batch.draw(e.texture, e.x, e.y, e.w - (plotter.size()-i), e.h - (plotter.size()-i));
+				if(e.w - (plotter.size()-i) > 1){
+					batch.draw(e.texture, e.x, e.y, e.w - (plotter.size()-i), e.h - (plotter.size()-i));
+				}
 			}
 		}		
 		
@@ -489,8 +498,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		batch.end();
 	}
 
-	
 	private void reset_game() {
+		started = false;
 		menu.ready = false;
 		menu.update_score(0, top_score);
 		
@@ -504,7 +513,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// Player
 		// FIX
-		player.y = (h/2) - (h/100) * 16.52f;
+		player.y = (h/2);
 		
 		// Game settings
 		hit          = false;
@@ -539,8 +548,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			object_array.add(box);	
 		}		
 	}
-		
-	
+			
 	private void check_collision(Blocker box) {
 		current_level = level_scores.get(level_id-1);
 		
@@ -585,13 +593,11 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		//UPDATE SCORES
 		menu.update_score(score, top_score);
 	}
-	
-	
+		
 	private boolean not_too_high(){
 		return player.y + fly_up + player.height < h + player.height;
 	}
-	
-	
+		
 	private boolean not_too_low(){
 		return player.y - gravity > -player.height;
 	}  
@@ -607,7 +613,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}
 	}
 	
-	
 	public int random_height(int min, int max){
 		min = min > 0 ? min : 0;
 		max = max > 0 ? max : 1;
@@ -618,36 +623,29 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		return number;
 	}
 	
-	
 	@Override
 	public void resize(int width, int height){}
 
-	
 	@Override
 	public void pause(){}
 	
-	
 	@Override
 	public void resume(){}
-	
 	
 	@Override
 	public boolean keyDown(int keycode) {
 		return false;
 	}
 	
-	
 	@Override
 	public boolean keyUp(int keycode) {
 		return false;
 	}
 	
-	
 	@Override
 	public boolean keyTyped(char character) {
 		return false;
 	}
-	
 	
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
@@ -658,7 +656,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		touch.touched = true;
 		touch.clicked_at.set(screenX, h-screenY, w_scale+5, h_scale*5);
 				
-		if (!hit){ 
+		if (!hit && started){ 
 			if (fly_time <= re_jump_time){
 				hifi.play_jump(jump_id, sound);
 				jump_id = jump_id == 1 ? 2 : 1;
@@ -670,7 +668,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		return true;
 	}
 	
-	
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 		if(pointer <= 2){
@@ -680,19 +677,16 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}
 		return true;
 	}
-	
-		
+			
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
 		return false;
 	}
-	
-	
+		
 	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
 		return false;
 	}
-	
 	
 	@Override		
 	public boolean scrolled(int amount) {
