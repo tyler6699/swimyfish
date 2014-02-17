@@ -504,9 +504,11 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		// DRAW MENU ON TOP
 		if (hit){
 			menu.tick(batch,player, delta, score, level_scores.get(level_id-1));
+			menu.tick(batch, sound, true);
 		} else {
-			menu.tick(batch, sound);
+			menu.tick(batch, sound, false);
 		}
+		
 		
 		//SCORE
 		if (!hit){

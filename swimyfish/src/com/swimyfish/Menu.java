@@ -286,11 +286,14 @@ public class Menu {
 		sb.draw(right_arrow.texture, right_arrow.x, right_arrow.y, right_arrow.w, right_arrow.h);
 	}
 	
-	public void tick(SpriteBatch sb, boolean sound_on){
+	public void tick(SpriteBatch sb, boolean sound_on, boolean menu_screen){
+		float s = menu_screen == false ? 1 : 0.5f; 
+		float y = menu_screen == false ? 0 : .4f * sound.h;
+		
 		if (sound_on){
-			sb.draw(sound.texture, sound.x, sound.y, sound.w, sound.h);
+			sb.draw(sound.texture, sound.x + y, sound.y + y, s*sound.w, s*sound.h);
 		} else {
-			sb.draw(sound.alt_texture, sound.x, sound.y, sound.w, sound.h);
+			sb.draw(sound.alt_texture, sound.x + y, sound.y + y, s*sound.w, s*sound.h);
 		}
 		
 	}
