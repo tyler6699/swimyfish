@@ -249,7 +249,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// PLAYING GAME
 		if (started && !hit){
-			menu.playing_tick(touch);
+			menu.playing_tick(touch, true);
 			menu_logic(true);
 			logic(); 
 			
@@ -260,6 +260,10 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			
 		// WAITING TO START
 		} else if (!started && !hit) { 
+			menu.playing_tick(touch, false);
+			menu_logic(true);
+			
+			// START THE GAME 
 			if (!touch.checked_click){
 				started = true;
 			}
@@ -308,7 +312,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 						reset_game();	
 						menu.action = "";
 					 } else {
-						 System.out.println("no boy");
 						menu.action = "";
 					 }
 				} else if (menu.action.equals("SOUND")){
@@ -500,11 +503,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// DRAW MENU ON TOP
 		if (hit){
-			menu.tick(touch);
 			menu.tick(batch,player, delta, score, level_scores.get(level_id-1));
 		} else {
 			menu.tick(batch, sound);
-			menu.playing_tick(touch);
 		}
 		
 		//SCORE

@@ -208,13 +208,16 @@ public class Menu {
 		}
 	}
 	
-	public void playing_tick(TouchInfo touch){
+	public void playing_tick(TouchInfo touch, boolean end_click_checks){
 		if (touch.checked_click == false){
 			if (touch.clicked_at.overlaps(sound.hitbox)){
 				action = sound.target;		
 			}
 		}
-		touch.checked_click = true;
+		
+		if (end_click_checks){
+			touch.checked_click = true;
+		}
 	}
 	
 	public void update_score(int score, int top_score){
