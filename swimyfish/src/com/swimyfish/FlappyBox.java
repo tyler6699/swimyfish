@@ -247,168 +247,187 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	public void render(){
 		delta = Gdx.graphics.getDeltaTime();
 		
-		if (!hit){ 
+		// PLAYING GAME
+		if (started && !hit){
+			menu.playing_tick(touch);
+			menu_logic(true);
 			logic(); 
-			menu_logic();
-		} else {
-			menu_logic();
+			
+		// MAIN MENU
+		} else if( !started && hit){ 
+			menu.tick(touch);
+			menu_logic(false);
+			
+		// WAITING TO START
+		} else if (!started && !hit) { 
+			if (!touch.checked_click){
+				started = true;
+			}
 		}
+		
+		// DRAW
 		draw();
 	}
 	
-	private void menu_logic() {
+	private void menu_logic(boolean playing) {
 		if (!menu.action.equals("")){
-			
-			if (menu.action.equals("LEFT_ARROW")){
-				if (level_id > 1){
-					level_id -= 1;
-					top_score = level_scores.get(level_id-1).top_score;
-					menu.update_score(score,top_score);
-					hifi.play_jump(1, sound);
-				} else {
-					level_id = number_of_levels;
-					top_score = level_scores.get(level_id-1).top_score;
-					menu.update_score(score,top_score);
-					hifi.play_jump(1, sound);
+			if (playing){
+				if (menu.action.equals("SOUND")){
+					menu.action = "";
+					sound = !sound;
 				}
-				menu.action = "";
-			} else if (menu.action.equals("RIGHT_ARROW")){
-				if (level_id < number_of_levels){
-					level_id += 1;
-					top_score = level_scores.get(level_id-1).top_score;
-					hifi.play_jump(1, sound);
-					menu.update_score(score,top_score);
-				} else {
-					level_id = 1;
-					top_score = level_scores.get(level_id-1).top_score;
-					menu.update_score(score,top_score);
-					hifi.play_jump(1, sound);
+			} else {
+				if (menu.action.equals("LEFT_ARROW")){
+					if (level_id > 1){
+						level_id -= 1;
+						top_score = level_scores.get(level_id-1).top_score;
+						menu.update_score(score,top_score);
+						hifi.play_jump(1, sound);
+					} else {
+						level_id = number_of_levels;
+						top_score = level_scores.get(level_id-1).top_score;
+						menu.update_score(score,top_score);
+						hifi.play_jump(1, sound);
+					}
+					menu.action = "";
+				} else if (menu.action.equals("RIGHT_ARROW")){
+					if (level_id < number_of_levels){
+						level_id += 1;
+						top_score = level_scores.get(level_id-1).top_score;
+						hifi.play_jump(1, sound);
+						menu.update_score(score,top_score);
+					} else {
+						level_id = 1;
+						top_score = level_scores.get(level_id-1).top_score;
+						menu.update_score(score,top_score);
+						hifi.play_jump(1, sound);
+					}
+					menu.action = "";
+				} else if (menu.action.equals("PLAY")) {
+					if (menu.ready && !level_scores.get(level_id-1).locked){
+						reset_game();	
+						menu.action = "";
+					 } else {
+						 System.out.println("no boy");
+						menu.action = "";
+					 }
+				} else if (menu.action.equals("SOUND")){
+					menu.action = "";
+					sound = !sound;
 				}
-				menu.action = "";
-			} else if (menu.action.equals("PLAY") && menu.ready && !level_scores.get(level_id-1).locked) {
-				reset_game();	
-				menu.action = "";
-			} else if (menu.action.equals("SOUND")){
-				menu.action = "";
-				sound = !sound;
 			}
 			
 			touch.checked_click = true;
 		}
 	}
 
+	
 	private void logic() {	
 		float rand_height;
 		Blocker last = new Blocker(w, h, 1, level, w_scale, h_scale);
-		
-		if (!started){
-			if (!touch.checked_click){
-				started = true;
-			}
-		} else {
-			// Obstacles
-			for (Blocker box : object_array){		
-				if (box.low.x < -(box.low.w*2)){
-					// Check box in front to use as a guide for the new Y				
-					for (Blocker b : object_array){
-						if (box.id == 1 && b.id == 4){
-							last = b;
-						} else if (box.id == 2 && b.id == 1) {
-							last = b;
-						} else if (box.id == 3 && b.id == 2) {
-							last = b;
-						} else if (box.id == 4 && b.id == 3) {
-							last = b;
-						}
+				
+		// Obstacles
+		for (Blocker box : object_array){		
+			if (box.low.x < -(box.low.w*2)){
+				// Check box in front to use as a guide for the new Y				
+				for (Blocker b : object_array){
+					if (box.id == 1 && b.id == 4){
+						last = b;
+					} else if (box.id == 2 && b.id == 1) {
+						last = b;
+					} else if (box.id == 3 && b.id == 2) {
+						last = b;
+					} else if (box.id == 4 && b.id == 3) {
+						last = b;
 					}
-									
-					// UP OR DOWN?
-					up = go_up(50);
-					min = 0;
-					max = h_scale*(h/4f);
-					
-					if (up){
-						if (last.high.y + max >= h ){max = h - last.high.y - (h_scale*30);}
+				}
+								
+				// UP OR DOWN?
+				up = go_up(50);
+				min = 0;
+				max = h_scale*(h/4f);
+				
+				if (up){
+					if (last.high.y + max >= h ){max = h - last.high.y - (h_scale*30);}
+					rand_height = random_height(min,(int) max);
+					box.high.y = last.high.y + rand_height;
+				} else { // DOWN	
+					if ((last.high.y + last.high.h - (2*max)) > h ){
 						rand_height = random_height(min,(int) max);
-						box.high.y = last.high.y + rand_height;
-					} else { // DOWN	
-						if ((last.high.y + last.high.h - (2*max)) > h ){
-							rand_height = random_height(min,(int) max);
-							box.high.y = last.high.y - rand_height;
-						}
+						box.high.y = last.high.y - rand_height;
 					}
-					
-					box.high.x += 4 * gap;
-					
-					// LOW
-					box.low.x += 4 * gap;	
-					box.low.y = box.high.y - box.low.h - (hole*.9f); // CLOSE HOLE HERE		 
-					box.set_hitboxes();
-					box.scored = false;
-				} else {
-					box.low.x -= scroll_speed;	
-					box.high.x -= scroll_speed;
-					box.update_hitboxes(scroll_speed);
 				}
-			}	
-			
-			// CLOUDS 
-			for (Entity e: level.eclouds){
-				if (e.x < -(e.w)){
-					e.x += level.eclouds.size() * e.w - (scroll_speed/2);
-				} else {
-					e.x -= scroll_speed/2;
-				}
-			}
-			
-			for (Entity e: level.floor_toppers){
-				if (e.x < -(e.w)){
-					e.x += level.floor_toppers.size() * e.w - (scroll_speed*1.5);
-				} else {
-					e.x -= scroll_speed*1.5;
-				}
-			}
-					
-			// Player
-			if (fly_time > 0){
-				fly_time -= 1;
-				if ( not_too_high() ){
-					update_gravity(false);
-					player.y += fly_up;	
-				}
-			} else if (grace_period > 0){
-				grace_period -= 1;
-				update_gravity(false);
+				
+				box.high.x += 4 * gap;
+				
+				// LOW
+				box.low.x += 4 * gap;	
+				box.low.y = box.high.y - box.low.h - (hole*.9f); // CLOSE HOLE HERE		 
+				box.set_hitboxes();
+				box.scored = false;
 			} else {
-				if ( not_too_low() ){
-					update_gravity(true);
-					player.y -= gravity;
-				}
-			}	
-				
-			player.hitbox.setPosition(player.x, player.y);
-				
-			for (Blocker box : object_array){
-				if (!hit){
-					check_collision(box);
-				}
-			}	
-			
-			// TRAIL
-			if (trail){
-				tick ++;
-				Entity tmp = new Entity();
-				tmp.x = player.x;
-				tmp.y = player.y;
-				tmp.w = player.width;
-				tmp.h = player.height;
-				tmp.texture = player.trail;
-				plotter.add(tmp);
+				box.low.x -= scroll_speed;	
+				box.high.x -= scroll_speed;
+				box.update_hitboxes(scroll_speed);
 			}
-			
-			if (plotter.size() > trail_length){
-				plotter.remove(0);
+		}	
+		
+		// CLOUDS 
+		for (Entity e: level.eclouds){
+			if (e.x < -(e.w)){
+				e.x += level.eclouds.size() * e.w - (scroll_speed/2);
+			} else {
+				e.x -= scroll_speed/2;
 			}
+		}
+		
+		for (Entity e: level.floor_toppers){
+			if (e.x < -(e.w)){
+				e.x += level.floor_toppers.size() * e.w - (scroll_speed*1.5);
+			} else {
+				e.x -= scroll_speed*1.5;
+			}
+		}
+				
+		// Player
+		if (fly_time > 0){
+			fly_time -= 1;
+			if ( not_too_high() ){
+				update_gravity(false);
+				player.y += fly_up;	
+			}
+		} else if (grace_period > 0){
+			grace_period -= 1;
+			update_gravity(false);
+		} else {
+			if ( not_too_low() ){
+				update_gravity(true);
+				player.y -= gravity;
+			}
+		}	
+			
+		player.hitbox.setPosition(player.x, player.y);
+			
+		for (Blocker box : object_array){
+			if (!hit){
+				check_collision(box);
+			}
+		}	
+		
+		// TRAIL
+		if (trail){
+			tick ++;
+			Entity tmp = new Entity();
+			tmp.x = player.x;
+			tmp.y = player.y;
+			tmp.w = player.width;
+			tmp.h = player.height;
+			tmp.texture = player.trail;
+			plotter.add(tmp);
+		}
+		
+		if (plotter.size() > trail_length){
+			plotter.remove(0);
 		}
 	}
 		
@@ -422,6 +441,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			gravity = min_gravity;
 		}
 	}
+	
 	
 	private void draw() {
 		Gdx.gl.glClearColor(1, 1, 1, 1);
@@ -478,6 +498,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			batch.draw(e.texture, e.x, e.y, e.w, e.h);
 		}
 		
+		// DRAW MENU ON TOP
 		if (hit){
 			menu.tick(touch);
 			menu.tick(batch,player, delta, score, level_scores.get(level_id-1));
@@ -498,6 +519,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		batch.end();
 	}
 
+	
 	private void reset_game() {
 		started = false;
 		menu.ready = false;
@@ -559,6 +581,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		} else {
 			if (box.high.hitbox.overlaps(player.hitbox) || box.low.hitbox.overlaps(player.hitbox)){
 				hit = true;
+				started = false;
+				
 				hifi.play_death(sound);
 				// BANK
 				bank += score;
@@ -613,6 +637,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}
 	}
 	
+	
 	public int random_height(int min, int max){
 		min = min > 0 ? min : 0;
 		max = max > 0 ? max : 1;
@@ -632,15 +657,18 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	@Override
 	public void resume(){}
 	
+	
 	@Override
 	public boolean keyDown(int keycode) {
 		return false;
 	}
 	
+	
 	@Override
 	public boolean keyUp(int keycode) {
 		return false;
 	}
+	
 	
 	@Override
 	public boolean keyTyped(char character) {
@@ -668,6 +696,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		return true;
 	}
 	
+	
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 		if(pointer <= 2){
@@ -687,6 +716,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	public boolean mouseMoved(int screenX, int screenY) {
 		return false;
 	}
+	
 	
 	@Override		
 	public boolean scrolled(int amount) {

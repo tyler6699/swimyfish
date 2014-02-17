@@ -191,7 +191,6 @@ public class Menu {
 			if (tick > 40){
 				ready = true;
 			}
-			
 			tick ++;
 		} else {
 			tick = 0;
