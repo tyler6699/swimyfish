@@ -133,7 +133,8 @@ public class Menu {
 		buttons.add(shop);
 				
 		// SOUND ON
-		sound = new iButton(0,0, "SOUND_ON", "SOUND_ON", new Texture(Gdx.files.internal("data/ui/sound_on.png")), w_scale, h_scale);
+		sound = new iButton(0,0, "SOUND", "SOUND", new Texture(Gdx.files.internal("data/ui/sound_on.png")), w_scale, h_scale);
+		sound.alt_texture = new Texture(Gdx.files.internal("data/ui/sound_off.png"));
 		sound.x = w - sound.w;
 		sound.y = h - sound.h;
 		sound.set_hitbox();
@@ -208,6 +209,15 @@ public class Menu {
 		}
 	}
 	
+	public void playing_tick(TouchInfo touch){
+		if (touch.checked_click == false){
+			if (touch.clicked_at.overlaps(sound.hitbox)){
+				action = sound.target;		
+			}
+		}
+		touch.checked_click = true;
+	}
+	
 	public void update_score(int score, int top_score){
 		score_array = alphabet.get_number(Integer.toString(score), true);
 		top_score_array = alphabet.get_number(Integer.toString(top_score), true);
@@ -274,8 +284,13 @@ public class Menu {
 		sb.draw(right_arrow.texture, right_arrow.x, right_arrow.y, right_arrow.w, right_arrow.h);
 	}
 	
-	public void tick(SpriteBatch sb){
-		sb.draw(sound.texture, sound.x, sound.y, sound.w, sound.h);
+	public void tick(SpriteBatch sb, boolean sound_on){
+		if (sound_on){
+			sb.draw(sound.texture, sound.x, sound.y, sound.w, sound.h);
+		} else {
+			sb.draw(sound.alt_texture, sound.x, sound.y, sound.w, sound.h);
+		}
+		
 	}
 	
 }

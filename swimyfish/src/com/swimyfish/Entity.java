@@ -12,6 +12,7 @@ public class Entity {
 	public float h;
 	public Rectangle hitbox;	
 	public Texture texture;
+	public Texture alt_texture;
 	
 	public Entity (){
 		

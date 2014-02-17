@@ -20,6 +20,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	
 	// SOUND PLAYER
 	private HiFi hifi;
+	private boolean sound;
 	private int jump_id;
 	
 	public float v_width, v_height, w_scale, h_scale;
@@ -91,6 +92,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		//SOUND
 		hifi = new HiFi();
+		sound = true;
 		jump_id = 1;
 		
 		// SCORE ARRAY
@@ -239,6 +241,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			
 		if (!hit){ 
 			logic(); 
+			menu_logic();
 		} else {
 			menu_logic();
 		}
@@ -272,6 +275,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			} else if (menu.action.equals("PLAY") && menu.ready && !level_scores.get(level_id-1).locked) {
 				reset_game();	
 				menu.action = "";
+			} else if (menu.action.equals("SOUND")){
+				menu.action = "";
+				sound = !sound;
 			}
 		}
 	}
@@ -385,6 +391,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}
 	}
 	
+	
 	private void update_gravity(boolean falling){
 		if (falling){
 			if (gravity < max_gravity){
@@ -395,6 +402,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			gravity = min_gravity;
 		}
 	}
+	
 
 	private void draw() {
 		Gdx.gl.glClearColor(1, 1, 1, 1);
@@ -453,7 +461,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			menu.tick(touch);
 			menu.tick(batch,player, delta, score, level_scores.get(level_id-1));
 		} else {
-			menu.tick(batch);
+			menu.tick(batch, sound);
+			menu.playing_tick(touch);
 		}
 		
 		//SCORE
@@ -468,6 +477,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		batch.end();
 	}
 
+	
 	private void reset_game() {
 		menu.ready = false;
 		menu.update_score(0, top_score);
@@ -518,17 +528,18 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}		
 	}
 		
+	
 	private void check_collision(Blocker box) {
 		current_level = level_scores.get(level_id-1);
 		
 		if (box.scorebox.overlaps(player.hitbox) && !box.scored){
 			box.scored = true;
 			score ++;
-			hifi.play_collect();
+			hifi.play_collect(sound);
 		} else {
 			if (box.high.hitbox.overlaps(player.hitbox) || box.low.hitbox.overlaps(player.hitbox)){
 				hit = true;
-				hifi.play_death();
+				hifi.play_death(sound);
 				// BANK
 				bank += score;
 				
@@ -551,7 +562,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				if (current_level.progress >= current_level.points_needed && level_scores.get(level_id).locked == true){
 					if(current_level.level_id < number_of_levels){
 						level_scores.get(level_id).locked = false;
-						hifi.play_unlock();
+						hifi.play_unlock(sound);
 					}
 				}
 				
@@ -563,9 +574,11 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		menu.update_score(score, top_score);
 	}
 	
+	
 	private boolean not_too_high(){
 		return player.y + fly_up + player.height < h + player.height;
 	}
+	
 	
 	private boolean not_too_low(){
 		return player.y - gravity > -player.height;
@@ -582,6 +595,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}
 	}
 	
+	
 	public int random_height(int min, int max){
 		min = min > 0 ? min : 0;
 		max = max > 0 ? max : 1;
@@ -592,50 +606,58 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		return number;
 	}
 	
+	
 	@Override
 	public void resize(int width, int height){}
 
+	
 	@Override
 	public void pause(){}
 	
+	
 	@Override
 	public void resume(){}
+	
 	
 	@Override
 	public boolean keyDown(int keycode) {
 		return false;
 	}
 	
+	
 	@Override
 	public boolean keyUp(int keycode) {
 		return false;
 	}
+	
 	
 	@Override
 	public boolean keyTyped(char character) {
 		return false;
 	}
 	
+	
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+		touch.checked_click = false;
+		
 		touch.touchX = screenX;
 		touch.touchY = h-screenY;
 		touch.touched = true;
+		touch.clicked_at.set(screenX, h-screenY, w_scale+5, h_scale*5);
 				
 		if (!hit){ 
 			if (fly_time <= re_jump_time){
-				hifi.play_jump(jump_id);
+				hifi.play_jump(jump_id, sound);
 				jump_id = jump_id == 1 ? 2 : 1;
 				
 				fly_time = max_fly_time;
 				grace_period  = max_grace;
 			}	
-		} else {
-			touch.checked_click = false;
-			touch.clicked_at.set(screenX, h-screenY, w_scale+5, h_scale*5);
 		}
 		return true;
 	}
+	
 	
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
@@ -646,18 +668,21 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}
 		return true;
 	}
+	
 		
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
 		return false;
 	}
 	
+	
 	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
 		return false;
 	}
 	
-	@Override
+	
+	@Override		
 	public boolean scrolled(int amount) {
 		return false;
 	}
