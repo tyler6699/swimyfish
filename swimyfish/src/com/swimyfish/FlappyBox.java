@@ -312,6 +312,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 					if (menu.ready && !level_scores.get(level_id-1).locked){
 						reset_game();	
 						menu.action = "";
+						hifi.play_collect(sound);
 					 } else {
 						menu.action = "";
 					 }
