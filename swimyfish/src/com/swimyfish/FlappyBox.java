@@ -250,6 +250,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	
 	private void menu_logic() {
 		if (!menu.action.equals("")){
+			
 			if (menu.action.equals("LEFT_ARROW")){
 				if (level_id > 1){
 					level_id -= 1;
