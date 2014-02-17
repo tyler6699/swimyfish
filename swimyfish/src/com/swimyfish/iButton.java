@@ -5,12 +5,13 @@ import com.badlogic.gdx.math.Rectangle;
 
 public class iButton extends Entity {
 	String target;
+	String menu;
 	float fx, fy;
 	
-	public iButton(float x, float y, String target, String name, Texture texture, float w_scale, float h_scale){
+	public iButton(String menu, float x, float y, String target, Texture texture, float w_scale, float h_scale){
 		super();
 		
-		this.name = name;
+		this.menu = menu;
 		this.target = target;
 		this.texture = texture;
 		this.x = x;

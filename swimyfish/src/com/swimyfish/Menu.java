@@ -8,6 +8,7 @@ import com.swimyfish.FlappyBox.TouchInfo;
 
 public class Menu {
 	float w, h, tick;
+	public String current_menu;
 	Entity background;
 	Entity e_score, best, bank, level, level_number;
 	Entity current_level;
@@ -32,6 +33,8 @@ public class Menu {
 	float score_y, score_x, t_score_y, w_pad, h_pad;
 	
 	public Menu(float w, float h, float w_scale, float h_scale, int number_of_levels){
+		// menu or shop
+		current_menu = "MAIN";
 		this.w_scale = w_scale;
 		this.h_scale = h_scale;
 		this.w = w;
@@ -102,38 +105,38 @@ public class Menu {
 		// BUTTONS
 		buttons = new ArrayList<iButton>();
 				
-		left_arrow = new iButton(0,0, "LEFT_ARROW", "LEFT_ARROW", new Texture(Gdx.files.internal("data/ui/left_arrow.png")), w_scale, h_scale);
+		left_arrow = new iButton("MAIN", 0, 0, "LEFT_ARROW", new Texture(Gdx.files.internal("data/ui/left_arrow.png")), w_scale, h_scale);
 		left_arrow.x = background.x + w_pad;
 		left_arrow.y = (background.y + (background.h/2)) - (left_arrow.h/2);
 		left_arrow.set_hitbox();
 		buttons.add(left_arrow);
 		
-		right_arrow = new iButton(0,0, "RIGHT_ARROW", "RIGHT_ARROW", new Texture(Gdx.files.internal("data/ui/right_arrow.png")), w_scale, h_scale);
+		right_arrow = new iButton("MAIN", 0, 0, "RIGHT_ARROW", new Texture(Gdx.files.internal("data/ui/right_arrow.png")), w_scale, h_scale);
 		right_arrow.x = left_arrow.x + (w_scale * 600);
 		right_arrow.y = left_arrow.y;
 		right_arrow.set_hitbox();
 		buttons.add(right_arrow);
 				
-		play = new iButton(0,0, "PLAY", "PLAY", new Texture(Gdx.files.internal("data/ui/play.png")), w_scale, h_scale);
+		play = new iButton("MAIN", 0, 0, "PLAY", new Texture(Gdx.files.internal("data/ui/play.png")), w_scale, h_scale);
 		play.x = ((left_arrow.x + left_arrow.w + right_arrow.x)/2) - (play.w/2) ;
 		play.y = left_arrow.y - ((play.h - left_arrow.h)/2);
 		//	play.set_hitbox();
 		//	buttons.add(play);
 		
-		play_2 = new iButton(0,0, "PLAY", "PLAY", new Texture(Gdx.files.internal("data/ui/play.png")), w_scale, h_scale);
+		play_2 = new iButton("MAIN", 0, 0, "PLAY", new Texture(Gdx.files.internal("data/ui/play.png")), w_scale, h_scale);
 		play_2.x = bxx - play_2.w - w_pad;
 		play_2.y = by + h_pad;
 		play_2.set_hitbox();
 		buttons.add(play_2);
 		
-		shop = new iButton(0,0, "SHOP", "SHOP", new Texture(Gdx.files.internal("data/ui/shop.png")), w_scale, h_scale);
+		shop = new iButton("MAIN", 0, 0, "SHOP", new Texture(Gdx.files.internal("data/ui/shop.png")), w_scale, h_scale);
 		shop.x = bxx - play_2.w - w_pad;
 		shop.y = play_2.y + play_2.h + h_pad;
 		shop.set_hitbox();
 		buttons.add(shop);
 				
 		// SOUND ON
-		sound = new iButton(0,0, "SOUND", "SOUND", new Texture(Gdx.files.internal("data/ui/sound_on.png")), w_scale, h_scale);
+		sound = new iButton("BOTH", 0, 0, "SOUND", new Texture(Gdx.files.internal("data/ui/sound_on.png")), w_scale, h_scale);
 		sound.alt_texture = new Texture(Gdx.files.internal("data/ui/sound_off.png"));
 		sound.x = w - sound.w;
 		sound.y = h - sound.h;
@@ -188,9 +191,7 @@ public class Menu {
 	
 	public void tick(TouchInfo touch){
 		if (!ready){
-			if (tick > 40){
-				ready = true;
-			}
+			ready = tick > 40 ? true:false;
 			tick ++;
 		} else {
 			tick = 0;
@@ -198,7 +199,7 @@ public class Menu {
 		
 		if (!touch.checked_click){
 			for (iButton btn:buttons){
-				if (touch.clicked_at.overlaps(btn.hitbox)){
+				if (touch.clicked_at.overlaps(btn.hitbox) && (btn.menu.equals(current_menu) || btn.menu.equals("BOTH") )){
 					action = btn.target;					
 					touch.checked_click = true;
 					break;
@@ -226,6 +227,14 @@ public class Menu {
 	}
 	
 	public void tick(SpriteBatch sb, Player player, float delta, int score, LevelScores ls){
+		if (current_menu.equals("MAIN")){
+			render_main_menu(sb, player, delta, score, ls);
+		} else {
+			render_shop_menu(sb, player, delta, score, ls);
+		}
+	}
+	
+	void render_main_menu(SpriteBatch sb, Player player, float delta, int score, LevelScores ls){
 		level_number.texture = alphabet.get_number_texture(ls.level_id);
 		sb.draw(background.texture, background.x, background.y, background.w, background.h);
 		sb.draw(level.texture, level.x, level.y, level.w, level.h);	
@@ -284,6 +293,12 @@ public class Menu {
 		sb.draw(shop.texture, shop.x, shop.y, shop.w, shop.h);
 		sb.draw(left_arrow.texture, left_arrow.x, left_arrow.y, left_arrow.w, left_arrow.h);
 		sb.draw(right_arrow.texture, right_arrow.x, right_arrow.y, right_arrow.w, right_arrow.h);
+	}
+	
+	void render_shop_menu(SpriteBatch sb, Player player, float delta, int score, LevelScores ls){
+		sb.draw(background.texture, background.x, background.y, background.w, background.h);
+		sb.draw(shop.texture, level.x, level.y, level.w, level.h);	
+		
 	}
 	
 	public void tick(SpriteBatch sb, boolean sound_on, boolean menu_screen){

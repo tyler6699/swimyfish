@@ -41,7 +41,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	
 	// LEVEL
 	private Level level;
-	boolean started = false;
 	
 	// BLOCKERS
 	private ArrayList<Blocker> object_array;
@@ -61,6 +60,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	float max_grace;     //
 	float glide;         // 
 	boolean hit;         // If true end game
+	boolean started;
 	boolean start; 
 	boolean up;
 	
@@ -90,6 +90,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// NUMBER OF LEVELS!!!
 		number_of_levels = 2;
+		started = false;
 		
 		//SOUND
 		hifi = new HiFi();
@@ -317,6 +318,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				} else if (menu.action.equals("SOUND")){
 					menu.action = "";
 					sound = !sound;
+				} else if (menu.action.equals("SHOP")){
+					menu.action = "";
+					menu.current_menu = "SHOP";
 				}
 			}
 			
@@ -606,7 +610,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				}
 				
 				// UNLOCK LEVELS?
-				if (current_level.progress >= current_level.points_needed && level_scores.get(level_id).locked == true){
+				if (current_level.progress >= current_level.points_needed && level_scores.get(level_id-1).locked == true){
 					if(current_level.level_id < number_of_levels){
 						level_scores.get(level_id).locked = false;
 						hifi.play_unlock(sound);
