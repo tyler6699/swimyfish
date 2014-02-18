@@ -10,12 +10,12 @@ public class Menu {
 	float w, h, tick;
 	public String current_menu;
 	Entity background;
-	Entity e_score, best, bank, level, level_number;
+	Entity e_score, best, bank, level, level_number, e_shop;
 	Entity current_level;
 	Entity lockdown;
 	Entity progress_back, progress_bar, percent_sign;
 	float full_progress;
-	iButton play, play_2, shop, left_arrow, right_arrow, sound;
+	iButton play, play_2, shop, left_arrow, right_arrow, sound, back;
 	
 	public boolean ready;
 	public String action = ""; // Processed by main game
@@ -46,13 +46,13 @@ public class Menu {
 		
 		// SCORES
 		score_array = new ArrayList<Entity>();	
-		score_array = alphabet.get_number("0", true);
+		score_array = alphabet.get_number("0");
 		
 		top_score_array = new ArrayList<Entity>();
-		top_score_array = alphabet.get_number("0", true);
+		top_score_array = alphabet.get_number("0");
 		
 		percent_array = new ArrayList<Entity>();
-		percent_array = alphabet.get_number("0", true);
+		percent_array = alphabet.get_number("0");
 		
 		w_pad = w_scale * 30;
 		h_pad = h_scale * 30;
@@ -86,6 +86,13 @@ public class Menu {
 		level.x = bx + w_pad;
 		level.y = byy - (level.h + h_pad);
 		
+		e_shop = new Entity();
+		e_shop.texture = new Texture(Gdx.files.internal("data/text/shop.png"));
+		e_shop.w = w_scale * e_shop.texture.getWidth();
+		e_shop.h = h_scale * e_shop.texture.getHeight();
+		e_shop.x = level.x;
+		e_shop.y = level.y;
+		
 		level_number = new Entity();
 		level_number.texture =  alphabet.get_number_texture(1);
 		level_number.w = w_scale * level_number.texture.getWidth();
@@ -116,12 +123,12 @@ public class Menu {
 		right_arrow.y = left_arrow.y;
 		right_arrow.set_hitbox();
 		buttons.add(right_arrow);
-				
+			
+		// NOT NEEDED BUT USING COORDS
 		play = new iButton("MAIN", 0, 0, "PLAY", new Texture(Gdx.files.internal("data/ui/play.png")), w_scale, h_scale);
 		play.x = ((left_arrow.x + left_arrow.w + right_arrow.x)/2) - (play.w/2) ;
 		play.y = left_arrow.y - ((play.h - left_arrow.h)/2);
-		//	play.set_hitbox();
-		//	buttons.add(play);
+		// ^^ REMOVE
 		
 		play_2 = new iButton("MAIN", 0, 0, "PLAY", new Texture(Gdx.files.internal("data/ui/play.png")), w_scale, h_scale);
 		play_2.x = bxx - play_2.w - w_pad;
@@ -142,7 +149,13 @@ public class Menu {
 		sound.y = h - sound.h;
 		sound.set_hitbox();
 		buttons.add(sound);
-				
+		
+		back = new iButton("SHOP", 0, 0, "BACK", new Texture(Gdx.files.internal("data/ui/back.png")), w_scale, h_scale);
+		back.x = bxx - back.w - w_pad;
+		back.y = by + h_pad;
+		back.set_hitbox();
+		buttons.add(back);
+						
 		// IMAGES FOR LEVELS
 		level_array = new ArrayList<Entity>();
 		for (int i = 1; i <= number_of_levels; i++){
@@ -177,14 +190,14 @@ public class Menu {
 		progress_bar.w = w_scale * progress_bar.texture.getWidth();
 		progress_bar.h = h_scale * progress_bar.texture.getHeight();
 		progress_bar.x = progress_back.x + (w_scale*7);
-		progress_bar.y = progress_back.y + (h_scale*16);
+		progress_bar.y = progress_back.y + (h_scale*18);
 		
 		percent_sign = new Entity();
 		percent_sign.texture = new Texture(Gdx.files.internal("data/numbers/percent.png"));
-		percent_sign.y = progress_bar.y + h_scale * 3;
-		percent_sign.w = w_scale * (percent_sign.texture.getWidth()/4);
+		percent_sign.y = progress_bar.y - h_scale * 3;
+		percent_sign.w = w_scale * percent_sign.texture.getWidth();
 		percent_sign.x = progress_back.x + (progress_back.w/2) + (1.5f * percent_sign.w);
-		percent_sign.h = h_scale * (percent_sign.texture.getHeight()/4);
+		percent_sign.h = h_scale * percent_sign.texture.getHeight();
 				
 		full_progress = progress_back.w - (h_scale*21);
 	}
@@ -222,8 +235,8 @@ public class Menu {
 	}
 	
 	public void update_score(int score, int top_score){
-		score_array = alphabet.get_number(Integer.toString(score), true);
-		top_score_array = alphabet.get_number(Integer.toString(top_score), true);
+		score_array = alphabet.get_number(Integer.toString(score));
+		top_score_array = alphabet.get_number(Integer.toString(top_score));
 	}
 	
 	public void tick(SpriteBatch sb, Player player, float delta, int score, LevelScores ls){
@@ -269,18 +282,18 @@ public class Menu {
 		sb.draw(progress_bar.texture, progress_bar.x, progress_bar.y, percent*full_progress, progress_bar.h);
 		
 		// PROGRESS PERCENTAGE
-		i = 1;
 		percent_array.clear();
-		percent_array = alphabet.get_number(Float.toString(percent*100), false);
-		float t = percent_array.size() * (percent_sign.texture.getWidth()/4); 
+		percent_array = alphabet.get_number(Float.toString(percent*100));
+		float start_x = progress_back.x + (progress_back.w/2) + (percent_array.size()*(percent_sign.w/2));
+
+		i = 2;
 		for(Entity e : percent_array){
-			
-			sb.draw(e.texture, progress_back.x + (progress_back.w/2) + t/2 - (i*(e.w/4)), progress_bar.y + h_scale * 3, w_scale * (e.w/4), h_scale * (e.h/4));
+			sb.draw(e.alt_texture, start_x - (i * (w_scale * e.alt_w)), progress_bar.y - h_scale*3, w_scale * e.alt_w, h_scale * e.alt_h);
 			i ++;
 		}
 		
 		// %
-		sb.draw(percent_sign.texture, percent_sign.x, percent_sign.y, percent_sign.w, percent_sign.h);
+		sb.draw(percent_sign.texture, start_x - percent_sign.w/2, percent_sign.y, percent_sign.w, percent_sign.h);
 				
 		// BUTTONS
 		if (!ls.locked){
@@ -297,7 +310,8 @@ public class Menu {
 	
 	void render_shop_menu(SpriteBatch sb, Player player, float delta, int score, LevelScores ls){
 		sb.draw(background.texture, background.x, background.y, background.w, background.h);
-		sb.draw(shop.texture, level.x, level.y, level.w, level.h);	
+		sb.draw(e_shop.texture, e_shop.x, e_shop.y, e_shop.w, e_shop.h);	
+		sb.draw(back.texture, back.x, back.y, back.w, back.h);
 		
 	}
 	

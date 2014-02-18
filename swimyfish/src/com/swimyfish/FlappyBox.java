@@ -322,6 +322,11 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				} else if (menu.action.equals("SHOP")){
 					menu.action = "";
 					menu.current_menu = "SHOP";
+					hifi.play_collect(sound);
+				} else if (menu.action.equals("BACK")){
+					menu.action = "";
+					menu.current_menu = "MAIN";
+					hifi.play_jump(2, sound);
 				}
 			}
 			

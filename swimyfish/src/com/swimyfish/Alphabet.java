@@ -45,119 +45,68 @@ public class Alphabet {
 		no_9 = new Texture(Gdx.files.internal("data/numbers/9.png"));
 		
 		s_no_0 = new Texture(Gdx.files.internal("data/numbers/small/0.png"));
-		s_no_1 = new Texture(Gdx.files.internal("data/numbers/1.png"));
-		s_no_2 = new Texture(Gdx.files.internal("data/numbers/2.png"));
-		s_no_3 = new Texture(Gdx.files.internal("data/numbers/3.png"));
-		s_no_4 = new Texture(Gdx.files.internal("data/numbers/4.png"));
-		s_no_5 = new Texture(Gdx.files.internal("data/numbers/5.png"));
-		s_no_6 = new Texture(Gdx.files.internal("data/numbers/6.png"));
-		s_no_7 = new Texture(Gdx.files.internal("data/numbers/7.png"));
-		s_no_8 = new Texture(Gdx.files.internal("data/numbers/8.png"));
-		s_no_9 = new Texture(Gdx.files.internal("data/numbers/9.png"));
+		s_no_1 = new Texture(Gdx.files.internal("data/numbers/small/1.png"));
+		s_no_2 = new Texture(Gdx.files.internal("data/numbers/small/2.png"));
+		s_no_3 = new Texture(Gdx.files.internal("data/numbers/small/3.png"));
+		s_no_4 = new Texture(Gdx.files.internal("data/numbers/small/4.png"));
+		s_no_5 = new Texture(Gdx.files.internal("data/numbers/small/5.png"));
+		s_no_6 = new Texture(Gdx.files.internal("data/numbers/small/6.png"));
+		s_no_7 = new Texture(Gdx.files.internal("data/numbers/small/7.png"));
+		s_no_8 = new Texture(Gdx.files.internal("data/numbers/small/8.png"));
+		s_no_9 = new Texture(Gdx.files.internal("data/numbers/small/9.png"));
 	}
 	
-	public ArrayList<Entity> get_number(String number, boolean large){
+	private void set_textures(Entity e, Texture main, Texture small){
+		// MAIN
+		e.texture = main;
+		e.w = main.getWidth();
+		e.h =  main.getHeight();
+		// ALT
+		e.alt_texture = small;
+		e.alt_w = small.getWidth();
+		e.alt_h = small.getHeight();
+	}
+	
+	public ArrayList<Entity> get_number(String number){
 		ArrayList<Entity> numbers;
-		numbers = new ArrayList<Entity>();
-		
-		Entity e = new Entity();
+		numbers = new ArrayList<Entity>();		
 		String[] nos = number.split("");
-		
+	
 		for (String no: nos){
+			Entity e = new Entity();
 			if (no.equals("0")){
-				if (large){
-					e.texture = no_0;
-				} else {
-					e.texture = s_no_0;
-				}
-				e.w = no_0.getWidth();
-				e.h =  no_0.getHeight();
+				set_textures(e, no_0, s_no_0);
 				numbers.add(e);	
 			} else if (no.equals("1")){
-				if (large){
-					e.texture = no_1;
-				} else {
-					e.texture = s_no_1;
-				}
-				e.w = no_1.getWidth();
-				e.h =  no_1.getHeight();
+				set_textures(e, no_1, s_no_1);
 				numbers.add(e);	
 			} else if (no.equals("2")){
-				if (large){
-					e.texture = no_2;
-				} else {
-					e.texture = s_no_2;
-				}
-				e.w = no_2.getWidth();
-				e.h =  no_2.getHeight();
+				set_textures(e, no_2, s_no_2);
 				numbers.add(e);	
 			} else if (no.equals("3")){
-				if (large){
-					e.texture = no_3;
-				} else {
-					e.texture = s_no_3;
-				}
-				e.w = no_3.getWidth();
-				e.h =  no_3.getHeight();
+				set_textures(e, no_3, s_no_3);
 				numbers.add(e);	
 			} else if (no.equals("4")){
-				if (large){
-					e.texture = no_4;
-				} else {
-					e.texture = s_no_4;
-				}
-				e.w = no_4.getWidth();
-				e.h =  no_4.getHeight();
+				set_textures(e, no_4, s_no_4);
 				numbers.add(e);	
 			} else if (no.equals("5")){
-				if (large){
-					e.texture = no_5;
-				} else {
-					e.texture = s_no_5;
-				}
-				e.w = no_5.getWidth();
-				e.h =  no_5.getHeight();
+				set_textures(e, no_5, s_no_5);
 				numbers.add(e);	
 			} else if (no.equals("6")){
-				if (large){
-					e.texture = no_6;
-				} else {
-					e.texture = s_no_6;
-				}
-				e.w = no_6.getWidth();
-				e.h =  no_6.getHeight();
+				set_textures(e, no_6, s_no_6);
 				numbers.add(e);	
 			} else if (no.equals("7")){
-				if (large){
-					e.texture = no_7;
-				} else {
-					e.texture = s_no_7;
-				}
-				e.w = no_7.getWidth();
-				e.h =  no_7.getHeight();
+				set_textures(e, no_7, s_no_7);
 				numbers.add(e);	
 			} else if (no.equals("8")){
-				if (large){
-					e.texture = no_8;
-				} else {
-					e.texture = s_no_8;
-				}
-				e.w = no_8.getWidth();
-				e.h =  no_8.getHeight();
+				set_textures(e, no_8, s_no_8);
 				numbers.add(e);	
 			} else if (no.equals("9")){
-				if (large){
-					e.texture = no_9;
-				} else {
-					e.texture = s_no_9;
-				}
-				e.w = no_9.getWidth();
-				e.h =  no_9.getHeight();
+				set_textures(e, no_9, s_no_9);
 				numbers.add(e);	
 			} else if (no.equals(".")){
 				break;
 			}
-			e = new Entity();
 		}
 		Collections.reverse(numbers);
 		return numbers;

@@ -13,6 +13,8 @@ public class Entity {
 	public Rectangle hitbox;	
 	public Texture texture;
 	public Texture alt_texture;
+	public float alt_w;
+	public float alt_h;
 	
 	public Entity (){
 		
