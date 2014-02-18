@@ -24,6 +24,7 @@ public class Menu {
 	ArrayList<Entity> top_score_array;
 	ArrayList<Entity> percent_array;
 	ArrayList<Entity> level_array;
+	ArrayList<Entity> bank_array;
 	ArrayList<iButton> buttons;
 	float w_scale, h_scale;
 	int number_of_levels;
@@ -54,6 +55,10 @@ public class Menu {
 		percent_array = new ArrayList<Entity>();
 		percent_array = alphabet.get_number("0");
 		
+		// BANK
+		bank_array = new ArrayList<Entity>();	
+		bank_array = alphabet.get_number("0");
+				
 		w_pad = w_scale * 30;
 		h_pad = h_scale * 30;
 		
@@ -75,7 +80,14 @@ public class Menu {
 		e_score.h = h_scale * (e_score.texture.getHeight()*.85f);
 		e_score.x = bxx - (e_score.w + w_pad);
 		e_score.y = byy - (e_score.h + h_pad);
-			
+		
+		bank = new Entity();
+		bank.texture = new Texture(Gdx.files.internal("data/text/bank.png"));
+		bank.w = e_score.w;
+		bank.h = e_score.h;
+		bank.x = e_score.x;
+		bank.y = e_score.y;
+
 		score_y = e_score.y - e_score.h; 
 		score_x	= e_score.x + e_score.w; 
 		
@@ -234,9 +246,10 @@ public class Menu {
 		}
 	}
 	
-	public void update_score(int score, int top_score){
+	public void update_score(int score, int top_score, int bank){
 		score_array = alphabet.get_number(Integer.toString(score));
 		top_score_array = alphabet.get_number(Integer.toString(top_score));
+		bank_array = alphabet.get_number(Integer.toString(bank));
 	}
 	
 	public void tick(SpriteBatch sb, Player player, float delta, int score, LevelScores ls){
@@ -318,6 +331,14 @@ public class Menu {
 		sb.draw(background.texture, background.x, background.y, background.w, background.h);
 		sb.draw(e_shop.texture, e_shop.x, e_shop.y, e_shop.w, e_shop.h);	
 		sb.draw(back.texture, back.x, back.y, back.w, back.h);
+		
+		//SCORE
+		sb.draw(bank.texture, bank.x, bank.y, bank.w, bank.h);		
+		int i = 1;
+		for(Entity e : bank_array){
+			sb.draw(e.texture, score_x - (i*(e.w*.85f)), score_y , w_scale * (e.w*.85f), h_scale * (e.h*.85f));
+			i ++;
+		}
 		
 	}
 	
