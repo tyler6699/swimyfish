@@ -252,7 +252,7 @@ public class Menu {
 		bank_array = alphabet.get_number(Integer.toString(bank));
 	}
 	
-	public void tick(SpriteBatch sb, Player player, float delta, int score, LevelScores ls){
+	public void tick(SpriteBatch sb, Player player, float delta, int score, Level ls){
 		if (current_menu.equals("MAIN")){
 			render_main_menu(sb, player, delta, score, ls);
 		} else {
@@ -260,7 +260,7 @@ public class Menu {
 		}
 	}
 	
-	void render_main_menu(SpriteBatch sb, Player player, float delta, int score, LevelScores ls){
+	void render_main_menu(SpriteBatch sb, Player player, float delta, int score, Level ls){
 		level_number.texture = alphabet.get_number_texture(ls.level_id);
 		sb.draw(background.texture, background.x, background.y, background.w, background.h);
 		sb.draw(level.texture, level.x, level.y, level.w, level.h);	
@@ -327,7 +327,7 @@ public class Menu {
 		sb.draw(right_arrow.texture, right_arrow.x, right_arrow.y, right_arrow.w, right_arrow.h);
 	}
 	
-	void render_shop_menu(SpriteBatch sb, Player player, float delta, int score, LevelScores ls){
+	void render_shop_menu(SpriteBatch sb, Player player, float delta, int score, Level ls){
 		sb.draw(background.texture, background.x, background.y, background.w, background.h);
 		sb.draw(e_shop.texture, e_shop.x, e_shop.y, e_shop.w, e_shop.h);	
 		sb.draw(back.texture, back.x, back.y, back.w, back.h);

@@ -40,9 +40,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	// PLAYER ENTITY
 	private Player player;
 	
-	// LEVEL
-	private Level level;
-	
 	// BLOCKERS
 	private ArrayList<Blocker> object_array;
 	// Gap player has to fit through
@@ -67,8 +64,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	
 	// BANK AND SCORES
 	int score, top_score, bank; 
-	ArrayList<LevelScores> level_scores;
-	LevelScores current_level;	
+	ArrayList<Level> levels;
+	Level current_level;	
 	int number_of_levels;
 	
 	// Difficulty / Speed
@@ -97,31 +94,11 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		hifi = new HiFi();
 		jump_id = 1;
 		
-		// SCORE ARRAY
-		level_scores = new ArrayList<LevelScores>();
-		for (int i = 1; i <= number_of_levels; i++){
-			current_level = new LevelScores();
-			current_level.level_id = i;
-			current_level.top_score = 0;
-			current_level.progress = 0;
-			current_level.points_needed = i*100;
-			if (i == 1){
-				current_level.locked = false;
-			} else {
-				current_level.locked = true;
-			}
-			
-			level_scores.add(current_level);
-		}
-		
 		// LEVEL TOGGLE
 		level_id = 1;
 	
 		// TRAIL
 		trail_length = 50;
-				
-		// Load Top Score
-		load_prefs();
 		
 		// Screen width and height
 		w = Gdx.graphics.getWidth();
@@ -133,8 +110,33 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		w_scale = w/v_width;
 		h_scale = h/v_height;
 		
+		// LEVEL ARRAY
+		levels = new ArrayList<Level>();
+		Level lvl;
+				
+		for (int i = 1; i <= number_of_levels; i++){
+			lvl = new Level(i, w, h, w_scale, h_scale);
+			lvl.level_id = i;
+			lvl.top_score = 0;
+			lvl.progress = 0;
+			lvl.points_needed = i*100;
+			if (i == 1){
+				lvl.locked = false;
+			} else {
+				lvl.locked = true;
+			}
+					
+			levels.add(lvl);
+		}
+		
+		// Load Top Score
+		load_prefs();
+				
+		//SET CURRENT LEVEL
+		current_level = levels.get(0);
+		
 		// MENU
-		top_score = level_scores.get(level_id-1).top_score;
+		top_score = current_level.top_score;
 		menu = new Menu(w, h, w_scale, h_scale, number_of_levels);
 		menu.update_score(score, top_score, bank);
 		
@@ -151,9 +153,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		// NEW PLAYER
 		player = new Player(w, h, w_scale, h_scale, 1);
 		
-		// NEW LEVEL
-		level = new Level("level_" + level_id, level_id, w, h, w_scale, h_scale);
-		
 		// GAME CONFIG
 		hit           = true;
 		max_grace	  = 1;
@@ -167,7 +166,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		gravity       = min_gravity;
 		fly_up        = h_scale*5;
 		glide         = h_scale*3;
-		scroll_speed  = w_scale * level.scroll_speed;
+		scroll_speed  = w_scale * current_level.scene.scroll_speed;
 				
 		// BLOCKERS
 		gap = w/3; // Horizontal distance between blockers
@@ -177,7 +176,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	private void load_prefs(){
 		prefs = Gdx.app.getPreferences("pixel_jump");
 		
-		for (LevelScores ls : level_scores){
+		for (Level ls : levels){
 			// TOP SCORE
 			if (!prefs.contains("top_score_" + ls.level_id)){
 				prefs.putInteger("top_score_" + ls.level_id, ls.top_score);
@@ -238,7 +237,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	}
 	
 	private void save_prefs(){
-		for (LevelScores ls : level_scores){
+		for (Level ls : levels){
 			prefs.putInteger("top_score_" + ls.level_id, ls.top_score);
 			prefs.putInteger("progress_" + ls.level_id, ls.progress);
 			prefs.putBoolean("locked_" + ls.level_id, ls.locked);
@@ -295,12 +294,14 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				if (menu.action.equals("LEFT_ARROW")){
 					if (level_id > 1){
 						level_id -= 1;
-						top_score = level_scores.get(level_id-1).top_score;
+						current_level = levels.get(level_id-1);
+						top_score = current_level.top_score;
 						menu.update_score(score, top_score, bank);
 						hifi.play_jump(1, sound);
 					} else {
 						level_id = number_of_levels;
-						top_score = level_scores.get(level_id-1).top_score;
+						current_level = levels.get(level_id-1);
+						top_score = current_level.top_score;
 						menu.update_score(score, top_score, bank);
 						hifi.play_jump(1, sound);
 					}
@@ -308,18 +309,20 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				} else if (menu.action.equals("RIGHT_ARROW")){
 					if (level_id < number_of_levels){
 						level_id += 1;
-						top_score = level_scores.get(level_id-1).top_score;
+						current_level = levels.get(level_id-1);
+						top_score = current_level.top_score;
 						hifi.play_jump(1, sound);
 						menu.update_score(score, top_score, bank);
 					} else {
 						level_id = 1;
-						top_score = level_scores.get(level_id-1).top_score;
+						current_level = levels.get(level_id-1);
+						top_score = current_level.top_score;
 						menu.update_score(score, top_score, bank);
 						hifi.play_jump(1, sound);
 					}
 					menu.action = "";
 				} else if (menu.action.equals("PLAY")) {
-					if (menu.ready && !level_scores.get(level_id-1).locked){
+					if (menu.ready && !current_level.locked){
 						reset_game();	
 						menu.action = "";
 						hifi.play_collect(sound);
@@ -346,7 +349,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 
 	private void logic() {	
 		float rand_height;
-		Blocker last = new Blocker(w, h, 1, level, w_scale, h_scale);
+		Blocker last = new Blocker(w, h, 1, current_level.scene, w_scale, h_scale);
 				
 		// Obstacles
 		for (Blocker box : object_array){		
@@ -395,17 +398,17 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}	
 		
 		// CLOUDS 
-		for (Entity e: level.eclouds){
+		for (Entity e: current_level.scene.eclouds){
 			if (e.x < -(e.w)){
-				e.x += level.eclouds.size() * e.w - (scroll_speed/2);
+				e.x += current_level.scene.eclouds.size() * e.w - (scroll_speed/2);
 			} else {
 				e.x -= scroll_speed/2;
 			}
 		}
 		
-		for (Entity e: level.floor_toppers){
+		for (Entity e: current_level.scene.floor_toppers){
 			if (e.x < -(e.w)){
-				e.x += level.floor_toppers.size() * e.w - (scroll_speed*1.5);
+				e.x += current_level.scene.floor_toppers.size() * e.w - (scroll_speed*1.5);
 			} else {
 				e.x -= scroll_speed*1.5;
 			}
@@ -471,15 +474,15 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		batch.begin();
 		// BACKGROUND
-		batch.draw(level.esky.texture, level.esky.x, level.esky.y, level.esky.w, level.esky.h);
+		batch.draw(current_level.scene.esky.texture, current_level.scene.esky.x, current_level.scene.esky.y, current_level.scene.esky.w, current_level.scene.esky.h);
 		
 		// CLOUDS
-		for (Entity e: level.eclouds){
+		for (Entity e: current_level.scene.eclouds){
 			batch.draw(e.texture, e.x, e.y, e.w, e.h);
 		}
 				
 		// FLOOR
-		batch.draw(level.efloor.texture, level.efloor.x, level.efloor.y, level.efloor.w, level.efloor.h);
+		batch.draw(current_level.scene.efloor.texture, current_level.scene.efloor.x, current_level.scene.efloor.y, current_level.scene.efloor.w, current_level.scene.efloor.h);
 
 		if (trail && plotter.size() > 0){
 			for (int i = 0; i < plotter.size(); i++){
@@ -504,24 +507,24 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		for (Blocker box : object_array){
 			batch.draw(box.high.texture, box.high.x, box.high.y, box.high.w, box.high.h);	
 			batch.draw(box.low.texture, box.low.x, box.low.y, box.low.w, box.low.h);
-			if (level.show_blocker_lower){
-				batch.draw(level.blocker_floor, box.low.x, box.low.y, box.low.w, level.floor_h);	
+			if (current_level.scene.show_blocker_lower){
+				batch.draw(current_level.scene.blocker_floor, box.low.x, box.low.y, box.low.w, current_level.scene.floor_h);	
 			}
 			
 		}
 		
 		// RAYS
-		batch.draw(level.erays_1.texture, level.erays_1.x, level.erays_1.y, level.erays_1.w, level.erays_1.h);
-		batch.draw(level.erays_2.texture, level.erays_2.x, level.erays_2.y, level.erays_2.w, level.erays_2.h);
+		batch.draw(current_level.scene.erays_1.texture, current_level.scene.erays_1.x, current_level.scene.erays_1.y, current_level.scene.erays_1.w, current_level.scene.erays_1.h);
+		batch.draw(current_level.scene.erays_2.texture, current_level.scene.erays_2.x, current_level.scene.erays_2.y, current_level.scene.erays_2.w, current_level.scene.erays_2.h);
 		
 		// FLOOR TOPPER
-		for (Entity e: level.floor_toppers){
+		for (Entity e: current_level.scene.floor_toppers){
 			batch.draw(e.texture, e.x, e.y, e.w, e.h);
 		}
 		
 		// DRAW MENU ON TOP
 		if (hit){
-			menu.tick(batch,player, delta, score, level_scores.get(level_id-1));
+			menu.tick(batch,player, delta, score, current_level);
 			menu.tick(batch, sound, true);
 		} else {
 			menu.tick(batch, sound, false);
@@ -544,12 +547,11 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		started = false;
 		menu.ready = false;
 		menu.update_score(0, top_score, bank);
-		
-		level = new Level("level_" + level_id,level_id, w, h, w_scale, h_scale);
+
 		plotter.clear();
 		score = 0;
-		scroll_speed  = w_scale * level.scroll_speed;
-		gap = level.gap;
+		scroll_speed  = w_scale * current_level.scene.scroll_speed;
+		gap = current_level.scene.gap;
 		fly_time = max_fly_time;
 		grace_period  = max_grace;
 		
@@ -563,7 +565,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// Columns
 		Blocker box;
-		box = new Blocker(w, h, 1, level, w_scale, h_scale);
+		box = new Blocker(w, h, 1, current_level.scene, w_scale, h_scale);
 		max = (int) box.low.h;
 		min = (int) 0;
 				
@@ -575,7 +577,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		for (int i = 0; i < 4; i++){
 			// TODO CLEAN UP
-			box = new Blocker(w, h, i+1, level, w_scale, h_scale);
+			box = new Blocker(w, h, i+1, current_level.scene, w_scale, h_scale);
 			box.low.x = (i * gap) + w;
 			box.high.x = box.low.x;
 						
@@ -591,9 +593,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}		
 	}
 			
-	private void check_collision(Blocker box) {
-		current_level = level_scores.get(level_id-1);
-		
+	private void check_collision(Blocker box) {		
 		if (box.scorebox.overlaps(player.hitbox) && !box.scored){
 			box.scored = true;
 			score ++;
@@ -624,8 +624,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				
 				// UNLOCK LEVELS?
 				if (current_level.progress >= current_level.points_needed && current_level.level_id < number_of_levels){
-					if (level_scores.get(level_id).locked == true){
-						level_scores.get(level_id).locked = false;
+					if (current_level.locked == true){
+						current_level.locked = false;
 						hifi.play_unlock(sound);
 					}
 				} else if(!complete) {
