@@ -284,16 +284,22 @@ public class Menu {
 		// PROGRESS PERCENTAGE
 		percent_array.clear();
 		percent_array = alphabet.get_number(Float.toString(percent*100));
-		float start_x = progress_back.x + (progress_back.w/2) + (percent_array.size()*(percent_sign.w/2));
+		float start_x = progress_back.x + (progress_back.w/2);
 
-		i = 2;
+		if (percent_array.size() == 1){
+			start_x -= percent_sign.w;
+		} else if (percent_array.size() == 2){
+			start_x -= percent_sign.w/2;
+		}
+		
+		i = 0;
 		for(Entity e : percent_array){
 			sb.draw(e.alt_texture, start_x - (i * (w_scale * e.alt_w)), progress_bar.y - h_scale*3, w_scale * e.alt_w, h_scale * e.alt_h);
 			i ++;
 		}
 		
 		// %
-		sb.draw(percent_sign.texture, start_x - percent_sign.w/2, percent_sign.y, percent_sign.w, percent_sign.h);
+		sb.draw(percent_sign.texture, start_x + percent_sign.w , percent_sign.y, percent_sign.w, percent_sign.h);
 				
 		// BUTTONS
 		if (!ls.locked){
