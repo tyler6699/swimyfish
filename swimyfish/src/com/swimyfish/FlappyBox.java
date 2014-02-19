@@ -32,7 +32,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		device = new Device();
 		
 		// MAIN GAME / SETTINGS
-		game = new Game(device);
+		game = new Game(device, player);
 		current_level = game.current_level;
 				
 		// LOAD GAME

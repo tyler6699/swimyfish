@@ -39,7 +39,7 @@ public class Scene {
 	public Entity erays_2;
 	public Entity esky;
 	
-	public Scene(int level_id, Device device){	
+	public Scene(int level_id, Device device, Player player){	
 		GLTexture.setEnforcePotImages(false);
 		this.w = device.w;
 		this.h = device.h;
@@ -66,11 +66,25 @@ public class Scene {
 			cloud_h = h-(device.h_scale * cloud.getHeight());
 			scroll_speed = 6;
 			gap = w/3;
+			// todo UPDATE PLAYER SETTINGS
 		} else if (level_id == 2){
 			floor_h = 0.1f*h;
 			cloud_h = floor_h;
 			scroll_speed = 7;
 			gap = (w/3) - device.w_scale*20;
+			// todo UPDATE PLAYER SETTINGS
+		} else if (level_id == 3) {
+			floor_h = 0.1f*h;
+			cloud_h = floor_h;
+			scroll_speed = 9;
+			gap = (w/3) - device.w_scale*40;
+			// todo UPDATE PLAYER SETTINGS
+		} else if (level_id == 4) {
+			floor_h = 0.1f*h;
+			cloud_h = floor_h;
+			scroll_speed = 9;
+			gap = (w/3) - device.w_scale*40;
+			// todo UPDATE PLAYER SETTINGS
 		}
 		
 		// FLOOR

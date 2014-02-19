@@ -44,8 +44,8 @@ public class Game {
 	public ArrayList<Entity> plotter = new ArrayList<Entity>();
 	public ArrayList<Blocker> object_array = new ArrayList<Blocker>();
 	
-	public Game(Device device){		
-		number_of_levels = 2;
+	public Game(Device device, Player player){		
+		number_of_levels = 4;
 		started 		 = false;
 		trail 			 = true;
 		jump_id 		 = 1;
@@ -54,7 +54,7 @@ public class Game {
 		
 		Level lvl;		
 		for (int i = 1; i <= number_of_levels; i++){
-			lvl = new Level(i, device);
+			lvl = new Level(i, device, player);
 			lvl.level_id = i;
 			lvl.top_score = 0;
 			lvl.progress = 0;
@@ -327,8 +327,9 @@ public class Game {
 				
 				// UNLOCK LEVELS?
 				if (current_level.progress >= current_level.points_needed && current_level.level_id < number_of_levels){
-					if (current_level.locked == true){
-						current_level.locked = false;
+					Level next_level = levels.get(current_level.level_id);
+					if (next_level.locked == true){
+						next_level.locked = false;
 						hifi.play_unlock(sound);
 					}
 				} else if(!complete) {
