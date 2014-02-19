@@ -124,7 +124,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			prefs.putBoolean("locked_" + ls.level_id, ls.locked);
 		}	
 		prefs.putInteger("bank", game.bank);
-		prefs.putBoolean("game.sound", game.sound);
+		prefs.putBoolean("sound", game.sound);
 		prefs.putBoolean("complete", game.complete);
 		prefs.flush();
 	}
