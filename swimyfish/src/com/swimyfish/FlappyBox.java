@@ -1,8 +1,5 @@
 package com.swimyfish;
 
-import java.util.ArrayList;
-import java.util.Random;
-
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
@@ -10,179 +7,63 @@ import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Rectangle;
 import com.swimyfish.Player;
 
 public class FlappyBox implements ApplicationListener, InputProcessor{
-	private Preferences prefs;
-	private OrthographicCamera camera;
-	private SpriteBatch batch;
 	
-	// SOUND PLAYER
-	private HiFi hifi;
-	private boolean sound;
-	private int jump_id;
-	
-	public float v_width, v_height, w_scale, h_scale;
-	int level_id, tick = 0,trail_length;
-	float w, h, x = 0, y = 0;
-	private TouchInfo touch;
-	float delta;
-
-	// TRAIL
-	boolean trail = true;
-	public ArrayList<Entity> plotter = new ArrayList<Entity>();
-	
-	// MENU
-	Menu menu;
-	Boolean complete;
-	
-	// PLAYER ENTITY
-	private Player player;
-	
-	// BLOCKERS
-	private ArrayList<Blocker> object_array;
-	// Gap player has to fit through
-	float hole;
-	
-	// GAME VARS & FLIGHT SETTINGS
-	float fly_time;      // > 0 = moving up
-	float max_fly_time;  // Amount of time player raises and gravity disabled 
-	float gravity;       // Gravity
-	float max_gravity;   // Gravity
-	float min_gravity;   // Gravity
-	float drop_gravity;  // Gravity
-	float fly_up;        // Increase Y by amount per tick
-	float re_jump_time;  //
-	float grace_period;  //
-	float max_grace;     //
-	float glide;         // 
-	boolean hit;         // If true end game
-	boolean started;
-	boolean start; 
-	boolean up;
-	
-	// BANK AND SCORES
-	int score, top_score, bank; 
-	ArrayList<Level> levels;
-	Level current_level;	
-	int number_of_levels;
-	
-	// Difficulty / Speed
-	float scroll_speed;
-	private float gap;
-	float max;
-	int min;
+	Game game;					// MAIN GAME
+	Device device;				// SCREEN & TOUCH 
+	Level current_level;		// LEVEL
+	Preferences prefs;			// SAVE GAME
+	OrthographicCamera camera;	// CAMERA
+	SpriteBatch batch;			// BATCH
+	HiFi hifi;					// SOUNDS
+	Menu menu;					// MENU
+	Player player;				// HERO
 			
-	class TouchInfo {
-		public float touchX = 0;
-		public float touchY = 0;
-		public boolean touched = false;
-		public boolean checked_click = true;
-		public Rectangle clicked_at = new Rectangle();
-	}
-
 	@Override
 	public void create(){
 		Gdx.input.setInputProcessor(this);
 		
-		// NUMBER OF LEVELS!!!
-		number_of_levels = 2;
-		started = false;
-		
-		//SOUND
+		//SOUNDS
 		hifi = new HiFi();
-		jump_id = 1;
 		
-		// LEVEL TOGGLE
-		level_id = 1;
-	
-		// TRAIL
-		trail_length = 50;
+		// SCREEN & TOUCH
+		device = new Device();
 		
-		// Screen width and height
-		w = Gdx.graphics.getWidth();
-		h = Gdx.graphics.getHeight();
+		// MAIN GAME / SETTINGS
+		game = new Game(device);
+		current_level = game.current_level;
 				
-		// SCALE / RATIO
-		v_width = 1196;
-		v_height = 786;
-		w_scale = w/v_width;
-		h_scale = h/v_height;
-		
-		// LEVEL ARRAY
-		levels = new ArrayList<Level>();
-		Level lvl;
-				
-		for (int i = 1; i <= number_of_levels; i++){
-			lvl = new Level(i, w, h, w_scale, h_scale);
-			lvl.level_id = i;
-			lvl.top_score = 0;
-			lvl.progress = 0;
-			lvl.points_needed = i*100;
-			if (i == 1){
-				lvl.locked = false;
-			} else {
-				lvl.locked = true;
-			}
-					
-			levels.add(lvl);
-		}
-		
-		// Load Top Score
+		// LOAD GAME
 		load_prefs();
-				
-		//SET CURRENT LEVEL
-		current_level = levels.get(0);
 		
 		// MENU
-		top_score = current_level.top_score;
-		menu = new Menu(w, h, w_scale, h_scale, number_of_levels);
-		menu.update_score(score, top_score, bank);
+		menu = new Menu(device, game.number_of_levels);
+		menu.update_score(game.score, game.top_score, game.bank);
 		
 		// CAMERA SETUP
-	    camera = new OrthographicCamera(2,2);
-	    camera.update();
-						
-		touch = new TouchInfo();
+		camera = new OrthographicCamera(2,2);
+		camera.update();
 		
 		// SB FOR CAMERA
 		batch = new SpriteBatch();
 		batch.setTransformMatrix(camera.combined);
 		
 		// NEW PLAYER
-		player = new Player(w, h, w_scale, h_scale, 1);
-		
-		// GAME CONFIG
-		hit           = true;
-		max_grace	  = 1;
-		grace_period  = 0;
-		re_jump_time  = 3;
-		fly_time      = 0;
-		max_fly_time  = 25;
-		min_gravity   = 0;
-		max_gravity   = h_scale*20;
-		drop_gravity  = h_scale*.5f;
-		gravity       = min_gravity;
-		fly_up        = h_scale*5;
-		glide         = h_scale*3;
-		scroll_speed  = w_scale * current_level.scene.scroll_speed;
-				
-		// BLOCKERS
-		gap = w/3; // Horizontal distance between blockers
-		object_array = new ArrayList<Blocker>();		
+		player = new Player(device, 1);
 	}
 	
 	private void load_prefs(){
 		prefs = Gdx.app.getPreferences("pixel_jump");
 		
-		for (Level ls : levels){
-			// TOP SCORE
-			if (!prefs.contains("top_score_" + ls.level_id)){
-				prefs.putInteger("top_score_" + ls.level_id, ls.top_score);
-				top_score = 0;
+		for (Level ls : game.levels){
+			// TOP game.score
+			if (!prefs.contains("top_game.score_" + ls.level_id)){
+				prefs.putInteger("top_game.score_" + ls.level_id, ls.top_score);
+				game.top_score = 0;
 			} else {
-				ls.top_score = prefs.getInteger("top_score_" + ls.level_id);
+				ls.top_score = prefs.getInteger("top_game.score_" + ls.level_id);
 			}
 			
 			if (!prefs.contains("locked_" + ls.level_id)){
@@ -213,38 +94,38 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		// BANK
 		if (!prefs.contains("bank")){
 			prefs.putInteger("bank", 0);
-			bank = 0;
+			game.bank = 0;
 		} else {
-			bank = prefs.getInteger("bank");
+			game.bank = prefs.getInteger("bank");
 		}
 		
 		// SOUND ON/OFF
-		if (!prefs.contains("sound")){
-			prefs.putBoolean("sound", true);
-			sound = true;
+		if (!prefs.contains("game.sound")){
+			prefs.putBoolean("game.sound", true);
+			game.sound = true;
 		} else {
-			sound = prefs.getBoolean("sound");
+			game.sound = prefs.getBoolean("game.sound");
 		}
 		
 		// SOUND ON/OFF
 		if (!prefs.contains("complete")){
 			prefs.putBoolean("complete", false);
-			complete = false;
+			game.complete = false;
 		} else {
-			complete = prefs.getBoolean("complete");
+			game.complete = prefs.getBoolean("complete");
 		}
 		prefs.flush();
 	}
 	
 	private void save_prefs(){
-		for (Level ls : levels){
-			prefs.putInteger("top_score_" + ls.level_id, ls.top_score);
+		for (Level ls : game.levels){
+			prefs.putInteger("top_game.score_" + ls.level_id, ls.top_score);
 			prefs.putInteger("progress_" + ls.level_id, ls.progress);
 			prefs.putBoolean("locked_" + ls.level_id, ls.locked);
 		}	
-		prefs.putInteger("bank",bank);
-		prefs.putBoolean("sound",sound);
-		prefs.putBoolean("complete",complete);
+		prefs.putInteger("bank", game.bank);
+		prefs.putBoolean("game.sound", game.sound);
+		prefs.putBoolean("complete", game.complete);
 		prefs.flush();
 	}
 	
@@ -255,27 +136,30 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	
 	@Override
 	public void render(){
-		delta = Gdx.graphics.getDeltaTime();
+		// SET CURRENT LEVEL
+		current_level = game.current_level;
+		game.delta = Gdx.graphics.getDeltaTime();
 		
 		// PLAYING GAME
-		if (started && !hit){
-			menu.playing_tick(touch, true);
+		if ( game.playing_game() ){
+			menu.playing_tick(device, true);
 			menu_logic(true);
-			logic(); 
+			game.logic(device, player, hifi, menu);
+			save_prefs();
 			
 		// MAIN MENU
-		} else if( !started && hit){ 
-			menu.tick(touch);
+		} else if( game.main_menu() ){ 
+			menu.tick(device);
 			menu_logic(false);
 			
 		// WAITING TO START
-		} else if (!started && !hit) { 
-			menu.playing_tick(touch, false);
+		} else if ( game.tap_to_start() ) { 
+			menu.playing_tick(device, false);
 			menu_logic(true);
 			
 			// START THE GAME 
-			if (!touch.checked_click){
-				started = true;
+			if (!device.checked_click){
+				game.started = true;
 			}
 		}
 		
@@ -285,188 +169,51 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	
 	private void menu_logic(boolean playing) {
 		if (!menu.action.equals("")){
-			if (playing){
+			if ( playing ){
 				if (menu.action.equals("SOUND")){
-					menu.action = "";
-					sound = !sound;
+					game.sound = !game.sound;
 				}
 			} else {
 				if (menu.action.equals("LEFT_ARROW")){
-					if (level_id > 1){
-						level_id -= 1;
-						current_level = levels.get(level_id-1);
-						top_score = current_level.top_score;
-						menu.update_score(score, top_score, bank);
-						hifi.play_jump(1, sound);
+					if (game.level_id > 1){
+						game.level_down();
+						menu.update_score(game.score, game.top_score, game.bank);
+						hifi.play_jump(1, game.sound);
 					} else {
-						level_id = number_of_levels;
-						current_level = levels.get(level_id-1);
-						top_score = current_level.top_score;
-						menu.update_score(score, top_score, bank);
-						hifi.play_jump(1, sound);
+						game.level_last();
+						menu.update_score(game.score, game.top_score, game.bank);
+						hifi.play_jump(1, game.sound);
 					}
-					menu.action = "";
 				} else if (menu.action.equals("RIGHT_ARROW")){
-					if (level_id < number_of_levels){
-						level_id += 1;
-						current_level = levels.get(level_id-1);
-						top_score = current_level.top_score;
-						hifi.play_jump(1, sound);
-						menu.update_score(score, top_score, bank);
+					if (game.level_id < game.number_of_levels){
+						game.level_up();
+						hifi.play_jump(1, game.sound);
+						menu.update_score(game.score, game.top_score, game.bank);
 					} else {
-						level_id = 1;
-						current_level = levels.get(level_id-1);
-						top_score = current_level.top_score;
-						menu.update_score(score, top_score, bank);
-						hifi.play_jump(1, sound);
+						game.level_first();
+						menu.update_score(game.score, game.top_score, game.bank);
+						hifi.play_jump(1, game.sound);
 					}
-					menu.action = "";
 				} else if (menu.action.equals("PLAY")) {
-					if (menu.ready && !current_level.locked){
-						reset_game();	
-						menu.action = "";
-						hifi.play_collect(sound);
-					 } else {
-						menu.action = "";
+					if (menu.ready && !game.current_level.locked){
+						game.reset(device, menu, player);	
+						hifi.play_collect(game.sound);
 					 }
 				} else if (menu.action.equals("SOUND")){
-					menu.action = "";
-					sound = !sound;
+					game.sound = !game.sound;
 				} else if (menu.action.equals("SHOP")){
-					menu.action = "";
 					menu.current_menu = "SHOP";
-					hifi.play_collect(sound);
+					hifi.play_collect(game.sound);
 				} else if (menu.action.equals("BACK")){
-					menu.action = "";
 					menu.current_menu = "MAIN";
-					hifi.play_jump(2, sound);
+					hifi.play_jump(2, game.sound);
 				}
 			}
-			
-			touch.checked_click = true;
+			menu.action = "";
+			device.checked_click = true;
 		}
 	}
-
-	private void logic() {	
-		float rand_height;
-		Blocker last = new Blocker(w, h, 1, current_level.scene, w_scale, h_scale);
-				
-		// Obstacles
-		for (Blocker box : object_array){		
-			if (box.low.x < -(box.low.w*2)){
-				// Check box in front to use as a guide for the new Y				
-				for (Blocker b : object_array){
-					if (box.id == 1 && b.id == 4){
-						last = b;
-					} else if (box.id == 2 && b.id == 1) {
-						last = b;
-					} else if (box.id == 3 && b.id == 2) {
-						last = b;
-					} else if (box.id == 4 && b.id == 3) {
-						last = b;
-					}
-				}
-								
-				// UP OR DOWN?
-				up = go_up(50);
-				min = 0;
-				max = h_scale*(h/4f);
-				
-				if (up){
-					if (last.high.y + max >= h ){max = h - last.high.y - (h_scale*30);}
-					rand_height = random_height(min,(int) max);
-					box.high.y = last.high.y + rand_height;
-				} else { // DOWN	
-					if ((last.high.y + last.high.h - (2*max)) > h ){
-						rand_height = random_height(min,(int) max);
-						box.high.y = last.high.y - rand_height;
-					}
-				}
-				
-				box.high.x += 4 * gap;
-				
-				// LOW
-				box.low.x += 4 * gap;	
-				box.low.y = box.high.y - box.low.h - (hole*.9f); // CLOSE HOLE HERE		 
-				box.set_hitboxes();
-				box.scored = false;
-			} else {
-				box.low.x -= scroll_speed;	
-				box.high.x -= scroll_speed;
-				box.update_hitboxes(scroll_speed);
-			}
-		}	
-		
-		// CLOUDS 
-		for (Entity e: current_level.scene.eclouds){
-			if (e.x < -(e.w)){
-				e.x += current_level.scene.eclouds.size() * e.w - (scroll_speed/2);
-			} else {
-				e.x -= scroll_speed/2;
-			}
-		}
-		
-		for (Entity e: current_level.scene.floor_toppers){
-			if (e.x < -(e.w)){
-				e.x += current_level.scene.floor_toppers.size() * e.w - (scroll_speed*1.5);
-			} else {
-				e.x -= scroll_speed*1.5;
-			}
-		}
-				
-		// Player
-		if (fly_time > 0){
-			fly_time -= 1;
-			if ( not_too_high() ){
-				update_gravity(false);
-				player.y += fly_up;	
-			}
-		} else if (grace_period > 0){
-			grace_period -= 1;
-			update_gravity(false);
-		} else {
-			if ( not_too_low() ){
-				update_gravity(true);
-				player.y -= gravity;
-			}
-		}	
 			
-		player.hitbox.setPosition(player.x, player.y);
-			
-		for (Blocker box : object_array){
-			if (!hit){
-				check_collision(box);
-			}
-		}	
-		
-		// TRAIL
-		if (trail){
-			tick ++;
-			Entity tmp = new Entity();
-			tmp.x = player.x;
-			tmp.y = player.y;
-			tmp.w = player.width;
-			tmp.h = player.height;
-			tmp.texture = player.trail;
-			plotter.add(tmp);
-		}
-		
-		if (plotter.size() > trail_length){
-			plotter.remove(0);
-		}
-	}
-		
-	private void update_gravity(boolean falling){
-		if (falling){
-			if (gravity < max_gravity){
-				gravity += drop_gravity;	
-			}
-			
-		} else {
-			gravity = min_gravity;
-		}
-	}
-		
 	private void draw() {
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
@@ -484,27 +231,27 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		// FLOOR
 		batch.draw(current_level.scene.efloor.texture, current_level.scene.efloor.x, current_level.scene.efloor.y, current_level.scene.efloor.w, current_level.scene.efloor.h);
 
-		if (trail && plotter.size() > 0){
-			for (int i = 0; i < plotter.size(); i++){
-				Entity e = plotter.get(i);
-				if (!hit){
-					e.x -= w_scale*3;
+		if (game.trail && game.plotter.size() > 0){
+			for (int i = 0; i < game.plotter.size(); i++){
+				Entity e = game.plotter.get(i);
+				if (!game.hit){
+					e.x -= device.w_scale*3;
 				}
-				if(e.w - (plotter.size()-i) > 1){
-					batch.draw(e.texture, e.x, e.y, e.w - (plotter.size()-i), e.h - (plotter.size()-i));
+				if(e.w - (game.plotter.size()-i) > 1){
+					batch.draw(e.texture, e.x, e.y, e.w - (game.plotter.size()-i), e.h - (game.plotter.size()-i));
 				}
 			}
 		}		
 		
 		// PLAYER
-		if (!hit){
+		if (!game.hit){
 			batch.draw(player.player_alive, player.x, player.y, player.width, player.height);
 		} else {	
 			batch.draw(player.player_hit, player.x, player.y, player.width, player.height);
 		}
 				
 		// OBSTACLES
-		for (Blocker box : object_array){
+		for (Blocker box : game.object_array){
 			batch.draw(box.high.texture, box.high.x, box.high.y, box.high.w, box.high.h);	
 			batch.draw(box.low.texture, box.low.x, box.low.y, box.low.w, box.low.h);
 			if (current_level.scene.show_blocker_lower){
@@ -523,152 +270,53 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}
 		
 		// DRAW MENU ON TOP
-		if (hit){
-			menu.tick(batch,player, delta, score, current_level);
-			menu.tick(batch, sound, true);
+		if (game.hit){
+			menu.tick(batch,player, game.delta, game.score, current_level);
+			menu.tick(batch, game.sound, true);
 		} else {
-			menu.tick(batch, sound, false);
+			menu.tick(batch, game.sound, false);
 		}
 		
-		
-		//SCORE
-		if (!hit){
+		//game.score
+		if (!game.hit){
 			int i = 0;
 			float fw = menu.score_array.size(); 
 			for(Entity e: menu.score_array){
-				batch.draw(e.texture, (w/2) - i * (w_scale*e.texture.getWidth()) - (fw * (w_scale*e.texture.getWidth()/2)), h - (h_scale*e.texture.getHeight()) - h_scale*10, w_scale*e.texture.getWidth(), h_scale*e.texture.getHeight());
+				batch.draw(e.texture, (device.w/2) - i * (device.w_scale*e.texture.getWidth()) - (fw * (device.w_scale*e.texture.getWidth()/2)), device.h - (device.h_scale*e.texture.getHeight()) - device.h_scale*10, device.w_scale*e.texture.getWidth(), device.h_scale*e.texture.getHeight());
 				i ++;
 			}
 		}
 		batch.end();
 	}
-
-	private void reset_game() {
-		started = false;
-		menu.ready = false;
-		menu.update_score(0, top_score, bank);
-
-		plotter.clear();
-		score = 0;
-		scroll_speed  = w_scale * current_level.scene.scroll_speed;
-		gap = current_level.scene.gap;
-		fly_time = max_fly_time;
-		grace_period  = max_grace;
-		
-		// Player
-		// FIX
-		player.y = (h/2);
-		
-		// Game settings
-		hit          = false;
-		fly_time     = 0;
-		
-		// Columns
-		Blocker box;
-		box = new Blocker(w, h, 1, current_level.scene, w_scale, h_scale);
-		max = (int) box.low.h;
-		min = (int) 0;
-				
-		// Obstacles
-		object_array.clear();
-		
-		float rand_height;
-		hole =  h/3f;
-		
-		for (int i = 0; i < 4; i++){
-			// TODO CLEAN UP
-			box = new Blocker(w, h, i+1, current_level.scene, w_scale, h_scale);
-			box.low.x = (i * gap) + w;
-			box.high.x = box.low.x;
-						
-			if (i > 1){
-				min = (int) (box.high.y-(h_scale*50));
-				rand_height = random_height( (int) (box.high.y-(h_scale*50)),  (int) (box.high.y+(h_scale*50)));
-				box.high.y = rand_height;
-				box.low.y = box.high.y - box.low.h - hole;;
-			}
-						
-			box.set_hitboxes();
-			object_array.add(box);	
-		}		
-	}
-			
-	private void check_collision(Blocker box) {		
-		if (box.scorebox.overlaps(player.hitbox) && !box.scored){
-			box.scored = true;
-			score ++;
-			hifi.play_collect(sound);
-		} else {
-			if (box.high.hitbox.overlaps(player.hitbox) || box.low.hitbox.overlaps(player.hitbox)){
-				hit = true;
-				started = false;
-				
-				hifi.play_death(sound);
-				// BANK
-				bank += score;
-				
-				// UPDATE PROGRESS
-				if(current_level.progress <= current_level.points_needed){
-					if (current_level.progress + score > current_level.points_needed){
-						current_level.progress = current_level.points_needed;
-					} else {
-						current_level.progress += score;
-					}
-				}
-				
-				// CHECK HIGH SCORES
-				if (score > current_level.top_score){
-					current_level.top_score = score;
-					top_score = score;
-				}
-				
-				// UNLOCK LEVELS?
-				if (current_level.progress >= current_level.points_needed && current_level.level_id < number_of_levels){
-					if (current_level.locked == true){
-						current_level.locked = false;
-						hifi.play_unlock(sound);
-					}
-				} else if(!complete) {
-					// todo Show Credits
-					complete = true;
-					hifi.play_unlock(sound);
-				}
-				
-				save_prefs();
-			}
-		}
-		
-		//UPDATE SCORES
-		menu.update_score(score, top_score, bank);
-	}
-		
-	private boolean not_too_high(){
-		return player.y + fly_up + player.height < h + player.height;
-	}
-		
-	private boolean not_too_low(){
-		return player.y - gravity > -player.height;
-	}  
 	
-	public boolean go_up(int percentage){
-		Random r = new Random(); 
-		int chance = r.nextInt(100);
-		    
-		if(percentage > chance){
-			return true;
-		}else{
-			return false;
+	@Override
+	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+		device.checked_click = false;
+		device.touchX = screenX;
+		device.touchY = device.h-screenY;
+		device.touched = true;
+		device.clicked_at.set(screenX, device.h-screenY, device.w_scale+5, device.h_scale*5);
+				
+		if (!game.hit && game.started){ 
+			if (game.fly_time <= game.re_jump_time){
+				hifi.play_jump(game.jump_id, game.sound);
+				game.jump_id = game.jump_id == 1 ? 2 : 1;
+				
+				game.fly_time = game.max_fly_time;
+				game.grace_period  = game.max_grace;
+			}	
 		}
+		return true;
 	}
 	
-	public int random_height(int min, int max){
-		min = min > 0 ? min : 0;
-		max = max > 0 ? max : 1;
-		
-		Random r = new Random(); 
-		int number = r.nextInt(max-min) + min;
-		    
-		return number;
+	@Override
+	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+		if(pointer <= 2){
+			device.touchX = 0;
+			device.touchY = 0;
+			device.touched = false;
+		}
+		return true;
 	}
 	
 	@Override
@@ -693,37 +341,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	@Override
 	public boolean keyTyped(char character) {
 		return false;
-	}
-	
-	@Override
-	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		touch.checked_click = false;
-		
-		touch.touchX = screenX;
-		touch.touchY = h-screenY;
-		touch.touched = true;
-		touch.clicked_at.set(screenX, h-screenY, w_scale+5, h_scale*5);
-				
-		if (!hit && started){ 
-			if (fly_time <= re_jump_time){
-				hifi.play_jump(jump_id, sound);
-				jump_id = jump_id == 1 ? 2 : 1;
-				
-				fly_time = max_fly_time;
-				grace_period  = max_grace;
-			}	
-		}
-		return true;
-	}
-	
-	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		if(pointer <= 2){
-			touch.touchX = 0;
-			touch.touchY = 0;
-			touch.touched = false;
-		}
-		return true;
 	}
 			
 	@Override

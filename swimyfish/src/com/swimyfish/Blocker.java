@@ -10,26 +10,26 @@ public class Blocker {
 	public Entity low;
 	private float scale_w;
 	
-	public Blocker(float w, float h, int no, Scene scene, float scale_w, float scale_h){
+	public Blocker(Device device, int no, Scene scene){
 		// 1196 x 768	
 		id = no;
-		this.scale_w = scale_w;
-		float third = h/3;
+		this.scale_w = device.w_scale;
+		float third = device.h/3;
 		
 		// TOP BOX
 		high = new Entity();
 		high.w = scale_w * scene.blocker.getWidth();
-		high.h = scale_h * scene.blocker.getHeight();
-		high.x = w + (w/100)*scale_w;
-		high.y = h - third;
+		high.h = device.h_scale * scene.blocker.getHeight();
+		high.x = device.w + (device.w/100)*scale_w;
+		high.y = device.h - third;
 		high.hitbox = new Rectangle(high.x,high.y,high.w,high.h); 
 		high.texture = scene.blocker;
 		
 		// BOTTOM BOX
 		low = new Entity();
 		low.w = scale_w * scene.blocker.getWidth();
-		low.h = scale_h * scene.blocker.getHeight();
-		low.x = w + (w/100)*scale_w;
+		low.h = device.h_scale * scene.blocker.getHeight();
+		low.x = device.w + (device.w/100)*scale_w;
 		low.y = -low.h + third;
 		low.hitbox = new Rectangle(low.x,low.y,low.w,low.h); 
 		low.texture = scene.blocker;

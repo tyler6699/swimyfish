@@ -14,18 +14,18 @@ public class Player {
 	public float width;
 	public Rectangle hitbox;
 
-	public Player(float w, float h, float scale_w, float scale_h, int player_id){
+	public Player(Device device, int player_id){
 		
 		if (player_id == 1){
-			width = scale_w * 60;
-			height = scale_h * 60;
+			width = device.w_scale * 60;
+			height = device.h_scale * 60;
 		} else if (player_id == 2) {
-			width = scale_w * 40;
-			height = scale_h * 40;
+			width = device.w_scale * 40;
+			height = device.h_scale * 40;
 		}
 
-		x = (w/2) - (scale_w*200);
-		y = (h/2) - (width/2);	
+		x = (device.w/2) - (device.w_scale*200);
+		y = (device.h/2) - (width/2);	
 		hitbox = new Rectangle(x,y,width,height);
 		player_alive = new Texture(Gdx.files.internal("data/hero/" + player_id + "/player.png"));
 		player_hit = new Texture(Gdx.files.internal("data/hero/" + player_id + "/hit.png"));

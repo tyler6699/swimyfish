@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.swimyfish.FlappyBox.TouchInfo;
 
 public class Menu {
 	float w, h, tick;
@@ -33,13 +32,13 @@ public class Menu {
 	float bx, by, bxx, byy;
 	float score_y, score_x, t_score_y, w_pad, h_pad;
 	
-	public Menu(float w, float h, float w_scale, float h_scale, int number_of_levels){
+	public Menu(Device device, int number_of_levels){
 		// menu or shop
 		current_menu = "MAIN";
-		this.w_scale = w_scale;
-		this.h_scale = h_scale;
-		this.w = w;
-		this.h = h;
+		this.w_scale = device.w_scale;
+		this.h_scale = device.h_scale;
+		this.w = device.w;
+		this.h = device.h;
 		this.number_of_levels = number_of_levels;
 		tick = 0;
 		ready = false;
@@ -214,7 +213,7 @@ public class Menu {
 		full_progress = progress_back.w - (h_scale*21);
 	}
 	
-	public void tick(TouchInfo touch){
+	public void tick(Device device){
 		if (!ready){
 			ready = tick > 40 ? true:false;
 			tick ++;
@@ -222,27 +221,27 @@ public class Menu {
 			tick = 0;
 		}
 		
-		if (!touch.checked_click){
+		if (!device.checked_click){
 			for (iButton btn:buttons){
-				if (touch.clicked_at.overlaps(btn.hitbox) && (btn.menu.equals(current_menu) || btn.menu.equals("BOTH") )){
+				if (device.clicked_at.overlaps(btn.hitbox) && (btn.menu.equals(current_menu) || btn.menu.equals("BOTH") )){
 					action = btn.target;					
-					touch.checked_click = true;
+					device.checked_click = true;
 					break;
 				}
 			}
-			touch.checked_click = true;
+			device.checked_click = true;
 		}
 	}
 	
-	public void playing_tick(TouchInfo touch, boolean end_click_checks){
-		if (touch.checked_click == false){
-			if (touch.clicked_at.overlaps(sound.hitbox)){
+	public void playing_tick(Device device, boolean end_click_checks){
+		if (device.checked_click == false){
+			if (device.clicked_at.overlaps(sound.hitbox)){
 				action = sound.target;		
 			}
 		}
 		
 		if (end_click_checks){
-			touch.checked_click = true;
+			device.checked_click = true;
 		}
 	}
 	

@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 public class Scene {
 	int level_id;
 	// Device
-	float w,h;
+	float w,h,w_scale,h_scale;
 	float floor_h;
 	float cloud_h;
 	public boolean show_blocker_lower = true;
@@ -39,11 +39,13 @@ public class Scene {
 	public Entity erays_2;
 	public Entity esky;
 	
-	public Scene(int level_id, float w, float h, float w_scale, float h_scale){	
-		System.out.println(level_id + " " + w + " " + h + " " + w_scale + " " + h_scale);
+	public Scene(int level_id, Device device){	
 		GLTexture.setEnforcePotImages(false);
-		this.w = w;
-		this.h = h;
+		this.w = device.w;
+		this.h = device.h;
+		this.w_scale = device.w_scale;
+		this.h_scale = device.h_scale;
+		
 		this.level_id = level_id;
 		
 		// Array for toppers & clouds
@@ -61,14 +63,14 @@ public class Scene {
 
 		if (level_id == 1){
 			floor_h = 0.2f*h;
-			cloud_h = h-(h_scale * cloud.getHeight());
+			cloud_h = h-(device.h_scale * cloud.getHeight());
 			scroll_speed = 6;
 			gap = w/3;
 		} else if (level_id == 2){
 			floor_h = 0.1f*h;
 			cloud_h = floor_h;
 			scroll_speed = 7;
-			gap = (w/3) - w_scale*20;
+			gap = (w/3) - device.w_scale*20;
 		}
 		
 		// FLOOR
