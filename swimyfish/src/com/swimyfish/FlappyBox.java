@@ -11,15 +11,15 @@ import com.swimyfish.Player;
 
 public class FlappyBox implements ApplicationListener, InputProcessor{
 	
-	Game game;					// MAIN GAME
-	Device device;				// SCREEN & TOUCH 
-	Level current_level;		// LEVEL
-	Preferences prefs;			// SAVE GAME
-	OrthographicCamera camera;	// CAMERA
-	SpriteBatch batch;			// BATCH
-	HiFi hifi;					// SOUNDS
-	Menu menu;					// MENU
-	Player player;				// HERO
+	Game game;                  // MAIN GAME
+	Device device;              // SCREEN & TOUCH 
+	Level current_level;        // LEVEL
+	Preferences prefs;          // SAVE GAME
+	OrthographicCamera camera;  // CAMERA
+	SpriteBatch batch;          // BATCH
+	HiFi hifi;                  // SOUNDS
+	Menu menu;                  // MENU
+	Player player;              // HERO
 			
 	@Override
 	public void create(){
@@ -58,12 +58,12 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		prefs = Gdx.app.getPreferences("pixel_jump");
 		
 		for (Level ls : game.levels){
-			// TOP game.score
-			if (!prefs.contains("top_game.score_" + ls.level_id)){
-				prefs.putInteger("top_game.score_" + ls.level_id, ls.top_score);
+			// TOP SCORE
+			if (!prefs.contains("score_" + ls.level_id)){
+				prefs.putInteger("top_score_" + ls.level_id, ls.top_score);
 				game.top_score = 0;
 			} else {
-				ls.top_score = prefs.getInteger("top_game.score_" + ls.level_id);
+				ls.top_score = prefs.getInteger("top_score_" + ls.level_id);
 			}
 			
 			if (!prefs.contains("locked_" + ls.level_id)){
@@ -107,7 +107,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			game.sound = prefs.getBoolean("game.sound");
 		}
 		
-		// SOUND ON/OFF
+		// GAME COMPLETE
 		if (!prefs.contains("complete")){
 			prefs.putBoolean("complete", false);
 			game.complete = false;
@@ -119,7 +119,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	
 	private void save_prefs(){
 		for (Level ls : game.levels){
-			prefs.putInteger("top_game.score_" + ls.level_id, ls.top_score);
+			prefs.putInteger("top_score_" + ls.level_id, ls.top_score);
 			prefs.putInteger("progress_" + ls.level_id, ls.progress);
 			prefs.putBoolean("locked_" + ls.level_id, ls.locked);
 		}	
