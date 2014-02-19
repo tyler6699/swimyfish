@@ -100,11 +100,11 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}
 		
 		// SOUND ON/OFF
-		if (!prefs.contains("game.sound")){
-			prefs.putBoolean("game.sound", true);
+		if (!prefs.contains("sound")){
+			prefs.putBoolean("sound", true);
 			game.sound = true;
 		} else {
-			game.sound = prefs.getBoolean("game.sound");
+			game.sound = prefs.getBoolean("sound");
 		}
 		
 		// GAME COMPLETE
