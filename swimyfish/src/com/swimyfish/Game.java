@@ -365,6 +365,7 @@ public class Game {
 					Level next_level = levels.get(current_level.level_id);
 					if (next_level.locked == true){
 						next_level.locked = false;
+						menu.new_level_show = 100;
 						hifi.play_unlock(sound);
 					}
 				} else if(!complete) {

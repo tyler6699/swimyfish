@@ -9,12 +9,13 @@ public class Menu {
 	float w, h, tick;
 	public String current_menu;
 	Entity background;
-	Entity e_score, best, bank, level, level_number, e_shop;
+	Entity e_score, best, bank, level, level_number, e_shop, new_level;
 	Entity current_level;
 	Entity lockdown;
 	Entity progress_back, progress_bar, percent_sign;
 	float full_progress;
 	iButton play, play_2, shop, left_arrow, right_arrow, sound, back;
+	public int new_level_show;
 	
 	public boolean ready;
 	public String action = ""; // Processed by main game
@@ -72,6 +73,13 @@ public class Menu {
 		by = background.y;
 		bxx = background.x + background.w;
 		byy = background.y + background.h;
+		
+		new_level = new Entity();
+		new_level.texture = new Texture(Gdx.files.internal("data/ui/new_level.png"));
+		new_level.w = w_scale * new_level.texture.getWidth();
+		new_level.h = h_scale * new_level.texture.getHeight();
+		new_level.x = w/2 - new_level.w/2;
+		new_level.y = h/2 - new_level.h/2;
 				
 		e_score = new Entity();
 		e_score.texture = new Texture(Gdx.files.internal("data/text/score.png"));
@@ -324,6 +332,12 @@ public class Menu {
 		sb.draw(shop.texture, shop.x, shop.y, shop.w, shop.h);
 		sb.draw(left_arrow.texture, left_arrow.x, left_arrow.y, left_arrow.w, left_arrow.h);
 		sb.draw(right_arrow.texture, right_arrow.x, right_arrow.y, right_arrow.w, right_arrow.h);
+		
+		// NEW LEVEL?
+		if(new_level_show > 0){
+			sb.draw(new_level.texture, new_level.x, new_level.y, new_level.w, new_level.h);
+			new_level_show --;
+		}
 	}
 	
 	void render_shop_menu(SpriteBatch sb, Player player, float delta, int score, Level ls){

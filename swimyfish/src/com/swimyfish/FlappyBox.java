@@ -302,6 +302,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				i ++;
 			}
 		}
+				
 		batch.end();
 	}
 	
