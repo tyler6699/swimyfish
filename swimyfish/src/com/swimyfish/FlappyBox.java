@@ -152,6 +152,10 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			menu.tick(device);
 			menu_logic(false);
 			
+		// MAIN MENU
+		} else if( game.death_scene() ){ 
+			game.hit_time --;
+				
 		// WAITING TO START
 		} else if ( game.tap_to_start() ) { 
 			menu.playing_tick(device, false);
@@ -270,7 +274,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}
 		
 		// DRAW MENU ON TOP
-		if (game.hit){
+		if (game.hit && game.hit_time == 0){
 			menu.tick(batch,player, game.delta, game.score, current_level);
 			menu.tick(batch, game.sound, true);
 		} else {

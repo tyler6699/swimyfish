@@ -11,6 +11,8 @@ public class Game {
 	public boolean started;
 	public boolean up;
 	
+	public int hit_time;
+	public int max_hit_time;
 	public int number_of_levels;
 	public int level_id;
 	public int tick;
@@ -74,6 +76,8 @@ public class Game {
 		
 		// GAME CONFIG
 		hit           = true;
+		hit_time      = 0;
+		max_hit_time  = 30;
 		max_grace	  = 1;
 		grace_period  = 0;
 		fly_time      = 0;
@@ -108,6 +112,7 @@ public class Game {
 		
 		// Game settings
 		hit          = false;
+		hit_time	 = 0;
 		fly_time     = 0;
 		
 		// Columns
@@ -328,6 +333,7 @@ public class Game {
 		} else {
 			if (box.high.hitbox.overlaps(player.hitbox) || box.low.hitbox.overlaps(player.hitbox)){
 				hit = true;
+				hit_time = max_hit_time;
 				started = false;
 				
 				hifi.play_death(sound);
@@ -392,7 +398,11 @@ public class Game {
 	}
 
 	public boolean main_menu(){
-		return !started && hit;
+		return !started && hit && hit_time == 0;
+	}
+	
+	public boolean death_scene(){
+		return !started && hit && hit_time > 0;
 	}
 	
 	public boolean tap_to_start(){
