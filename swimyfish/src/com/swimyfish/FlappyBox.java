@@ -37,7 +37,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				
 		// LOAD GAME
 		load_prefs();
-		
+		game.pref_level();
+				
 		// MENU
 		menu = new Menu(device, game.number_of_levels);
 		menu.update_score(game.score, game.top_score, game.bank);
@@ -59,9 +60,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		for (Level ls : game.levels){
 			// TOP SCORE
-			if (!prefs.contains("score_" + ls.level_id)){
+			if (!prefs.contains("top_score_" + ls.level_id)){
 				prefs.putInteger("top_score_" + ls.level_id, ls.top_score);
-				game.top_score = 0;
 			} else {
 				ls.top_score = prefs.getInteger("top_score_" + ls.level_id);
 			}
@@ -89,6 +89,14 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			} else {
 				ls.points_needed = prefs.getInteger("required_" + ls.level_id);
 			}
+		}
+				
+		// CURRENT LEVEL
+		if (!prefs.contains("current_level")){
+			prefs.putInteger("current_level", 1);
+			game.level_id = 1;
+		} else {
+			game.level_id = prefs.getInteger("current_level");
 		}
 				
 		// BANK
@@ -124,6 +132,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			prefs.putBoolean("locked_" + ls.level_id, ls.locked);
 		}	
 		prefs.putInteger("bank", game.bank);
+		prefs.putInteger("current_level", game.level_id);
 		prefs.putBoolean("sound", game.sound);
 		prefs.putBoolean("complete", game.complete);
 		prefs.flush();
@@ -145,7 +154,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			menu.playing_tick(device, true);
 			menu_logic(true);
 			game.logic(device, player, hifi, menu);
-			save_prefs();
 			
 		// MAIN MENU
 		} else if( game.main_menu() ){ 
@@ -154,7 +162,11 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			
 		// MAIN MENU
 		} else if( game.death_scene() ){ 
+			if (game.hit_time == 1){
+				save_prefs();
+			}
 			game.hit_time --;
+		
 				
 		// WAITING TO START
 		} else if ( game.tap_to_start() ) { 

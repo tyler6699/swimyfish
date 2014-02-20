@@ -171,6 +171,11 @@ public class Game {
 		}
 	}
 	
+	public void pref_level(){
+		current_level = levels.get(level_id-1);
+		top_score = current_level.top_score;
+	}
+	
 	public void level_up(){
 		level_id += 1;
 		current_level = levels.get(level_id-1);
