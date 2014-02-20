@@ -12,6 +12,7 @@ public class Scene {
 	float w,h,w_scale,h_scale;
 	float floor_h;
 	float cloud_h;
+	float top_gap;
 	public boolean show_blocker_lower = true;
 	
 	// SETTINGS
@@ -39,7 +40,7 @@ public class Scene {
 	public Entity erays_2;
 	public Entity esky;
 	
-	public Scene(int level_id, Device device, Player player){	
+	public Scene(int level_id, Device device){	
 		GLTexture.setEnforcePotImages(false);
 		this.w = device.w;
 		this.h = device.h;
@@ -64,24 +65,27 @@ public class Scene {
 		if (level_id == 1){
 			floor_h = 0.2f*h;
 			cloud_h = h-(device.h_scale * cloud.getHeight());
+			top_gap = 8;
 			scroll_speed = 6;
 			gap = w/3;
 			// todo UPDATE PLAYER SETTINGS
 		} else if (level_id == 2){
 			floor_h = 0.1f*h;
 			cloud_h = floor_h;
+			top_gap = 8;
 			scroll_speed = 7;
 			gap = (w/3) - device.w_scale*20;
 			// todo UPDATE PLAYER SETTINGS
 		} else if (level_id == 3) {
-			floor_h = 0.1f*h;
-			cloud_h = floor_h;
-			scroll_speed = 9;
-			gap = (w/3) - device.w_scale*40;
+			floor_h = 0.2f*h;
+			cloud_h = floor_h - floor_top.getHeight();
+			top_gap = 30;
+			scroll_speed = 7;
+			gap = (w/3) - device.w_scale*30;
 			// todo UPDATE PLAYER SETTINGS
 		} else if (level_id == 4) {
 			floor_h = 0.1f*h;
-			cloud_h = floor_h;
+			cloud_h = floor_h - cloud.getHeight();
 			scroll_speed = 9;
 			gap = (w/3) - device.w_scale*40;
 			// todo UPDATE PLAYER SETTINGS
@@ -102,7 +106,10 @@ public class Scene {
 		elog_up.texture = blocker;
 		elog_up.w = w_scale * blocker.getWidth();
 		elog_up.h = h_scale * blocker.getHeight();
-		
+		elog_up.alt_texture = blocker_floor;
+		elog_up.w = w_scale * blocker.getWidth();
+		elog_up.h = floor_h;
+				
 		// SKY
 		esky.x = 0;
 		esky.y = 0;
@@ -123,7 +130,7 @@ public class Scene {
 		for (int i = 0; i < min; i++){
 			efloor_top = new Entity();
 			efloor_top.x = (w_scale * floor_top.getWidth())*(i);
-			efloor_top.y = (floor_h)-8;
+			efloor_top.y = efloor.h - top_gap*h_scale;
 			efloor_top.w = w_scale * floor_top.getWidth();
 			efloor_top.h = h_scale * floor_top.getHeight();
 			efloor_top.texture = floor_top;

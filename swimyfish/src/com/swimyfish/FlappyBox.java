@@ -230,7 +230,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				
 		// FLOOR
 		batch.draw(current_level.scene.efloor.texture, current_level.scene.efloor.x, current_level.scene.efloor.y, current_level.scene.efloor.w, current_level.scene.efloor.h);
-
+		
 		if (game.trail && game.plotter.size() > 0){
 			for (int i = 0; i < game.plotter.size(); i++){
 				Entity e = game.plotter.get(i);
@@ -255,7 +255,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			batch.draw(box.high.texture, box.high.x, box.high.y, box.high.w, box.high.h);	
 			batch.draw(box.low.texture, box.low.x, box.low.y, box.low.w, box.low.h);
 			if (current_level.scene.show_blocker_lower){
-				batch.draw(current_level.scene.blocker_floor, box.low.x, box.low.y, box.low.w, current_level.scene.floor_h);	
+				batch.draw(current_level.scene.elog_up.alt_texture, box.low.x, 0, box.low.w, current_level.scene.floor_h);	
 			}
 			
 		}
@@ -298,13 +298,13 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		device.clicked_at.set(screenX, device.h-screenY, device.w_scale+5, device.h_scale*5);
 				
 		if (!game.hit && game.started){ 
-			if (game.fly_time <= game.re_jump_time){
+			//if (game.fly_time <= game.re_jump_time){
 				hifi.play_jump(game.jump_id, game.sound);
 				game.jump_id = game.jump_id == 1 ? 2 : 1;
 				
 				game.fly_time = game.max_fly_time;
 				game.grace_period  = game.max_grace;
-			}	
+			//}	
 		}
 		return true;
 	}

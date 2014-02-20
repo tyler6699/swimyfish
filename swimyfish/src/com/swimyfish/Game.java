@@ -32,7 +32,6 @@ public class Game {
 	public float min_gravity;   // Gravity
 	public float drop_gravity;  // Gravity
 	public float fly_up;        // Increase Y by amount per tick
-	public float re_jump_time;  //
 	public float grace_period;  //
 	public float max_grace;     //
 	public float glide;         //
@@ -54,7 +53,7 @@ public class Game {
 		
 		Level lvl;		
 		for (int i = 1; i <= number_of_levels; i++){
-			lvl = new Level(i, device, player);
+			lvl = new Level(i, device);
 			lvl.level_id = i;
 			lvl.top_score = 0;
 			lvl.progress = 0;
@@ -77,7 +76,6 @@ public class Game {
 		hit           = true;
 		max_grace	  = 1;
 		grace_period  = 0;
-		re_jump_time  = 3;
 		fly_time      = 0;
 		max_fly_time  = 25;
 		min_gravity   = 0;
@@ -139,7 +137,33 @@ public class Game {
 						
 			box.set_hitboxes();
 			object_array.add(box);	
-		}		
+		}	
+		
+		if (level_id == 1){
+			max_gravity   = device.h_scale*20;
+			drop_gravity  = device.h_scale*.5f;
+			fly_up        = device.h_scale*5;
+			glide         = device.h_scale*3;
+			max_fly_time  = 25;
+		} else if (level_id == 2){
+			max_gravity   = device.h_scale*25;
+			drop_gravity  = device.h_scale*.6f;
+			fly_up        = device.h_scale*4;
+			glide         = device.h_scale*2;
+			max_fly_time  = 20;
+		} else if (level_id == 3) {
+			max_gravity   = device.h_scale*30;
+			drop_gravity  = device.h_scale*.7f;
+			fly_up        = device.h_scale*4;
+			glide         = device.h_scale*0;
+			max_fly_time  = 20;
+		} else if (level_id == 4) {
+			max_gravity   = device.h_scale*35;
+			drop_gravity  = device.h_scale*.8f;
+			fly_up        = device.h_scale*3;
+			glide         = device.h_scale*0;
+			max_fly_time  = 15;
+		}
 	}
 	
 	public void level_up(){
