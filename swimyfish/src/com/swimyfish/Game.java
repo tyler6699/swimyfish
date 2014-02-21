@@ -43,6 +43,7 @@ public class Game {
 
 	public Level current_level;
 	public Player current_player;
+	public Player menu_player;
 	
 	public ArrayList<Level> levels = new ArrayList<Level>();
 	public ArrayList<Player> players = new ArrayList<Player>();;
@@ -193,6 +194,7 @@ public class Game {
 	
 	public void pref_player(){
 		current_player = players.get(player_id-1);
+		menu_player = current_player;
 	}
 	
 	public void level_up(){
@@ -210,15 +212,22 @@ public class Game {
 	public void player_down(){
 		if (player_id > 1){
 			player_id -= 1;	
-			current_player = players.get(player_id-1);
+			menu_player = players.get(player_id-1);
+			if (!menu_player.locked){
+				current_player = players.get(player_id-1);	
+			}		
 		}
 	}
 	
-	public void player_up(){
+	public void player_up(){	
 		if (player_id < number_of_heros){
 			player_id += 1;	
-			current_player = players.get(player_id-1);
-		};
+			menu_player = players.get(player_id-1);
+
+			if (!menu_player.locked){
+				current_player = players.get(player_id-1);	
+			}		
+		}
 	}
 	
 	public void level_first(){
@@ -372,11 +381,14 @@ public class Game {
 			if (box.high.hitbox.overlaps(player.hitbox) || box.low.hitbox.overlaps(player.hitbox)){
 				hit = true;
 				hit_time = max_hit_time;
-				started = false;
-				
+				started = false;				
 				hifi.play_death(sound);
+				
 				// BANK
 				bank += score;
+				
+				// RESET MENU PLAYER
+				menu_player = current_player;
 				
 				// UPDATE PROGRESS
 				if(current_level.progress <= current_level.points_needed){

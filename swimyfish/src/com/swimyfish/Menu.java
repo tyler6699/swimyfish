@@ -15,6 +15,7 @@ public class Menu {
 	Entity progress_back, progress_bar, percent_sign;
 	float full_progress;
 	iButton play, play_2, shop, left_arrow, right_arrow, sound, back;
+	iButton shop_left, shop_right;
 	public int new_level_show;
 	
 	public boolean ready;
@@ -131,17 +132,29 @@ public class Menu {
 		// BUTTONS
 		buttons = new ArrayList<iButton>();
 				
-		left_arrow = new iButton("BOTH", 0, 0, "LEFT_ARROW", new Texture(Gdx.files.internal("data/ui/left_arrow.png")), w_scale, h_scale);
+		left_arrow = new iButton("MAIN", 0, 0, "LEFT_ARROW", new Texture(Gdx.files.internal("data/ui/left_arrow.png")), w_scale, h_scale);
 		left_arrow.x = background.x + w_pad;
 		left_arrow.y = (background.y + (background.h/2)) - (left_arrow.h/2);
 		left_arrow.set_hitbox();
 		buttons.add(left_arrow);
 		
-		right_arrow = new iButton("BOTH", 0, 0, "RIGHT_ARROW", new Texture(Gdx.files.internal("data/ui/right_arrow.png")), w_scale, h_scale);
+		right_arrow = new iButton("MAIN", 0, 0, "RIGHT_ARROW", new Texture(Gdx.files.internal("data/ui/right_arrow.png")), w_scale, h_scale);
 		right_arrow.x = left_arrow.x + (w_scale * 600);
 		right_arrow.y = left_arrow.y;
 		right_arrow.set_hitbox();
 		buttons.add(right_arrow);
+		
+		shop_left = new iButton("SHOP", 0, 0, "LEFT_ARROW", left_arrow.texture, w_scale, h_scale);
+		shop_left.x = left_arrow.x;
+		shop_left.y = left_arrow.y;
+		shop_left.set_hitbox();
+		buttons.add(shop_left);
+		
+		shop_right = new iButton("SHOP", 0, 0, "RIGHT_ARROW", right_arrow.texture, w_scale, h_scale);
+		shop_right.x = shop_left.x + (w_scale * 400);
+		shop_right.y = shop_left.y;
+		shop_right.set_hitbox();
+		buttons.add(shop_right);
 			
 		// NOT NEEDED BUT USING COORDS
 		play = new iButton("MAIN", 0, 0, "PLAY", new Texture(Gdx.files.internal("data/ui/play.png")), w_scale, h_scale);
@@ -288,10 +301,6 @@ public class Menu {
 			sb.draw(e.texture, score_x - (i*(e.w*.85f)), t_score_y, w_scale * (e.w*.85f), h_scale * (e.h*.85f));
 			i ++;
 		}
-
-		// LEVEL IMAGE
-		// TODO MOVE CURRENT LEVEL TO MAIN CLASS
-		current_level = level_array.get(ls.level_id-1);
 		
 		// Progress (Cannot be more than 1)
 		float percent = (float) ls.progress/(float) ls.points_needed;
@@ -354,9 +363,8 @@ public class Menu {
 		}
 		
 		// ARROWS FOR CHAR
-		sb.draw(left_arrow.texture, left_arrow.x, left_arrow.y, left_arrow.w, left_arrow.h);
-		sb.draw(right_arrow.texture, right_arrow.x, right_arrow.y, right_arrow.w, right_arrow.h);
-		
+		sb.draw(shop_left.texture, shop_left.x, shop_left.y, shop_left.w, shop_left.h);
+		sb.draw(shop_right.texture, shop_right.x, shop_right.y, shop_right.w, shop_right.h);
 	}
 	
 	public void tick(SpriteBatch sb, boolean sound_on, boolean menu_screen){

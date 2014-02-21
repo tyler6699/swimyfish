@@ -100,6 +100,16 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			game.level_id = prefs.getInteger("current_level");
 		}
 		
+		// HERO - SKINS
+		for (Player p : game.players){
+			if (!prefs.contains("hero_locked_" + p.id)){
+				p.locked = p.id == 1? false:true;
+				prefs.putBoolean("hero_locked_" + p.id, p.locked);
+			} else {
+				p.locked = prefs.getBoolean("hero_locked_" + p.id);
+			}	
+		}
+		
 		// CURRENT PLAYER
 		if (!prefs.contains("current_player")){
 			prefs.putInteger("current_player", 1);
@@ -140,9 +150,12 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			prefs.putInteger("progress_" + ls.level_id, ls.progress);
 			prefs.putBoolean("locked_" + ls.level_id, ls.locked);
 		}	
+		for (Player p : game.players){
+			prefs.putBoolean("hero_locked_" + p.id, p.locked);
+		}
 		prefs.putInteger("bank", game.bank);
 		prefs.putInteger("current_level", game.level_id);
-		prefs.putInteger("current_player", game.player_id);
+		prefs.putInteger("current_player", game.current_player.id);
 		prefs.putBoolean("sound", game.sound);
 		prefs.putBoolean("complete", game.complete);
 		prefs.flush();
@@ -300,18 +313,18 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			batch.draw(game.current_player.player_hit, game.current_player.x, game.current_player.y, game.current_player.width, game.current_player.height);
 		}
 				
-		// OBSTACLES
+		
 		if (!game.main_menu()){
+			// OBSTACLES
 			for (Blocker box : game.object_array){
 				batch.draw(box.high.texture, box.high.x, box.high.y, box.high.w, box.high.h);	
 				batch.draw(box.low.texture, box.low.x, box.low.y, box.low.w, box.low.h);
 				if (current_level.scene.show_blocker_lower){
 					batch.draw(current_level.scene.elog_up.alt_texture, box.low.x, 0, box.low.w, current_level.scene.floor_h);	
 				}
-				
 			}
 		}
-
+		
 		// RAYS
 		batch.draw(current_level.scene.erays_1.texture, current_level.scene.erays_1.x, current_level.scene.erays_1.y, current_level.scene.erays_1.w, current_level.scene.erays_1.h);
 		batch.draw(current_level.scene.erays_2.texture, current_level.scene.erays_2.x, current_level.scene.erays_2.y, current_level.scene.erays_2.w, current_level.scene.erays_2.h);
@@ -338,7 +351,11 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				i ++;
 			}
 		}
-				
+		
+		// SHOW HERO IN SHOP
+		if(menu.current_menu.equals("SHOP")){
+			batch.draw(game.menu_player.player_alive, device.w_scale*255, device.h_scale*320, device.w_scale*160, device.h_scale*160);
+		}
 		batch.end();
 	}
 	

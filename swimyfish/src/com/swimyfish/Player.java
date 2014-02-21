@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Player {
+	public int id;
 	public float x;
 	public float y;
 	public Texture player_alive;
@@ -13,8 +14,10 @@ public class Player {
 	public float height;
 	public float width;
 	public Rectangle hitbox;
+	boolean locked;
 
 	public Player(Device device, int player_id){
+		id = player_id;
 		width = device.w_scale * 60;
 		height = device.h_scale * 60;
 		
