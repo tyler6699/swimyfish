@@ -9,7 +9,7 @@ public class Player {
 	public float y;
 	public Texture player_alive;
 	public Texture player_hit;
-	public Texture trail;
+	public Texture trail, trail_2;
 	public float height;
 	public float width;
 	public Rectangle hitbox;
@@ -30,6 +30,7 @@ public class Player {
 		player_alive = new Texture(Gdx.files.internal("data/hero/" + player_id + "/player.png"));
 		player_hit = new Texture(Gdx.files.internal("data/hero/" + player_id + "/hit.png"));
 		trail = new Texture(Gdx.files.internal("data/hero/" + player_id + "/player-trail.png"));
+		trail_2 = new Texture(Gdx.files.internal("data/hero/" + player_id + "/player-trail-2.png"));
 		// texture = new Texture(Gdx.files.internal("data/disco.png"));
 	}
 	

@@ -59,11 +59,13 @@ public class Game {
 			lvl.level_id = i;
 			lvl.top_score = 0;
 			lvl.progress = 0;
-			lvl.points_needed = i*100;
+			
 			if (i == 1){
 				lvl.locked = false;
+				lvl.points_needed = 100;
 			} else {
 				lvl.locked = true;
+				lvl.points_needed = i*150;
 			}	
 			levels.add(lvl);
 		}
@@ -126,24 +128,7 @@ public class Game {
 		
 		float rand_height;
 		hole =  device.h/3f;
-		
-		for (int i = 0; i < 4; i++){
-			// TODO CLEAN UP
-			box = new Blocker(device, i+1, current_level.scene);
-			box.low.x = (i * gap) + device.w;
-			box.high.x = box.low.x;
-						
-			if (i > 1){
-				min = (int) (box.high.y-(device.h_scale*50));
-				rand_height = random_height( (int) (box.high.y-(device.h_scale*50)),  (int) (box.high.y+(device.h_scale*50)));
-				box.high.y = rand_height;
-				box.low.y = box.high.y - box.low.h - hole;;
-			}
-						
-			box.set_hitboxes();
-			object_array.add(box);	
-		}	
-		
+
 		if (level_id == 1){
 			max_gravity   = device.h_scale*20;
 			drop_gravity  = device.h_scale*.5f;
@@ -156,19 +141,38 @@ public class Game {
 			fly_up        = device.h_scale*4;
 			glide         = device.h_scale*2;
 			max_fly_time  = 20;
+			hole -= device.h_scale * 10;
 		} else if (level_id == 3) {
 			max_gravity   = device.h_scale*30;
 			drop_gravity  = device.h_scale*.7f;
 			fly_up        = device.h_scale*4;
 			glide         = device.h_scale*0;
 			max_fly_time  = 20;
+			hole -= device.h_scale * 20;
 		} else if (level_id == 4) {
 			max_gravity   = device.h_scale*35;
 			drop_gravity  = device.h_scale*.8f;
-			fly_up        = device.h_scale*3;
+			fly_up        = device.h_scale*5;
 			glide         = device.h_scale*0;
 			max_fly_time  = 15;
+			hole -= device.h_scale * 30;
 		}
+		
+		for (int i = 0; i < 4; i++){
+			box = new Blocker(device, i+1, current_level.scene);
+			box.low.x = (i * gap) + device.w;
+			box.high.x = box.low.x;
+						
+			if (i > 1){
+				min = (int) (box.high.y-(device.h_scale*50));
+				rand_height = random_height( (int) (box.high.y-(device.h_scale*50)),  (int) (box.high.y+(device.h_scale*50)));
+				box.high.y = rand_height;
+				box.low.y = box.high.y - box.low.h - hole;
+			}
+						
+			box.set_hitboxes();
+			object_array.add(box);	
+		}	
 	}
 	
 	public void pref_level(){

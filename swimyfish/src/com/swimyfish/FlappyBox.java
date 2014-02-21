@@ -53,10 +53,12 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// NEW PLAYER
 		player = new Player(device, 1);
+		
+		save_prefs();
 	}
 	
 	private void load_prefs(){
-		prefs = Gdx.app.getPreferences("pixel_jump");
+		prefs = Gdx.app.getPreferences("carelesslabs");
 		
 		for (Level ls : game.levels){
 			// TOP SCORE
@@ -247,14 +249,23 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		// FLOOR
 		batch.draw(current_level.scene.efloor.texture, current_level.scene.efloor.x, current_level.scene.efloor.y, current_level.scene.efloor.w, current_level.scene.efloor.h);
 		
+		// TRAIL
 		if (game.trail && game.plotter.size() > 0){
 			for (int i = 0; i < game.plotter.size(); i++){
 				Entity e = game.plotter.get(i);
 				if (!game.hit){
-					e.x -= device.w_scale*3;
+					if (game.current_level.level_id == 4){
+						e.x -= device.w_scale*9;
+					} else {
+						e.x -= device.w_scale*3;
+					}
 				}
 				if(e.w - (game.plotter.size()-i) > 1){
-					batch.draw(e.texture, e.x, e.y, e.w - (game.plotter.size()-i), e.h - (game.plotter.size()-i));
+					if (game.current_level.level_id == 4){
+						batch.draw(player.trail_2, e.x, e.y, e.w - (game.plotter.size()-i), e.h - (game.plotter.size()-i));
+					} else {
+						batch.draw(e.texture, e.x, e.y, e.w - (game.plotter.size()-i), e.h - (game.plotter.size()-i));
+					}
 				}
 			}
 		}		
@@ -267,14 +278,17 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}
 				
 		// OBSTACLES
-		for (Blocker box : game.object_array){
-			batch.draw(box.high.texture, box.high.x, box.high.y, box.high.w, box.high.h);	
-			batch.draw(box.low.texture, box.low.x, box.low.y, box.low.w, box.low.h);
-			if (current_level.scene.show_blocker_lower){
-				batch.draw(current_level.scene.elog_up.alt_texture, box.low.x, 0, box.low.w, current_level.scene.floor_h);	
+		if (!game.main_menu()){
+			for (Blocker box : game.object_array){
+				batch.draw(box.high.texture, box.high.x, box.high.y, box.high.w, box.high.h);	
+				batch.draw(box.low.texture, box.low.x, box.low.y, box.low.w, box.low.h);
+				if (current_level.scene.show_blocker_lower){
+					batch.draw(current_level.scene.elog_up.alt_texture, box.low.x, 0, box.low.w, current_level.scene.floor_h);	
+				}
+				
 			}
-			
 		}
+
 		
 		// RAYS
 		batch.draw(current_level.scene.erays_1.texture, current_level.scene.erays_1.x, current_level.scene.erays_1.y, current_level.scene.erays_1.w, current_level.scene.erays_1.h);
@@ -293,7 +307,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			menu.tick(batch, game.sound, false);
 		}
 		
-		//game.score
+		//SCORE
 		if (!game.hit){
 			int i = 0;
 			float fw = menu.score_array.size(); 

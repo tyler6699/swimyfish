@@ -68,27 +68,24 @@ public class Scene {
 			top_gap = 8;
 			scroll_speed = 6;
 			gap = w/3;
-			// todo UPDATE PLAYER SETTINGS
 		} else if (level_id == 2){
 			floor_h = 0.1f*h;
 			cloud_h = floor_h;
 			top_gap = 8;
 			scroll_speed = 7;
 			gap = (w/3) - device.w_scale*20;
-			// todo UPDATE PLAYER SETTINGS
 		} else if (level_id == 3) {
 			floor_h = 0.2f*h;
 			cloud_h = floor_h - floor_top.getHeight();
 			top_gap = 30;
 			scroll_speed = 7;
 			gap = (w/3) - device.w_scale*30;
-			// todo UPDATE PLAYER SETTINGS
 		} else if (level_id == 4) {
-			floor_h = 0.1f*h;
-			cloud_h = floor_h - cloud.getHeight();
-			scroll_speed = 9;
-			gap = (w/3) - device.w_scale*40;
-			// todo UPDATE PLAYER SETTINGS
+			floor_h = 0.03f*h;
+			cloud_h = floor_h - floor_top.getHeight();
+			top_gap = 30;
+			scroll_speed = 7;
+			gap = (w/3) - device.w_scale*30;
 		}
 		
 		// FLOOR
