@@ -313,9 +313,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			batch.draw(game.current_player.player_hit, game.current_player.x, game.current_player.y, game.current_player.width, game.current_player.height);
 		}
 				
-		
+		// OBSTACLES
 		if (!game.main_menu()){
-			// OBSTACLES
 			for (Blocker box : game.object_array){
 				batch.draw(box.high.texture, box.high.x, box.high.y, box.high.w, box.high.h);	
 				batch.draw(box.low.texture, box.low.x, box.low.y, box.low.w, box.low.h);
@@ -336,7 +335,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// DRAW MENU ON TOP
 		if (game.hit && game.hit_time == 0){
-			menu.tick(batch, game.current_player, game.delta, game.score, current_level);
+			menu.tick(batch, game.menu_player, game.delta, game.score, current_level);
 			menu.tick(batch, game.sound, true);
 		} else {
 			menu.tick(batch, game.sound, false);
@@ -354,7 +353,10 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// SHOW HERO IN SHOP
 		if(menu.current_menu.equals("SHOP")){
-			batch.draw(game.menu_player.player_alive, device.w_scale*255, device.h_scale*320, device.w_scale*160, device.h_scale*160);
+			batch.draw(game.menu_player.player_alive, device.w_scale*252, device.h_scale*320, device.w_scale*160, device.h_scale*160);
+			if (game.menu_player.locked){
+				batch.draw(menu.b_200.texture, menu.b_200.x, menu.b_200.y, menu.b_200.w, menu.b_200.h);
+			}
 		}
 		batch.end();
 	}

@@ -15,7 +15,7 @@ public class Menu {
 	Entity progress_back, progress_bar, percent_sign;
 	float full_progress;
 	iButton play, play_2, shop, left_arrow, right_arrow, sound, back;
-	iButton shop_left, shop_right;
+	iButton shop_left, shop_right, b_200, b_300, b_400;
 	public int new_level_show;
 	
 	public boolean ready;
@@ -155,10 +155,16 @@ public class Menu {
 		shop_right.y = shop_left.y;
 		shop_right.set_hitbox();
 		buttons.add(shop_right);
+		
+		b_200 = new iButton("SHOP", 0, 0, "BUY_1", new Texture(Gdx.files.internal("data/ui/200.png")), w_scale, h_scale);
+		b_200.x = w_scale*252;
+		b_200.y = h_scale*320;
+		b_200.set_hitbox();
+		buttons.add(b_200);
 			
 		// NOT NEEDED BUT USING COORDS
 		play = new iButton("MAIN", 0, 0, "PLAY", new Texture(Gdx.files.internal("data/ui/play.png")), w_scale, h_scale);
-		play.x = ((left_arrow.x + left_arrow.w + right_arrow.x)/2) - (play.w/2) ;
+		play.x = ((left_arrow.x + left_arrow.w + right_arrow.x)/2) - (play.w/2);
 		play.y = left_arrow.y - ((play.h - left_arrow.h)/2);
 		// ^^ REMOVE
 		
@@ -365,6 +371,7 @@ public class Menu {
 		// ARROWS FOR CHAR
 		sb.draw(shop_left.texture, shop_left.x, shop_left.y, shop_left.w, shop_left.h);
 		sb.draw(shop_right.texture, shop_right.x, shop_right.y, shop_right.w, shop_right.h);
+		
 	}
 	
 	public void tick(SpriteBatch sb, boolean sound_on, boolean menu_screen){
