@@ -14,7 +14,9 @@ public class Game {
 	public int hit_time;
 	public int max_hit_time;
 	public int number_of_levels;
+	public int number_of_heros;
 	public int level_id;
+	public int player_id;
 	public int tick;
 	public int trail_length;
 	public int jump_id;			// PLAY 1 or 2 SOUND
@@ -40,17 +42,21 @@ public class Game {
 	public float scroll_speed;
 
 	public Level current_level;
+	public Player current_player;
 	
-	public ArrayList<Level> levels = new ArrayList<Level>();;
+	public ArrayList<Level> levels = new ArrayList<Level>();
+	public ArrayList<Player> players = new ArrayList<Player>();;
 	public ArrayList<Entity> plotter = new ArrayList<Entity>();
 	public ArrayList<Blocker> object_array = new ArrayList<Blocker>();
 	
-	public Game(Device device, Player player){		
+	public Game(Device device){		
 		number_of_levels = 4;
+		number_of_heros  = 4;
 		started 		 = false;
 		trail 			 = true;
 		jump_id 		 = 1;
 		level_id 		 = 1;
+		//player_id        = 1;
 		trail_length	 = 50; 
 		
 		Level lvl;		
@@ -70,8 +76,14 @@ public class Game {
 			levels.add(lvl);
 		}
 		
+		Player player;		
+		for (int i = 1; i <= number_of_heros; i++){
+			player = new Player(device, i);
+			players.add(player);
+		}
+		
 		//SET CURRENT LEVEL
-		current_level = levels.get(0);
+		current_level = levels.get(level_id-1);
 		
 		// MENU
 		top_score = current_level.top_score;
@@ -109,7 +121,6 @@ public class Game {
 		grace_period  = max_grace;
 		
 		// Player
-		// FIX
 		player.y = (device.h/2);
 		
 		// Game settings
@@ -180,6 +191,10 @@ public class Game {
 		top_score = current_level.top_score;
 	}
 	
+	public void pref_player(){
+		current_player = players.get(player_id-1);
+	}
+	
 	public void level_up(){
 		level_id += 1;
 		current_level = levels.get(level_id-1);
@@ -190,6 +205,20 @@ public class Game {
 		level_id -= 1;
 		current_level = levels.get(level_id-1);
 		top_score = current_level.top_score;
+	}
+	
+	public void player_down(){
+		if (player_id > 1){
+			player_id -= 1;	
+			current_player = players.get(player_id-1);
+		}
+	}
+	
+	public void player_up(){
+		if (player_id < number_of_heros){
+			player_id += 1;	
+			current_player = players.get(player_id-1);
+		};
 	}
 	
 	public void level_first(){

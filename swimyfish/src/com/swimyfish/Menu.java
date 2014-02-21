@@ -131,13 +131,13 @@ public class Menu {
 		// BUTTONS
 		buttons = new ArrayList<iButton>();
 				
-		left_arrow = new iButton("MAIN", 0, 0, "LEFT_ARROW", new Texture(Gdx.files.internal("data/ui/left_arrow.png")), w_scale, h_scale);
+		left_arrow = new iButton("BOTH", 0, 0, "LEFT_ARROW", new Texture(Gdx.files.internal("data/ui/left_arrow.png")), w_scale, h_scale);
 		left_arrow.x = background.x + w_pad;
 		left_arrow.y = (background.y + (background.h/2)) - (left_arrow.h/2);
 		left_arrow.set_hitbox();
 		buttons.add(left_arrow);
 		
-		right_arrow = new iButton("MAIN", 0, 0, "RIGHT_ARROW", new Texture(Gdx.files.internal("data/ui/right_arrow.png")), w_scale, h_scale);
+		right_arrow = new iButton("BOTH", 0, 0, "RIGHT_ARROW", new Texture(Gdx.files.internal("data/ui/right_arrow.png")), w_scale, h_scale);
 		right_arrow.x = left_arrow.x + (w_scale * 600);
 		right_arrow.y = left_arrow.y;
 		right_arrow.set_hitbox();
@@ -352,6 +352,10 @@ public class Menu {
 			sb.draw(e.texture, score_x - (i*(e.w*.85f)), score_y , w_scale * (e.w*.85f), h_scale * (e.h*.85f));
 			i ++;
 		}
+		
+		// ARROWS FOR CHAR
+		sb.draw(left_arrow.texture, left_arrow.x, left_arrow.y, left_arrow.w, left_arrow.h);
+		sb.draw(right_arrow.texture, right_arrow.x, right_arrow.y, right_arrow.w, right_arrow.h);
 		
 	}
 	

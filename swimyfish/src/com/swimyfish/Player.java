@@ -15,11 +15,10 @@ public class Player {
 	public Rectangle hitbox;
 
 	public Player(Device device, int player_id){
+		width = device.w_scale * 60;
+		height = device.h_scale * 60;
 		
-		if (player_id == 1){
-			width = device.w_scale * 60;
-			height = device.h_scale * 60;
-		} else if (player_id == 2) {
+		if (player_id == 2){
 			width = device.w_scale * 40;
 			height = device.h_scale * 40;
 		}

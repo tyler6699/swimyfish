@@ -32,12 +32,13 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		device = new Device();
 		
 		// MAIN GAME / SETTINGS
-		game = new Game(device, player);
+		game = new Game(device);
 		current_level = game.current_level;
 				
 		// LOAD GAME
 		load_prefs();
 		game.pref_level();
+		game.pref_player();
 				
 		// MENU
 		menu = new Menu(device, game.number_of_levels);
@@ -50,11 +51,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		// SB FOR CAMERA
 		batch = new SpriteBatch();
 		batch.setTransformMatrix(camera.combined);
-		
-		// NEW PLAYER
-		player = new Player(device, 1);
-		
-		save_prefs();
+				
+		// SAVE
+		save_prefs();	
 	}
 	
 	private void load_prefs(){
@@ -100,6 +99,14 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		} else {
 			game.level_id = prefs.getInteger("current_level");
 		}
+		
+		// CURRENT PLAYER
+		if (!prefs.contains("current_player")){
+			prefs.putInteger("current_player", 1);
+			game.player_id = 1;
+		} else {
+			game.player_id = prefs.getInteger("current_player");
+		}
 				
 		// BANK
 		if (!prefs.contains("bank")){
@@ -135,6 +142,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		}	
 		prefs.putInteger("bank", game.bank);
 		prefs.putInteger("current_level", game.level_id);
+		prefs.putInteger("current_player", game.player_id);
 		prefs.putBoolean("sound", game.sound);
 		prefs.putBoolean("complete", game.complete);
 		prefs.flush();
@@ -155,7 +163,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		if ( game.playing_game() ){
 			menu.playing_tick(device, true);
 			menu_logic(true);
-			game.logic(device, player, hifi, menu);
+			game.logic(device, game.current_player, hifi, menu);
 			
 		// MAIN MENU
 		} else if( game.main_menu() ){ 
@@ -192,40 +200,55 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 					game.sound = !game.sound;
 				}
 			} else {
-				if (menu.action.equals("LEFT_ARROW")){
-					if (game.level_id > 1){
-						game.level_down();
-						menu.update_score(game.score, game.top_score, game.bank);
-						hifi.play_jump(1, game.sound);
-					} else {
-						game.level_last();
-						menu.update_score(game.score, game.top_score, game.bank);
-						hifi.play_jump(1, game.sound);
-					}
-				} else if (menu.action.equals("RIGHT_ARROW")){
-					if (game.level_id < game.number_of_levels){
-						game.level_up();
-						hifi.play_jump(1, game.sound);
-						menu.update_score(game.score, game.top_score, game.bank);
-					} else {
-						game.level_first();
-						menu.update_score(game.score, game.top_score, game.bank);
-						hifi.play_jump(1, game.sound);
-					}
-				} else if (menu.action.equals("PLAY")) {
-					if (menu.ready && !game.current_level.locked){
-						game.reset(device, menu, player);	
+				if (menu.current_menu.equals("MAIN")){
+					if (menu.action.equals("LEFT_ARROW")){
+						if (game.level_id > 1){
+							game.level_down();
+							menu.update_score(game.score, game.top_score, game.bank);
+							hifi.play_jump(1, game.sound);
+						} else {
+							game.level_last();
+							menu.update_score(game.score, game.top_score, game.bank);
+							hifi.play_jump(1, game.sound);
+						}
+					} else if (menu.action.equals("RIGHT_ARROW")){
+						if (game.level_id < game.number_of_levels){
+							game.level_up();
+							hifi.play_jump(1, game.sound);
+							menu.update_score(game.score, game.top_score, game.bank);
+						} else {
+							game.level_first();
+							menu.update_score(game.score, game.top_score, game.bank);
+							hifi.play_jump(1, game.sound);
+						}
+					} else if (menu.action.equals("PLAY")) {
+						if (menu.ready && !game.current_level.locked){
+							game.reset(device, menu, game.current_player);	
+							hifi.play_collect(game.sound);
+						 }
+					} else if (menu.action.equals("SOUND")){
+						game.sound = !game.sound;
+					} else if (menu.action.equals("SHOP")){
+						menu.current_menu = "SHOP";
 						hifi.play_collect(game.sound);
-					 }
-				} else if (menu.action.equals("SOUND")){
-					game.sound = !game.sound;
-				} else if (menu.action.equals("SHOP")){
-					menu.current_menu = "SHOP";
-					hifi.play_collect(game.sound);
-				} else if (menu.action.equals("BACK")){
-					menu.current_menu = "MAIN";
-					hifi.play_jump(2, game.sound);
+					}
+				} else {
+					if (menu.action.equals("LEFT_ARROW")){
+						game.player_down();
+						hifi.play_jump(1, game.sound);
+						save_prefs();
+					} else if (menu.action.equals("RIGHT_ARROW")){
+						game.player_up();
+						hifi.play_jump(1, game.sound);
+						save_prefs();
+					} else if (menu.action.equals("SOUND")){
+						game.sound = !game.sound;
+					} else if (menu.action.equals("BACK")){
+						menu.current_menu = "MAIN";
+						hifi.play_jump(2, game.sound);
+					}
 				}
+				
 			}
 			menu.action = "";
 			device.checked_click = true;
@@ -262,7 +285,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				}
 				if(e.w - (game.plotter.size()-i) > 1){
 					if (game.current_level.level_id == 4){
-						batch.draw(player.trail_2, e.x, e.y, e.w - (game.plotter.size()-i), e.h - (game.plotter.size()-i));
+						batch.draw(game.current_player.trail_2, e.x, e.y, e.w - (game.plotter.size()-i), e.h - (game.plotter.size()-i));
 					} else {
 						batch.draw(e.texture, e.x, e.y, e.w - (game.plotter.size()-i), e.h - (game.plotter.size()-i));
 					}
@@ -272,9 +295,9 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// PLAYER
 		if (!game.hit){
-			batch.draw(player.player_alive, player.x, player.y, player.width, player.height);
+			batch.draw(game.current_player.player_alive, game.current_player.x, game.current_player.y, game.current_player.width, game.current_player.height);
 		} else {	
-			batch.draw(player.player_hit, player.x, player.y, player.width, player.height);
+			batch.draw(game.current_player.player_hit, game.current_player.x, game.current_player.y, game.current_player.width, game.current_player.height);
 		}
 				
 		// OBSTACLES
@@ -289,7 +312,6 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			}
 		}
 
-		
 		// RAYS
 		batch.draw(current_level.scene.erays_1.texture, current_level.scene.erays_1.x, current_level.scene.erays_1.y, current_level.scene.erays_1.w, current_level.scene.erays_1.h);
 		batch.draw(current_level.scene.erays_2.texture, current_level.scene.erays_2.x, current_level.scene.erays_2.y, current_level.scene.erays_2.w, current_level.scene.erays_2.h);
@@ -301,7 +323,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// DRAW MENU ON TOP
 		if (game.hit && game.hit_time == 0){
-			menu.tick(batch,player, game.delta, game.score, current_level);
+			menu.tick(batch, game.current_player, game.delta, game.score, current_level);
 			menu.tick(batch, game.sound, true);
 		} else {
 			menu.tick(batch, game.sound, false);
