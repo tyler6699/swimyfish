@@ -361,7 +361,22 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	
 	@Override
 	public boolean keyDown(int keycode) {
-		return false;
+		device.checked_click = false;
+		//device.touchX = screenX;
+		//device.touchY = device.h-screenY;
+		device.touched = true;
+		//device.clicked_at.set(screenX, device.h-screenY, device.w_scale+5, device.h_scale*5);
+				
+		if (!game.hit && game.started){ 
+			//if (game.fly_time <= game.re_jump_time){
+				hifi.play_jump(game.jump_id, game.sound);
+				game.jump_id = game.jump_id == 1 ? 2 : 1;
+				
+				game.fly_time = game.max_fly_time;
+				game.grace_period  = game.max_grace;
+			//}	
+		}
+		return true;
 	}
 	
 	@Override
