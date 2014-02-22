@@ -10,7 +10,7 @@ public class Menu {
 	public String current_menu;
 	Entity background;
 	Entity e_score, best, bank, level, level_number, e_shop, new_level;
-	Entity current_level;
+	Entity current_level, e_100;
 	Entity lockdown;
 	Entity progress_back, progress_bar, percent_sign;
 	float full_progress;
@@ -30,7 +30,7 @@ public class Menu {
 	float w_scale, h_scale;
 	int number_of_levels;
 	
-	// Background coords
+	// Background co-ords
 	float bx, by, bxx, byy;
 	float score_y, score_x, t_score_y, w_pad, h_pad;
 	
@@ -229,6 +229,9 @@ public class Menu {
 		progress_bar.h = h_scale * progress_bar.texture.getHeight();
 		progress_bar.x = progress_back.x + (w_scale*7);
 		progress_bar.y = progress_back.y + (h_scale*18);
+		
+		e_100 = new Entity();
+		e_100.texture = new Texture(Gdx.files.internal("data/hp/100.png"));		
 		
 		percent_sign = new Entity();
 		percent_sign.texture = new Texture(Gdx.files.internal("data/numbers/percent.png"));

@@ -20,7 +20,8 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 	HiFi hifi;                  // SOUNDS
 	Menu menu;                  // MENU
 	Player player;              // HERO
-			
+	int heart_price = 100;
+	
 	@Override
 	public void create(){
 		Gdx.input.setInputProcessor(this);
@@ -282,12 +283,13 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 							}
 						}	
 					} else if (menu.action.equals("HEART")){
-						if (50 < game.bank){
-							game.bank -= 50;
+						if (heart_price < game.bank){
+							game.bank -= heart_price;
 							game.max_hp ++;
 							menu.update_bank(game.bank);
 							hifi.play_unlock(game.sound);
 							menu.update_heart_buttons(game);
+							save_prefs();
 						} else {
 							hifi.play_death(game.sound);
 						}
@@ -397,6 +399,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 					batch.draw(e.texture, device.w_scale*100+(i*64), device.h_scale*200, device.w_scale*64, device.h_scale*64) ;
 				} else {
 					batch.draw(e.alt_texture, device.w_scale*100+(i*64), device.h_scale*200, device.w_scale*64, device.h_scale*64);
+					batch.draw(menu.e_100.texture, device.w_scale*100+(i*64), device.h_scale*200, device.w_scale*64, device.h_scale*64);
 				}
 			}
 			i ++;

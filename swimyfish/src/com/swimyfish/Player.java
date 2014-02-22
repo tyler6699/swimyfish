@@ -24,8 +24,14 @@ public class Player {
 		height = device.h_scale * 60;
 		
 		if (player_id == 2){
+			width = device.w_scale * 50;
+			height = device.h_scale * 50;
+		} else if (player_id == 3) {
 			width = device.w_scale * 40;
 			height = device.h_scale * 40;
+		} else if (player_id == 4) {	
+			width = device.w_scale * 30;
+			height = device.h_scale * 30;
 		}
 
 		x = (device.w/2) - (device.w_scale*200);
