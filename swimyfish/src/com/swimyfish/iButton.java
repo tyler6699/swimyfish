@@ -6,9 +6,10 @@ import com.badlogic.gdx.math.Rectangle;
 public class iButton extends Entity {
 	String target;
 	String menu;
+	Boolean active;
 	float fx, fy;
 	
-	public iButton(String menu, float x, float y, String target, Texture texture, float w_scale, float h_scale){
+	public iButton(String menu, float x, float y, String target, Texture texture, float w_scale, float h_scale, boolean active){
 		super();
 		
 		this.menu = menu;
@@ -18,6 +19,7 @@ public class iButton extends Entity {
 		this.y = y;
 		this.w = w_scale * texture.getWidth();
 		this.h = h_scale * texture.getHeight();
+		this.active = active;
 	}
 	
 	public void set_hitbox(){

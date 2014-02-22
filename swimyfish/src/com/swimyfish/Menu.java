@@ -132,63 +132,63 @@ public class Menu {
 		// BUTTONS
 		buttons = new ArrayList<iButton>();
 				
-		left_arrow = new iButton("MAIN", 0, 0, "LEFT_ARROW", new Texture(Gdx.files.internal("data/ui/left_arrow.png")), w_scale, h_scale);
+		left_arrow = new iButton("MAIN", 0, 0, "LEFT_ARROW", new Texture(Gdx.files.internal("data/ui/left_arrow.png")), w_scale, h_scale,true);
 		left_arrow.x = background.x + w_pad;
 		left_arrow.y = (background.y + (background.h/2)) - (left_arrow.h/2);
 		left_arrow.set_hitbox();
 		buttons.add(left_arrow);
 		
-		right_arrow = new iButton("MAIN", 0, 0, "RIGHT_ARROW", new Texture(Gdx.files.internal("data/ui/right_arrow.png")), w_scale, h_scale);
+		right_arrow = new iButton("MAIN", 0, 0, "RIGHT_ARROW", new Texture(Gdx.files.internal("data/ui/right_arrow.png")), w_scale, h_scale,true);
 		right_arrow.x = left_arrow.x + (w_scale * 600);
 		right_arrow.y = left_arrow.y;
 		right_arrow.set_hitbox();
 		buttons.add(right_arrow);
 		
-		shop_left = new iButton("SHOP", 0, 0, "LEFT_ARROW", left_arrow.texture, w_scale, h_scale);
+		shop_left = new iButton("SHOP", 0, 0, "LEFT_ARROW", left_arrow.texture, w_scale, h_scale,true);
 		shop_left.x = left_arrow.x;
 		shop_left.y = left_arrow.y;
 		shop_left.set_hitbox();
 		buttons.add(shop_left);
 		
-		shop_right = new iButton("SHOP", 0, 0, "RIGHT_ARROW", right_arrow.texture, w_scale, h_scale);
+		shop_right = new iButton("SHOP", 0, 0, "RIGHT_ARROW", right_arrow.texture, w_scale, h_scale,true);
 		shop_right.x = shop_left.x + (w_scale * 400);
 		shop_right.y = shop_left.y;
 		shop_right.set_hitbox();
 		buttons.add(shop_right);
 		
-		buy = new iButton("SHOP", 0, 0, "BUY", new Texture(Gdx.files.internal("data/ui/200.png")), w_scale, h_scale);
+		buy = new iButton("SHOP", 0, 0, "BUY", new Texture(Gdx.files.internal("data/ui/200.png")), w_scale, h_scale,true);
 		buy.x = w_scale*252;
 		buy.y = h_scale*320;
 		buy.set_hitbox();
 		buttons.add(buy);
 			
 		// NOT NEEDED BUT USING COORDS
-		play = new iButton("MAIN", 0, 0, "PLAY", new Texture(Gdx.files.internal("data/ui/play.png")), w_scale, h_scale);
+		play = new iButton("MAIN", 0, 0, "PLAY", new Texture(Gdx.files.internal("data/ui/play.png")), w_scale, h_scale,true);
 		play.x = ((left_arrow.x + left_arrow.w + right_arrow.x)/2) - (play.w/2);
 		play.y = left_arrow.y - ((play.h - left_arrow.h)/2);
 		// ^^ REMOVE
 		
-		play_2 = new iButton("MAIN", 0, 0, "PLAY", new Texture(Gdx.files.internal("data/ui/play.png")), w_scale, h_scale);
+		play_2 = new iButton("MAIN", 0, 0, "PLAY", new Texture(Gdx.files.internal("data/ui/play.png")), w_scale, h_scale,true);
 		play_2.x = bxx - play_2.w - w_pad;
 		play_2.y = by + h_pad;
 		play_2.set_hitbox();
 		buttons.add(play_2);
 		
-		shop = new iButton("MAIN", 0, 0, "SHOP", new Texture(Gdx.files.internal("data/ui/shop.png")), w_scale, h_scale);
+		shop = new iButton("MAIN", 0, 0, "SHOP", new Texture(Gdx.files.internal("data/ui/shop.png")), w_scale, h_scale,true);
 		shop.x = bxx - play_2.w - w_pad;
 		shop.y = play_2.y + play_2.h + h_pad;
 		shop.set_hitbox();
 		buttons.add(shop);
 				
 		// SOUND ON
-		sound = new iButton("BOTH", 0, 0, "SOUND", new Texture(Gdx.files.internal("data/ui/sound_on.png")), w_scale, h_scale);
+		sound = new iButton("BOTH", 0, 0, "SOUND", new Texture(Gdx.files.internal("data/ui/sound_on.png")), w_scale, h_scale,true);
 		sound.alt_texture = new Texture(Gdx.files.internal("data/ui/sound_off.png"));
 		sound.x = w - sound.w;
 		sound.y = h - sound.h;
 		sound.set_hitbox();
 		buttons.add(sound);
 		
-		back = new iButton("SHOP", 0, 0, "BACK", new Texture(Gdx.files.internal("data/ui/back.png")), w_scale, h_scale);
+		back = new iButton("SHOP", 0, 0, "BACK", new Texture(Gdx.files.internal("data/ui/back.png")), w_scale, h_scale,true);
 		back.x = bxx - back.w - w_pad;
 		back.y = by + h_pad;
 		back.set_hitbox();
@@ -250,10 +250,12 @@ public class Menu {
 		
 		if (!device.checked_click){
 			for (iButton btn:buttons){
-				if (device.clicked_at.overlaps(btn.hitbox) && (btn.menu.equals(current_menu) || btn.menu.equals("BOTH") )){
-					action = btn.target;					
-					device.checked_click = true;
-					break;
+				if(btn.active){
+					if (device.clicked_at.overlaps(btn.hitbox) && (btn.menu.equals(current_menu) || btn.menu.equals("BOTH") )){
+						action = btn.target;					
+						device.checked_click = true;
+						break;
+					}
 				}
 			}
 			device.checked_click = true;
@@ -374,8 +376,7 @@ public class Menu {
 		
 		// ARROWS FOR CHAR
 		sb.draw(shop_left.texture, shop_left.x, shop_left.y, shop_left.w, shop_left.h);
-		sb.draw(shop_right.texture, shop_right.x, shop_right.y, shop_right.w, shop_right.h);
-		
+		sb.draw(shop_right.texture, shop_right.x, shop_right.y, shop_right.w, shop_right.h);	
 	}
 	
 	public void tick(SpriteBatch sb, boolean sound_on, boolean menu_screen){
@@ -387,7 +388,36 @@ public class Menu {
 		} else {
 			sb.draw(sound.alt_texture, sound.x + y, sound.y + y, s*sound.w, s*sound.h);
 		}
-		
 	}
+
+	public void add_heart_buttons(Game game) {
+		int hp = game.max_hp;
+		int i = 1;
+		for (Entity heart: game.hearts){	
+			iButton button = new iButton("SHOP", 0, 0, "HEART", new Texture(Gdx.files.internal("data/ui/200.png")), w_scale, h_scale, true);	
+			button.x = w_scale*100+(i*64);
+			button.y = h_scale*200;
+			button.w = 64;
+			button.h = 64;
+			button.id = i;
+			button.set_hitbox();
+			if(i <= hp){
+				button.active = false;
+			}
+			buttons.add(button);
+			i++;
+		}   
+    }
 	
+	public void update_heart_buttons(Game game){
+		for (iButton btn : buttons){
+			if (btn.target.equals("HEART")){
+				if(btn.id <= game.max_hp){
+					btn.active = false;
+				} else {
+					btn.active = true;
+				}
+			}
+		}
+	}
 }

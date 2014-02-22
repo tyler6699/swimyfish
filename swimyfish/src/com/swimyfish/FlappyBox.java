@@ -43,6 +43,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		// MENU
 		menu = new Menu(device, game.number_of_levels);
 		menu.update_score(game.score, game.top_score, game.bank);
+		menu.add_heart_buttons(game);
 		
 		// CAMERA SETUP
 		camera = new OrthographicCamera(2,2);
@@ -280,6 +281,16 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 								hifi.play_death(game.sound);
 							}
 						}	
+					} else if (menu.action.equals("HEART")){
+						if (50 < game.bank){
+							game.bank -= 50;
+							game.max_hp ++;
+							menu.update_bank(game.bank);
+							hifi.play_unlock(game.sound);
+							menu.update_heart_buttons(game);
+						} else {
+							hifi.play_death(game.sound);
+						}
 					}
 				}
 				
@@ -376,7 +387,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		int i = 1;
 		for(Entity e: game.hearts){
 			if (game.playing_game() || game.tap_to_start()){
-				if (i <= game.max_hp){
+				if (i <= game.hp){
 					batch.draw(e.texture, e.x, e.y, e.w, e.h) ;
 				} else {
 					batch.draw(e.alt_texture, e.x, e.y, e.w, e.h) ;
@@ -385,7 +396,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				if (i <= game.max_hp){
 					batch.draw(e.texture, device.w_scale*100+(i*64), device.h_scale*200, device.w_scale*64, device.h_scale*64) ;
 				} else {
-					batch.draw(e.alt_texture, e.x, e.y, e.w, e.h) ;
+					batch.draw(e.alt_texture, device.w_scale*100+(i*64), device.h_scale*200, device.w_scale*64, device.h_scale*64);
 				}
 			}
 			i ++;
@@ -393,7 +404,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		
 		// SHOW HERO IN SHOP
 		if(menu.current_menu.equals("SHOP")){
-			batch.draw(game.menu_player.player_alive, device.w_scale*252, device.h_scale*320, device.w_scale*160, device.h_scale*160);
+			batch.draw(game.menu_player.player_alive, device.w_scale*245, device.h_scale*320, device.w_scale*160, device.h_scale*160);
 			if (game.menu_player.locked){
 				batch.draw(game.menu_player.locked_price, menu.buy.x, menu.buy.y, menu.buy.w, menu.buy.h);
 			}

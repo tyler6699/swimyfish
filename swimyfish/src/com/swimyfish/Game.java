@@ -30,6 +30,7 @@ public class Game {
 	public int min;				// MIN MOVE DST BLOCKER
 	
 	public float max;			// MAX MOVE DST BLOCKER
+	public float invincible;
 	public float hole;
 	public float gap;
 	public float delta;
@@ -63,6 +64,7 @@ public class Game {
 		jump_id 		 = 1;
 		level_id 		 = 1;
 		trail_length	 = 50; 
+		invincible = 0;
 		
 		Level lvl;		
 		for (int i = 1; i <= number_of_levels; i++){
@@ -392,55 +394,65 @@ public class Game {
 		}
 	}
 
-	private void check_collision(Blocker box, HiFi hifi, Player player, Menu menu) {		
-		if (box.scorebox.overlaps(player.hitbox) && !box.scored){
-			box.scored = true;
-			score ++;
-			hifi.play_collect(sound);
+	private void check_collision(Blocker box, HiFi hifi, Player player, Menu menu) {
+		if (invincible > 0){
+			invincible --;
 		} else {
-			if (box.high.hitbox.overlaps(player.hitbox) || box.low.hitbox.overlaps(player.hitbox)){
-				hit = true;
-				hit_time = max_hit_time;
-				started = false;				
-				hifi.play_death(sound);
-				
-				// BANK
-				bank += score;
-				
-				// RESET MENU PLAYER
-				menu_player = current_player;
-				
-				// UPDATE PROGRESS
-				if(current_level.progress <= current_level.points_needed){
-					if (current_level.progress + score > current_level.points_needed){
-						current_level.progress = current_level.points_needed;
+			if (box.scorebox.overlaps(player.hitbox) && !box.scored){
+				box.scored = true;
+				score ++;
+				hifi.play_collect(sound);
+			} else {
+				if (box.high.hitbox.overlaps(player.hitbox) || box.low.hitbox.overlaps(player.hitbox)){
+					if (hp > 0){	
+						hp --;
+						invincible = 100;
+						hifi.play_death(sound);
 					} else {
-						current_level.progress += score;
+						hit = true;
+						hit_time = max_hit_time;
+						started = false;				
+						hifi.play_death(sound);
+						
+						// BANK
+						bank += score;
+					
+						// RESET MENU PLAYER
+						menu_player = current_player;
+					
+						// UPDATE PROGRESS
+						if(current_level.progress <= current_level.points_needed){
+							if (current_level.progress + score > current_level.points_needed){
+								current_level.progress = current_level.points_needed;
+							} else {
+								current_level.progress += score;
+							}
+						}
+					
+						// CHECK HIGH SCORES
+						if (score > current_level.top_score){
+							current_level.top_score = score;
+							top_score = score;
+						}
+					
+						// UNLOCK LEVELS?
+						if (current_level.progress >= current_level.points_needed && current_level.level_id < number_of_levels){
+							Level next_level = levels.get(current_level.level_id);
+							if (next_level.locked == true){
+								next_level.locked = false;
+								menu.new_level_show = 100;
+								hifi.play_unlock(sound);
+							}
+						} else if(!complete) {
+							// todo Show Credits
+							complete = true;
+							hifi.play_unlock(sound);
+						}
 					}
-				}
-				
-				// CHECK HIGH SCORES
-				if (score > current_level.top_score){
-					current_level.top_score = score;
-					top_score = score;
-				}
-				
-				// UNLOCK LEVELS?
-				if (current_level.progress >= current_level.points_needed && current_level.level_id < number_of_levels){
-					Level next_level = levels.get(current_level.level_id);
-					if (next_level.locked == true){
-						next_level.locked = false;
-						menu.new_level_show = 100;
-						hifi.play_unlock(sound);
-					}
-				} else if(!complete) {
-					// todo Show Credits
-					complete = true;
-					hifi.play_unlock(sound);
+
 				}
 			}
 		}
-		
 		//UPDATE SCORES
 		menu.update_score(score, top_score, bank);
 	}
