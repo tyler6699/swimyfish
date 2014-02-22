@@ -117,6 +117,14 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		} else {
 			game.player_id = prefs.getInteger("current_player");
 		}
+		
+		// HEARTS
+		if (!prefs.contains("max_hp")){
+			prefs.putInteger("max_hp", 0);
+			game.max_hp = 0;
+		} else {
+			game.max_hp = prefs.getInteger("max_hp");
+		}
 				
 		// BANK
 		if (!prefs.contains("bank")){
@@ -153,6 +161,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		for (Player p : game.players){
 			prefs.putBoolean("hero_locked_" + p.id, p.locked);
 		}
+		prefs.putInteger("max_hp", game.max_hp);
 		prefs.putInteger("bank", game.bank);
 		prefs.putInteger("current_level", game.level_id);
 		prefs.putInteger("current_player", game.current_player.id);
@@ -180,6 +189,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			
 		// MAIN MENU
 		} else if( game.main_menu() ){ 
+			menu.current_level = menu.level_array.get(game.level_id-1);
 			menu.tick(device);
 			menu_logic(false);
 			
@@ -259,6 +269,17 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 					} else if (menu.action.equals("BACK")){
 						menu.current_menu = "MAIN";
 						hifi.play_jump(2, game.sound);
+					} else if (menu.action.equals("BUY")){
+						if (game.menu_player.locked){
+							if (game.menu_player.price < game.bank){
+								game.bank -= game.menu_player.price;
+								game.menu_player.locked = false;
+								menu.update_bank(game.bank);
+								hifi.play_unlock(game.sound);
+							} else {
+								hifi.play_death(game.sound);
+							}
+						}	
 					}
 				}
 				
@@ -351,11 +372,30 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 			}
 		}
 		
+		// HEARTS
+		int i = 1;
+		for(Entity e: game.hearts){
+			if (game.playing_game() || game.tap_to_start()){
+				if (i <= game.max_hp){
+					batch.draw(e.texture, e.x, e.y, e.w, e.h) ;
+				} else {
+					batch.draw(e.alt_texture, e.x, e.y, e.w, e.h) ;
+				}
+			} else if (game.main_menu() && menu.current_menu.equals("SHOP")) {
+				if (i <= game.max_hp){
+					batch.draw(e.texture, device.w_scale*100+(i*64), device.h_scale*200, device.w_scale*64, device.h_scale*64) ;
+				} else {
+					batch.draw(e.alt_texture, e.x, e.y, e.w, e.h) ;
+				}
+			}
+			i ++;
+		}
+		
 		// SHOW HERO IN SHOP
 		if(menu.current_menu.equals("SHOP")){
 			batch.draw(game.menu_player.player_alive, device.w_scale*252, device.h_scale*320, device.w_scale*160, device.h_scale*160);
 			if (game.menu_player.locked){
-				batch.draw(menu.b_200.texture, menu.b_200.x, menu.b_200.y, menu.b_200.w, menu.b_200.h);
+				batch.draw(game.menu_player.locked_price, menu.buy.x, menu.buy.y, menu.buy.w, menu.buy.h);
 			}
 		}
 		batch.end();

@@ -15,7 +15,7 @@ public class Menu {
 	Entity progress_back, progress_bar, percent_sign;
 	float full_progress;
 	iButton play, play_2, shop, left_arrow, right_arrow, sound, back;
-	iButton shop_left, shop_right, b_200, b_300, b_400;
+	iButton shop_left, shop_right, buy;
 	public int new_level_show;
 	
 	public boolean ready;
@@ -156,11 +156,11 @@ public class Menu {
 		shop_right.set_hitbox();
 		buttons.add(shop_right);
 		
-		b_200 = new iButton("SHOP", 0, 0, "BUY_1", new Texture(Gdx.files.internal("data/ui/200.png")), w_scale, h_scale);
-		b_200.x = w_scale*252;
-		b_200.y = h_scale*320;
-		b_200.set_hitbox();
-		buttons.add(b_200);
+		buy = new iButton("SHOP", 0, 0, "BUY", new Texture(Gdx.files.internal("data/ui/200.png")), w_scale, h_scale);
+		buy.x = w_scale*252;
+		buy.y = h_scale*320;
+		buy.set_hitbox();
+		buttons.add(buy);
 			
 		// NOT NEEDED BUT USING COORDS
 		play = new iButton("MAIN", 0, 0, "PLAY", new Texture(Gdx.files.internal("data/ui/play.png")), w_scale, h_scale);
@@ -275,6 +275,10 @@ public class Menu {
 	public void update_score(int score, int top_score, int bank){
 		score_array = alphabet.get_number(Integer.toString(score));
 		top_score_array = alphabet.get_number(Integer.toString(top_score));
+		bank_array = alphabet.get_number(Integer.toString(bank));
+	}
+	
+	public void update_bank(int bank){
 		bank_array = alphabet.get_number(Integer.toString(bank));
 	}
 	

@@ -10,11 +10,13 @@ public class Player {
 	public float y;
 	public Texture player_alive;
 	public Texture player_hit;
-	public Texture trail, trail_2;
+	public Texture trail, trail_2, locked_price;
+	public int price;
 	public float height;
 	public float width;
 	public Rectangle hitbox;
 	boolean locked;
+	
 
 	public Player(Device device, int player_id){
 		id = player_id;
@@ -33,6 +35,10 @@ public class Player {
 		player_hit = new Texture(Gdx.files.internal("data/hero/" + player_id + "/hit.png"));
 		trail = new Texture(Gdx.files.internal("data/hero/" + player_id + "/player-trail.png"));
 		trail_2 = new Texture(Gdx.files.internal("data/hero/" + player_id + "/player-trail-2.png"));
+		if (player_id != 1){
+			locked_price = new Texture(Gdx.files.internal("data/ui/" + player_id +"00.png"));
+			price = player_id * 100;
+		}
 		// texture = new Texture(Gdx.files.internal("data/disco.png"));
 	}
 	

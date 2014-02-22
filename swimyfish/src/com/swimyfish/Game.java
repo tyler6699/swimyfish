@@ -2,6 +2,8 @@ package com.swimyfish;
 
 import java.util.ArrayList;
 import java.util.Random;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 
 public class Game {
 	public boolean sound;
@@ -13,6 +15,8 @@ public class Game {
 	
 	public int hit_time;
 	public int max_hit_time;
+	public int max_hp;
+	public int hp;
 	public int number_of_levels;
 	public int number_of_heros;
 	public int level_id;
@@ -46,7 +50,8 @@ public class Game {
 	public Player menu_player;
 	
 	public ArrayList<Level> levels = new ArrayList<Level>();
-	public ArrayList<Player> players = new ArrayList<Player>();;
+	public ArrayList<Player> players = new ArrayList<Player>();
+	public ArrayList<Entity> hearts = new ArrayList<Entity>();
 	public ArrayList<Entity> plotter = new ArrayList<Entity>();
 	public ArrayList<Blocker> object_array = new ArrayList<Blocker>();
 	
@@ -57,7 +62,6 @@ public class Game {
 		trail 			 = true;
 		jump_id 		 = 1;
 		level_id 		 = 1;
-		//player_id        = 1;
 		trail_length	 = 50; 
 		
 		Level lvl;		
@@ -81,6 +85,21 @@ public class Game {
 		for (int i = 1; i <= number_of_heros; i++){
 			player = new Player(device, i);
 			players.add(player);
+		}
+		
+		// Hearts
+		Texture t_heart = new Texture(Gdx.files.internal("data/hp/fullheart.png"));
+		Texture t_empty = new Texture(Gdx.files.internal("data/hp/empty_heart.png"));
+		for (int i = 1; i <= 5; i++){
+			Entity heart = new Entity();
+			heart.id = i;
+			heart.texture = t_heart;
+			heart.w = device.w_scale * heart.texture.getWidth();
+			heart.h = device.h_scale * heart.texture.getHeight();	
+			heart.x = i*heart.w;
+			heart.y = device.h - heart.h;
+			heart.alt_texture = t_empty;
+			hearts.add(heart);
 		}
 		
 		//SET CURRENT LEVEL
@@ -123,6 +142,7 @@ public class Game {
 		
 		// Player
 		player.y = (device.h/2);
+		hp = max_hp;
 		
 		// Game settings
 		hit          = false;
