@@ -8,17 +8,18 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class Menu {
 	float w, h, tick;
 	public String current_menu;
+	Entity splash, tap;
 	Entity background;
 	Entity e_score, best, bank, level, level_number, e_shop, new_level;
-	Entity current_level, e_100;
-	Entity lockdown;
+	Entity current_level, e_100, char_select;
+	Entity lockdown, loading;
 	Entity progress_back, progress_bar, percent_sign;
 	float full_progress;
 	iButton play, play_2, shop, left_arrow, right_arrow, sound, back;
 	iButton shop_left, shop_right, buy;
-	public int new_level_show;
+	public int new_level_show, max_ready_time;
 	
-	public boolean ready;
+	public boolean ready, intro;
 	public String action = ""; // Processed by main game
 	Alphabet alphabet;
 	ArrayList<Entity> score_array;
@@ -44,7 +45,9 @@ public class Menu {
 		this.number_of_levels = number_of_levels;
 		tick = 0;
 		ready = false;
+		max_ready_time = 25;
 		alphabet = new Alphabet();
+		intro = true;
 		
 		// SCORES
 		score_array = new ArrayList<Entity>();	
@@ -69,6 +72,21 @@ public class Menu {
 		background.h = h_scale * background.texture.getHeight();
 		background.x = w/2 - background.w/2;
 		background.y = h/2 - background.h/2;
+		
+		splash = new Entity();
+		splash.texture = new Texture(Gdx.files.internal("data/ui/splash.png"));
+		splash.alt_texture = new Texture(Gdx.files.internal("data/ui/splash_back.png"));
+		splash.w = w_scale * splash.texture.getWidth();
+		splash.h = h_scale * splash.texture.getHeight();
+		splash.x = w/2 - splash.w/2;
+		splash.y = h/2 - splash.h/2;
+		
+		tap = new Entity();
+		tap.texture = new Texture(Gdx.files.internal("data/ui/tap.png"));
+		tap.w = w_scale * tap.texture.getWidth();
+		tap.h = h_scale * tap.texture.getHeight();
+		tap.x = w/2 - tap.w/2;
+		tap.y = h/2 - tap.h/2;
 		
 		bx = background.x;
 		by = background.y;
@@ -113,6 +131,13 @@ public class Menu {
 		e_shop.x = level.x;
 		e_shop.y = level.y;
 		
+		char_select = new Entity();
+		char_select.texture = new Texture(Gdx.files.internal("data/text/char_select.png"));
+		char_select.w = w_scale * char_select.texture.getWidth();
+		char_select.h = h_scale * char_select.texture.getHeight();
+		char_select.x = e_shop.x;
+		char_select.y = e_shop.y - e_shop.h;
+				
 		level_number = new Entity();
 		level_number.texture =  alphabet.get_number_texture(1);
 		level_number.w = w_scale * level_number.texture.getWidth();
@@ -157,7 +182,7 @@ public class Menu {
 		buttons.add(shop_right);
 		
 		buy = new iButton("SHOP", 0, 0, "BUY", new Texture(Gdx.files.internal("data/ui/200.png")), w_scale, h_scale,true);
-		buy.x = w_scale*252;
+		buy.x = w_scale*245;
 		buy.y = h_scale*320;
 		buy.set_hitbox();
 		buttons.add(buy);
@@ -173,6 +198,14 @@ public class Menu {
 		play_2.y = by + h_pad;
 		play_2.set_hitbox();
 		buttons.add(play_2);
+		
+		// LOADING
+		loading = new Entity();
+		loading.texture = new Texture(Gdx.files.internal("data/ui/loading.png"));
+		loading.w = w_scale * loading.texture.getWidth();
+		loading.h = h_scale * loading.texture.getHeight();
+		loading.x = play_2.x - 10*w_scale;
+		loading.y = play_2.y - 1*h_scale ;
 		
 		shop = new iButton("MAIN", 0, 0, "SHOP", new Texture(Gdx.files.internal("data/ui/shop.png")), w_scale, h_scale,true);
 		shop.x = bxx - play_2.w - w_pad;
@@ -245,7 +278,7 @@ public class Menu {
 	
 	public void tick(Device device){
 		if (!ready){
-			ready = tick > 40 ? true:false;
+			ready = tick > max_ready_time ? true:false;
 			tick ++;
 		} else {
 			tick = 0;
@@ -362,11 +395,24 @@ public class Menu {
 			sb.draw(new_level.texture, new_level.x, new_level.y, new_level.w, new_level.h);
 			new_level_show --;
 		}
+		
+		// SHOW LOADING WHEN GAME JUST ENDS
+		if (!ready){
+			sb.draw(loading.texture, loading.x, loading.y, loading.w, loading.h);
+		}
+		
+		// SPLASH
+		if (intro){
+			sb.draw(splash.alt_texture, 0, 0, w, h);
+			sb.draw(splash.texture, splash.x, splash.y, splash.w, splash.h);	
+		}
+		
 	}
 	
 	void render_shop_menu(SpriteBatch sb, Player player, float delta, int score, Level ls){
 		sb.draw(background.texture, background.x, background.y, background.w, background.h);
 		sb.draw(e_shop.texture, e_shop.x, e_shop.y, e_shop.w, e_shop.h);	
+		sb.draw(char_select.texture, char_select.x, char_select.y, char_select.w, char_select.h);	
 		sb.draw(back.texture, back.x, back.y, back.w, back.h);
 		
 		//SCORE

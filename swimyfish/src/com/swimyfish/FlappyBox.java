@@ -253,7 +253,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 						 }
 					} else if (menu.action.equals("SOUND")){
 						game.sound = !game.sound;
-					} else if (menu.action.equals("SHOP")){
+					} else if (menu.ready && menu.action.equals("SHOP")){
 						menu.current_menu = "SHOP";
 						hifi.play_collect(game.sound);
 					}
@@ -276,6 +276,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 							if (game.menu_player.price < game.bank){
 								game.bank -= game.menu_player.price;
 								game.menu_player.locked = false;
+								game.pref_player();
 								menu.update_bank(game.bank);
 								hifi.play_unlock(game.sound);
 							} else {
@@ -283,7 +284,7 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 							}
 						}	
 					} else if (menu.action.equals("HEART")){
-						if (heart_price < game.bank){
+						if (heart_price <= game.bank){
 							game.bank -= heart_price;
 							game.max_hp ++;
 							menu.update_bank(game.bank);
@@ -388,13 +389,14 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		// HEARTS
 		int i = 1;
 		for(Entity e: game.hearts){
-			if (game.playing_game() || game.tap_to_start()){
+			//if (game.playing_game() || game.tap_to_start()){
 				if (i <= game.hp){
 					batch.draw(e.texture, e.x, e.y, e.w, e.h) ;
 				} else {
 					batch.draw(e.alt_texture, e.x, e.y, e.w, e.h) ;
 				}
-			} else if (game.main_menu() && menu.current_menu.equals("SHOP")) {
+			
+				if (game.main_menu() && menu.current_menu.equals("SHOP")) {
 				if (i <= game.max_hp){
 					batch.draw(e.texture, device.w_scale*100+(i*64), device.h_scale*200, device.w_scale*64, device.h_scale*64) ;
 				} else {
@@ -403,6 +405,13 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 				}
 			}
 			i ++;
+		}
+		
+		// TAP TO START
+		if (game.tap_to_start()){
+			batch.draw(menu.tap.texture,menu.tap.x, menu.tap.y, menu.tap.w, menu.tap.h );
+		} else if (menu.intro){
+			batch.draw(menu.tap.texture,menu.tap.x, menu.tap.y - device.h_scale*200, menu.tap.w, menu.tap.h );
 		}
 		
 		// SHOW HERO IN SHOP
@@ -423,6 +432,10 @@ public class FlappyBox implements ApplicationListener, InputProcessor{
 		device.touched = true;
 		device.clicked_at.set(screenX, device.h-screenY, device.w_scale+5, device.h_scale*5);
 				
+		if (menu.intro){
+			menu.intro = false;
+		}
+		
 		if (!game.hit && game.started){ 
 			//if (game.fly_time <= game.re_jump_time){
 				hifi.play_jump(game.jump_id, game.sound);

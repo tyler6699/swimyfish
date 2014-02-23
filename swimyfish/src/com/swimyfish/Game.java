@@ -134,7 +134,10 @@ public class Game {
 		started = false;
 		menu.ready = false;
 		menu.update_score(0, top_score, bank);
-
+		
+		// in case player selected was locked
+		player_id = current_player.id;
+		
 		plotter.clear();
 		score = 0;
 		scroll_speed = device.w_scale * current_level.scene.scroll_speed;
